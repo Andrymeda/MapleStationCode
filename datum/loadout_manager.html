@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <base href="../" />
+    <link rel="stylesheet" href="dmdoc.css" />
+    <title>&#x2F;datum&#x2F;loadout_manager - &#x2F;tg&#x2F; Station 13</title>
+</head>
+<body>
+<header>
+    <a href="index.html">&#x2F;tg&#x2F; Station 13</a> -
+    <a href="index.html#modules">Modules</a> -
+    <a href="index.html#types">Types</a>
+ &mdash; <a href="datum/loadout_manager.html#var">Var Details</a> - <a href="datum/loadout_manager.html#proc">Proc Details</a></header>
+<main>
+<h1>loadout_manager <aside>/<a href="datum.html">datum</a>/<a href="datum/loadout_manager.html">loadout_manager</a></aside>
+        
+    
+            <a href="https://github.com/Andrymeda/MapleStationCode/blob/daf90585c8d2507b6d502fd3ba589917e47fa060/maplestation_modules/code/modules/loadouts/loadout_ui/loadout_manager.dm#L60">
+        <img src="git.png" width="16" height="16" title="maplestation_modules&#x2F;code&#x2F;modules&#x2F;loadouts&#x2F;loadout_ui&#x2F;loadout_manager.dm 60"/></a></h1>
+
+<p>Datum holder for the loadout manager UI.
+Future todo: Merge this entirely with the prefs UI</p><table class="summary" cellspacing="0"><tr><td colspan="2"><h2>Vars</h2></td></tr>
+            <tr><th><a href="datum/loadout_manager.html#var/character_preview_view">character_preview_view</a></th><td>The preview dummy.
+We use a special subtype so we don't brick our preference menu preview when we're done.</td></tr>
+            <tr><th><a href="datum/loadout_manager.html#var/loadout">loadout</a></th><td>The current selected loadout list.</td></tr>
+            <tr><th><a href="datum/loadout_manager.html#var/menu">menu</a></th><td>Our currently open greyscaling menu.</td></tr>
+            <tr><th><a href="datum/loadout_manager.html#var/owner">owner</a></th><td>The client of the person using the UI</td></tr>
+            <tr><th><a href="datum/loadout_manager.html#var/preference">preference</a></th><td>Loadout preference singleton for easy access</td></tr>
+            <tr><th><a href="datum/loadout_manager.html#var/save_on_close">save_on_close</a></th><td>Whether, on close, we save the list</td></tr>
+            <tr><th><a href="datum/loadout_manager.html#var/tutorial_status">tutorial_status</a></th><td>Whether we see tutorial text in the UI</td></tr><tr><td colspan="2"><h2>Procs</h2></td></tr>
+            <tr><th><a href="datum/loadout_manager.html#proc/cleanup_greyscale_menu">cleanup_greyscale_menu</a></th><td>A proc to make sure our menu gets null'd properly when it's deleted.
+If we delete the greyscale menu from the greyscale datum, we don't null it correctly here, it harddels.</td></tr>
+            <tr><th><a href="datum/loadout_manager.html#proc/create_character_preview_view">create_character_preview_view</a></th><td>Initialize our character dummy.</td></tr>
+            <tr><th><a href="datum/loadout_manager.html#proc/deselect_item">deselect_item</a></th><td>Deselect [deselected_item].</td></tr>
+            <tr><th><a href="datum/loadout_manager.html#proc/get_tutorial_text">get_tutorial_text</a></th><td>Returns a formatted string for use in the UI.</td></tr>
+            <tr><th><a href="datum/loadout_manager.html#proc/list_to_data">list_to_data</a></th><td>Takes an assoc list of [typepath]s to [singleton datum]
+And formats it into an object for TGUI.</td></tr>
+            <tr><th><a href="datum/loadout_manager.html#proc/rotate_model_dir">rotate_model_dir</a></th><td>Rotate the preview [dir_string] direction.</td></tr>
+            <tr><th><a href="datum/loadout_manager.html#proc/select_item">select_item</a></th><td>Select [path] item to [category_slot] slot.</td></tr>
+            <tr><th><a href="datum/loadout_manager.html#proc/select_item_color">select_item_color</a></th><td>Select [path] item to [category_slot] slot, and open up the greyscale UI to customize [path] in [category] slot.</td></tr>
+            <tr><th><a href="datum/loadout_manager.html#proc/set_item_name">set_item_name</a></th><td>Set [item]'s name to input provided.</td></tr>
+            <tr><th><a href="datum/loadout_manager.html#proc/set_layer">set_layer</a></th><td>Set [item]'s layer, for accessories.</td></tr>
+            <tr><th><a href="datum/loadout_manager.html#proc/set_skin">set_skin</a></th><td>Set [item]'s skin.</td></tr>
+            <tr><th><a href="datum/loadout_manager.html#proc/set_slot_greyscale">set_slot_greyscale</a></th><td>Sets [category_slot]'s greyscale colors to the colors in the currently opened [open_menu].</td></tr></table>
+    <h2 id="var">Var Details</h2><h3 id="var/character_preview_view"><aside class="declaration">var </aside>character_preview_view
+            <aside>&ndash; /<a href="atom.html">atom</a>/<a href="atom/movable.html">movable</a>/<a href="atom/movable/screen.html">screen</a>/<a href="atom/movable/screen/map_view.html">map_view</a>/<a href="atom/movable/screen/map_view/char_preview.html">char_preview</a>/<a href="atom/movable/screen/map_view/char_preview/loadout.html">loadout</a></aside>
+        
+    
+            <a href="https://github.com/Andrymeda/MapleStationCode/blob/daf90585c8d2507b6d502fd3ba589917e47fa060/maplestation_modules/code/modules/loadouts/loadout_ui/loadout_manager.dm#L69">
+        <img src="git.png" width="16" height="16" title="maplestation_modules&#x2F;code&#x2F;modules&#x2F;loadouts&#x2F;loadout_ui&#x2F;loadout_manager.dm 69"/></a></h3>
+        <p>The preview dummy.
+We use a special subtype so we don't brick our preference menu preview when we're done.</p><h3 id="var/loadout"><aside class="declaration">var </aside>loadout
+            <aside>&ndash; /list</aside>
+        
+    
+            <a href="https://github.com/Andrymeda/MapleStationCode/blob/daf90585c8d2507b6d502fd3ba589917e47fa060/maplestation_modules/code/modules/loadouts/loadout_ui/loadout_manager.dm#L66">
+        <img src="git.png" width="16" height="16" title="maplestation_modules&#x2F;code&#x2F;modules&#x2F;loadouts&#x2F;loadout_ui&#x2F;loadout_manager.dm 66"/></a></h3>
+        <p>The current selected loadout list.</p><h3 id="var/menu"><aside class="declaration">var </aside>menu
+            <aside>&ndash; /<a href="datum.html">datum</a>/<a href="datum/greyscale_modify_menu.html">greyscale_modify_menu</a></aside>
+        
+    
+            <a href="https://github.com/Andrymeda/MapleStationCode/blob/daf90585c8d2507b6d502fd3ba589917e47fa060/maplestation_modules/code/modules/loadouts/loadout_ui/loadout_manager.dm#L77">
+        <img src="git.png" width="16" height="16" title="maplestation_modules&#x2F;code&#x2F;modules&#x2F;loadouts&#x2F;loadout_ui&#x2F;loadout_manager.dm 77"/></a></h3>
+        <p>Our currently open greyscaling menu.</p><h3 id="var/owner"><aside class="declaration">var </aside>owner
+            <aside>&ndash; /<a href="client.html">client</a></aside>
+        
+    
+            <a href="https://github.com/Andrymeda/MapleStationCode/blob/daf90585c8d2507b6d502fd3ba589917e47fa060/maplestation_modules/code/modules/loadouts/loadout_ui/loadout_manager.dm#L62">
+        <img src="git.png" width="16" height="16" title="maplestation_modules&#x2F;code&#x2F;modules&#x2F;loadouts&#x2F;loadout_ui&#x2F;loadout_manager.dm 62"/></a></h3>
+        <p>The client of the person using the UI</p><h3 id="var/preference"><aside class="declaration">var </aside>preference
+            <aside>&ndash; /<a href="datum.html">datum</a>/<a href="datum/preference.html">preference</a>/loadout</aside>
+        
+    
+            <a href="https://github.com/Andrymeda/MapleStationCode/blob/daf90585c8d2507b6d502fd3ba589917e47fa060/maplestation_modules/code/modules/loadouts/loadout_ui/loadout_manager.dm#L64">
+        <img src="git.png" width="16" height="16" title="maplestation_modules&#x2F;code&#x2F;modules&#x2F;loadouts&#x2F;loadout_ui&#x2F;loadout_manager.dm 64"/></a></h3>
+        <p>Loadout preference singleton for easy access</p><h3 id="var/save_on_close"><aside class="declaration">var </aside>save_on_close
+            <aside>&ndash; </aside>
+        
+    
+            <a href="https://github.com/Andrymeda/MapleStationCode/blob/daf90585c8d2507b6d502fd3ba589917e47fa060/maplestation_modules/code/modules/loadouts/loadout_ui/loadout_manager.dm#L73">
+        <img src="git.png" width="16" height="16" title="maplestation_modules&#x2F;code&#x2F;modules&#x2F;loadouts&#x2F;loadout_ui&#x2F;loadout_manager.dm 73"/></a></h3>
+        <p>Whether, on close, we save the list</p><h3 id="var/tutorial_status"><aside class="declaration">var </aside>tutorial_status
+            <aside>&ndash; </aside>
+        
+    
+            <a href="https://github.com/Andrymeda/MapleStationCode/blob/daf90585c8d2507b6d502fd3ba589917e47fa060/maplestation_modules/code/modules/loadouts/loadout_ui/loadout_manager.dm#L71">
+        <img src="git.png" width="16" height="16" title="maplestation_modules&#x2F;code&#x2F;modules&#x2F;loadouts&#x2F;loadout_ui&#x2F;loadout_manager.dm 71"/></a></h3>
+        <p>Whether we see tutorial text in the UI</p><h2 id="proc">Proc Details</h2><h3 id="proc/cleanup_greyscale_menu"><aside class="declaration">proc </aside>cleanup_greyscale_menu<aside>(/<a href="datum.html">datum</a>/source) 
+        
+    
+            <a href="https://github.com/Andrymeda/MapleStationCode/blob/daf90585c8d2507b6d502fd3ba589917e47fa060/maplestation_modules/code/modules/loadouts/loadout_ui/loadout_manager.dm#L229">
+        <img src="git.png" width="16" height="16" title="maplestation_modules&#x2F;code&#x2F;modules&#x2F;loadouts&#x2F;loadout_ui&#x2F;loadout_manager.dm 229"/></a></aside>
+        </h3>
+        <p>A proc to make sure our menu gets null'd properly when it's deleted.
+If we delete the greyscale menu from the greyscale datum, we don't null it correctly here, it harddels.</p><h3 id="proc/create_character_preview_view"><aside class="declaration">proc </aside>create_character_preview_view<aside>(/<a href="mob.html">mob</a>/user) 
+        
+    
+            <a href="https://github.com/Andrymeda/MapleStationCode/blob/daf90585c8d2507b6d502fd3ba589917e47fa060/maplestation_modules/code/modules/loadouts/loadout_ui/loadout_manager.dm#L104">
+        <img src="git.png" width="16" height="16" title="maplestation_modules&#x2F;code&#x2F;modules&#x2F;loadouts&#x2F;loadout_ui&#x2F;loadout_manager.dm 104"/></a></aside>
+        </h3>
+        <p>Initialize our character dummy.</p><h3 id="proc/deselect_item"><aside class="declaration">proc </aside>deselect_item<aside>(/<a href="datum.html">datum</a>/<a href="datum/loadout_item.html">loadout_item</a>/deselected_item) 
+        
+    
+            <a href="https://github.com/Andrymeda/MapleStationCode/blob/daf90585c8d2507b6d502fd3ba589917e47fa060/maplestation_modules/code/modules/loadouts/loadout_ui/loadout_manager.dm#L191">
+        <img src="git.png" width="16" height="16" title="maplestation_modules&#x2F;code&#x2F;modules&#x2F;loadouts&#x2F;loadout_ui&#x2F;loadout_manager.dm 191"/></a></aside>
+        </h3>
+        <p>Deselect [deselected_item].</p><h3 id="proc/get_tutorial_text"><aside class="declaration">proc </aside>get_tutorial_text<aside>() 
+        
+    
+            <a href="https://github.com/Andrymeda/MapleStationCode/blob/daf90585c8d2507b6d502fd3ba589917e47fa060/maplestation_modules/code/modules/loadouts/loadout_ui/loadout_manager.dm#L366">
+        <img src="git.png" width="16" height="16" title="maplestation_modules&#x2F;code&#x2F;modules&#x2F;loadouts&#x2F;loadout_ui&#x2F;loadout_manager.dm 366"/></a></aside>
+        </h3>
+        <p>Returns a formatted string for use in the UI.</p><h3 id="proc/list_to_data"><aside class="declaration">proc </aside>list_to_data<aside>(list_of_datums) 
+        
+    
+            <a href="https://github.com/Andrymeda/MapleStationCode/blob/daf90585c8d2507b6d502fd3ba589917e47fa060/maplestation_modules/code/modules/loadouts/loadout_ui/loadout_manager.dm#L391">
+        <img src="git.png" width="16" height="16" title="maplestation_modules&#x2F;code&#x2F;modules&#x2F;loadouts&#x2F;loadout_ui&#x2F;loadout_manager.dm 391"/></a></aside>
+        </h3>
+        <p>Takes an assoc list of [typepath]s to [singleton datum]
+And formats it into an object for TGUI.</p>
+<ul>
+<li>list[name] is the name of the datum.</li>
+<li>list[path] is the typepath of the item.</li>
+</ul><h3 id="proc/rotate_model_dir"><aside class="declaration">proc </aside>rotate_model_dir<aside>(dir_string) 
+        
+    
+            <a href="https://github.com/Andrymeda/MapleStationCode/blob/daf90585c8d2507b6d502fd3ba589917e47fa060/maplestation_modules/code/modules/loadouts/loadout_ui/loadout_manager.dm#L306">
+        <img src="git.png" width="16" height="16" title="maplestation_modules&#x2F;code&#x2F;modules&#x2F;loadouts&#x2F;loadout_ui&#x2F;loadout_manager.dm 306"/></a></aside>
+        </h3>
+        <p>Rotate the preview [dir_string] direction.</p><h3 id="proc/select_item"><aside class="declaration">proc </aside>select_item<aside>(/<a href="datum.html">datum</a>/<a href="datum/loadout_item.html">loadout_item</a>/selected_item) 
+        
+    
+            <a href="https://github.com/Andrymeda/MapleStationCode/blob/daf90585c8d2507b6d502fd3ba589917e47fa060/maplestation_modules/code/modules/loadouts/loadout_ui/loadout_manager.dm#L172">
+        <img src="git.png" width="16" height="16" title="maplestation_modules&#x2F;code&#x2F;modules&#x2F;loadouts&#x2F;loadout_ui&#x2F;loadout_manager.dm 172"/></a></aside>
+        </h3>
+        <p>Select [path] item to [category_slot] slot.</p><h3 id="proc/select_item_color"><aside class="declaration">proc </aside>select_item_color<aside>(/<a href="datum.html">datum</a>/<a href="datum/loadout_item.html">loadout_item</a>/item) 
+        
+    
+            <a href="https://github.com/Andrymeda/MapleStationCode/blob/daf90585c8d2507b6d502fd3ba589917e47fa060/maplestation_modules/code/modules/loadouts/loadout_ui/loadout_manager.dm#L196">
+        <img src="git.png" width="16" height="16" title="maplestation_modules&#x2F;code&#x2F;modules&#x2F;loadouts&#x2F;loadout_ui&#x2F;loadout_manager.dm 196"/></a></aside>
+        </h3>
+        <p>Select [path] item to [category_slot] slot, and open up the greyscale UI to customize [path] in [category] slot.</p><h3 id="proc/set_item_name"><aside class="declaration">proc </aside>set_item_name<aside>(/<a href="datum.html">datum</a>/<a href="datum/loadout_item.html">loadout_item</a>/item) 
+        
+    
+            <a href="https://github.com/Andrymeda/MapleStationCode/blob/daf90585c8d2507b6d502fd3ba589917e47fa060/maplestation_modules/code/modules/loadouts/loadout_ui/loadout_manager.dm#L252">
+        <img src="git.png" width="16" height="16" title="maplestation_modules&#x2F;code&#x2F;modules&#x2F;loadouts&#x2F;loadout_ui&#x2F;loadout_manager.dm 252"/></a></aside>
+        </h3>
+        <p>Set [item]'s name to input provided.</p><h3 id="proc/set_layer"><aside class="declaration">proc </aside>set_layer<aside>(/<a href="datum.html">datum</a>/<a href="datum/loadout_item.html">loadout_item</a>/accessory/item) 
+        
+    
+            <a href="https://github.com/Andrymeda/MapleStationCode/blob/daf90585c8d2507b6d502fd3ba589917e47fa060/maplestation_modules/code/modules/loadouts/loadout_ui/loadout_manager.dm#L293">
+        <img src="git.png" width="16" height="16" title="maplestation_modules&#x2F;code&#x2F;modules&#x2F;loadouts&#x2F;loadout_ui&#x2F;loadout_manager.dm 293"/></a></aside>
+        </h3>
+        <p>Set [item]'s layer, for accessories.</p><h3 id="proc/set_skin"><aside class="declaration">proc </aside>set_skin<aside>(/<a href="datum.html">datum</a>/<a href="datum/loadout_item.html">loadout_item</a>/item) 
+        
+    
+            <a href="https://github.com/Andrymeda/MapleStationCode/blob/daf90585c8d2507b6d502fd3ba589917e47fa060/maplestation_modules/code/modules/loadouts/loadout_ui/loadout_manager.dm#L270">
+        <img src="git.png" width="16" height="16" title="maplestation_modules&#x2F;code&#x2F;modules&#x2F;loadouts&#x2F;loadout_ui&#x2F;loadout_manager.dm 270"/></a></aside>
+        </h3>
+        <p>Set [item]'s skin.</p><h3 id="proc/set_slot_greyscale"><aside class="declaration">proc </aside>set_slot_greyscale<aside>(/<a href="datum.html">datum</a>/<a href="datum/loadout_item.html">loadout_item</a>/item, /<a href="datum.html">datum</a>/<a href="datum/greyscale_modify_menu.html">greyscale_modify_menu</a>/open_menu) 
+        
+    
+            <a href="https://github.com/Andrymeda/MapleStationCode/blob/daf90585c8d2507b6d502fd3ba589917e47fa060/maplestation_modules/code/modules/loadouts/loadout_ui/loadout_manager.dm#L235">
+        <img src="git.png" width="16" height="16" title="maplestation_modules&#x2F;code&#x2F;modules&#x2F;loadouts&#x2F;loadout_ui&#x2F;loadout_manager.dm 235"/></a></aside>
+        </h3>
+        <p>Sets [category_slot]'s greyscale colors to the colors in the currently opened [open_menu].</p></main>
+<footer>
+    maplestation.dme
+    <a href="https://github.com/Andrymeda/MapleStationCode/tree/daf90585c8d2507b6d502fd3ba589917e47fa060">daf9058</a>
+        (master) &mdash; <a href="https://github.com/SpaceManiac/SpacemanDMM/blob/master/crates/dmdoc/README.md">dmdoc 1.7.3</a></footer>
+</body>
+</html>

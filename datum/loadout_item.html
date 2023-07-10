@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <base href="../" />
+    <link rel="stylesheet" href="dmdoc.css" />
+    <title>&#x2F;datum&#x2F;loadout_item - &#x2F;tg&#x2F; Station 13</title>
+</head>
+<body>
+<header>
+    <a href="index.html">&#x2F;tg&#x2F; Station 13</a> -
+    <a href="index.html#modules">Modules</a> -
+    <a href="index.html#types">Types</a>
+ &mdash; <a href="datum/loadout_item.html#var">Var Details</a> - <a href="datum/loadout_item.html#proc">Proc Details</a></header>
+<main>
+<h1>loadout_item <aside>/<a href="datum.html">datum</a>/<a href="datum/loadout_item.html">loadout_item</a></aside>
+        
+    
+            <a href="https://github.com/Andrymeda/MapleStationCode/blob/daf90585c8d2507b6d502fd3ba589917e47fa060/maplestation_modules/code/modules/loadouts/loadout_items/_loadout_datum.dm#L33">
+        <img src="git.png" width="16" height="16" title="maplestation_modules&#x2F;code&#x2F;modules&#x2F;loadouts&#x2F;loadout_items&#x2F;_loadout_datum.dm 33"/></a></h1>
+
+<p>Any item without a name is &quot;abstract&quot;
+Loadout item datum.
+Holds all the information about each loadout items.
+A list of singleton loadout items are generated on initialize.</p><table class="summary" cellspacing="0"><tr><td colspan="2"><h2>Vars</h2></td></tr>
+            <tr><th><a href="datum/loadout_item.html#var/additional_tooltip_contents">additional_tooltip_contents</a></th><td>Lazylist of additional text for the tooltip displayed on this item.</td></tr>
+            <tr><th><a href="datum/loadout_item.html#var/can_be_greyscale">can_be_greyscale</a></th><td>Whether this item has greyscale support.
+Only works if the item is compatible with the GAGS system of coloring.
+Set automatically to TRUE for all items that have the flag <a href="code/__DEFINES/flags.html#define/IS_PLAYER_COLORABLE_1" title="IS_PLAYER_COLORABLE_1">IS_PLAYER_COLORABLE_1</a>.
+If you really want it to not be colorable set this to <a href="maplestation_modules/code/__DEFINES/_module_defines.html#define/DONT_GREYSCALE" title="DONT_GREYSCALE">DONT_GREYSCALE</a></td></tr>
+            <tr><th><a href="datum/loadout_item.html#var/can_be_named">can_be_named</a></th><td>Whether this item can be renamed.
+I recommend you apply this sparingly becuase it certainly can go wrong (or get reset / overridden easily)</td></tr>
+            <tr><th><a href="datum/loadout_item.html#var/can_be_reskinned">can_be_reskinned</a></th><td>Whether this item can be reskinned.
+Only works if the item has a &quot;unique reskin&quot; list set.</td></tr>
+            <tr><th><a href="datum/loadout_item.html#var/category">category</a></th><td>The category of the loadout item.</td></tr>
+            <tr><th><a href="datum/loadout_item.html#var/item_path">item_path</a></th><td>The actual item path of the loadout item.</td></tr>
+            <tr><th><a href="datum/loadout_item.html#var/name">name</a></th><td>Displayed name of the loadout item.</td></tr><tr><td colspan="2"><h2>Procs</h2></td></tr>
+            <tr><th><a href="datum/loadout_item.html#proc/add_tooltip">add_tooltip</a></th><td>Helper to add a tooltip to our tooltip list.
+If inverse_order is TRUE, we will add to the front instead of the back.</td></tr>
+            <tr><th><a href="datum/loadout_item.html#proc/handle_loadout_action">handle_loadout_action</a></th><td>Takes in an action from a loadout manager and applies it</td></tr>
+            <tr><th><a href="datum/loadout_item.html#proc/insert_path_into_outfit">insert_path_into_outfit</a></th><td>Place our [var/item_path] into [outfit].</td></tr>
+            <tr><th><a href="datum/loadout_item.html#proc/on_equip_item">on_equip_item</a></th><td>Called When the item is equipped on [equipper].</td></tr>
+            <tr><th><a href="datum/loadout_item.html#proc/post_equip_item">post_equip_item</a></th><td>Called after the item is equipped on [equipper], at the end of character setup.</td></tr></table>
+    <h2 id="var">Var Details</h2><h3 id="var/additional_tooltip_contents"><aside class="declaration">var </aside>additional_tooltip_contents
+            <aside>&ndash; /list</aside>
+        
+    
+            <a href="https://github.com/Andrymeda/MapleStationCode/blob/daf90585c8d2507b6d502fd3ba589917e47fa060/maplestation_modules/code/modules/loadouts/loadout_items/_loadout_datum.dm#L54">
+        <img src="git.png" width="16" height="16" title="maplestation_modules&#x2F;code&#x2F;modules&#x2F;loadouts&#x2F;loadout_items&#x2F;_loadout_datum.dm 54"/></a></h3>
+        <p>Lazylist of additional text for the tooltip displayed on this item.</p><h3 id="var/can_be_greyscale"><aside class="declaration">var </aside>can_be_greyscale
+            <aside>&ndash; </aside>
+        
+    
+            <a href="https://github.com/Andrymeda/MapleStationCode/blob/daf90585c8d2507b6d502fd3ba589917e47fa060/maplestation_modules/code/modules/loadouts/loadout_items/_loadout_datum.dm#L40">
+        <img src="git.png" width="16" height="16" title="maplestation_modules&#x2F;code&#x2F;modules&#x2F;loadouts&#x2F;loadout_items&#x2F;_loadout_datum.dm 40"/></a></h3>
+        <p>Whether this item has greyscale support.
+Only works if the item is compatible with the GAGS system of coloring.
+Set automatically to TRUE for all items that have the flag <a href="code/__DEFINES/flags.html#define/IS_PLAYER_COLORABLE_1" title="IS_PLAYER_COLORABLE_1">IS_PLAYER_COLORABLE_1</a>.
+If you really want it to not be colorable set this to <a href="maplestation_modules/code/__DEFINES/_module_defines.html#define/DONT_GREYSCALE" title="DONT_GREYSCALE">DONT_GREYSCALE</a></p><h3 id="var/can_be_named"><aside class="declaration">var </aside>can_be_named
+            <aside>&ndash; </aside>
+        
+    
+            <a href="https://github.com/Andrymeda/MapleStationCode/blob/daf90585c8d2507b6d502fd3ba589917e47fa060/maplestation_modules/code/modules/loadouts/loadout_items/_loadout_datum.dm#L43">
+        <img src="git.png" width="16" height="16" title="maplestation_modules&#x2F;code&#x2F;modules&#x2F;loadouts&#x2F;loadout_items&#x2F;_loadout_datum.dm 43"/></a></h3>
+        <p>Whether this item can be renamed.
+I recommend you apply this sparingly becuase it certainly can go wrong (or get reset / overridden easily)</p><h3 id="var/can_be_reskinned"><aside class="declaration">var </aside>can_be_reskinned
+            <aside>&ndash; </aside>
+        
+    
+            <a href="https://github.com/Andrymeda/MapleStationCode/blob/daf90585c8d2507b6d502fd3ba589917e47fa060/maplestation_modules/code/modules/loadouts/loadout_items/_loadout_datum.dm#L46">
+        <img src="git.png" width="16" height="16" title="maplestation_modules&#x2F;code&#x2F;modules&#x2F;loadouts&#x2F;loadout_items&#x2F;_loadout_datum.dm 46"/></a></h3>
+        <p>Whether this item can be reskinned.
+Only works if the item has a &quot;unique reskin&quot; list set.</p><h3 id="var/category"><aside class="declaration">var </aside>category
+            <aside>&ndash; </aside>
+        
+    
+            <a href="https://github.com/Andrymeda/MapleStationCode/blob/daf90585c8d2507b6d502fd3ba589917e47fa060/maplestation_modules/code/modules/loadouts/loadout_items/_loadout_datum.dm#L48">
+        <img src="git.png" width="16" height="16" title="maplestation_modules&#x2F;code&#x2F;modules&#x2F;loadouts&#x2F;loadout_items&#x2F;_loadout_datum.dm 48"/></a></h3>
+        <p>The category of the loadout item.</p><h3 id="var/item_path"><aside class="declaration">var </aside>item_path
+            <aside>&ndash; /<a href="obj.html">obj</a>/<a href="obj/item.html">item</a></aside>
+        
+    
+            <a href="https://github.com/Andrymeda/MapleStationCode/blob/daf90585c8d2507b6d502fd3ba589917e47fa060/maplestation_modules/code/modules/loadouts/loadout_items/_loadout_datum.dm#L50">
+        <img src="git.png" width="16" height="16" title="maplestation_modules&#x2F;code&#x2F;modules&#x2F;loadouts&#x2F;loadout_items&#x2F;_loadout_datum.dm 50"/></a></h3>
+        <p>The actual item path of the loadout item.</p><h3 id="var/name"><aside class="declaration">var </aside>name
+            <aside>&ndash; </aside>
+        
+    
+            <a href="https://github.com/Andrymeda/MapleStationCode/blob/daf90585c8d2507b6d502fd3ba589917e47fa060/maplestation_modules/code/modules/loadouts/loadout_items/_loadout_datum.dm#L35">
+        <img src="git.png" width="16" height="16" title="maplestation_modules&#x2F;code&#x2F;modules&#x2F;loadouts&#x2F;loadout_items&#x2F;_loadout_datum.dm 35"/></a></h3>
+        <p>Displayed name of the loadout item.</p><h2 id="proc">Proc Details</h2><h3 id="proc/add_tooltip"><aside class="declaration">proc </aside>add_tooltip<aside>(tooltip, inverse_order) 
+        
+    
+            <a href="https://github.com/Andrymeda/MapleStationCode/blob/daf90585c8d2507b6d502fd3ba589917e47fa060/maplestation_modules/code/modules/loadouts/loadout_items/_loadout_datum.dm#L88">
+        <img src="git.png" width="16" height="16" title="maplestation_modules&#x2F;code&#x2F;modules&#x2F;loadouts&#x2F;loadout_items&#x2F;_loadout_datum.dm 88"/></a></aside>
+        </h3>
+        <p>Helper to add a tooltip to our tooltip list.
+If inverse_order is TRUE, we will add to the front instead of the back.</p><h3 id="proc/handle_loadout_action"><aside class="declaration">proc </aside>handle_loadout_action<aside>(/<a href="datum.html">datum</a>/<a href="datum/loadout_manager.html">loadout_manager</a>/manager, action) 
+        
+    
+            <a href="https://github.com/Andrymeda/MapleStationCode/blob/daf90585c8d2507b6d502fd3ba589917e47fa060/maplestation_modules/code/modules/loadouts/loadout_items/_loadout_datum.dm#L102">
+        <img src="git.png" width="16" height="16" title="maplestation_modules&#x2F;code&#x2F;modules&#x2F;loadouts&#x2F;loadout_items&#x2F;_loadout_datum.dm 102"/></a></aside>
+        </h3>
+        <p>Takes in an action from a loadout manager and applies it</p>
+<p>Useful for subtypes of loadout items with unique actions</p><h3 id="proc/insert_path_into_outfit"><aside class="declaration">proc </aside>insert_path_into_outfit<aside>(/<a href="datum.html">datum</a>/<a href="datum/outfit.html">outfit</a>/outfit, /<a href="mob.html">mob</a>/<a href="mob/living.html">living</a>/<a href="mob/living/carbon.html">carbon</a>/<a href="mob/living/carbon/human.html">human</a>/equipper, visuals_only) 
+        
+    
+            <a href="https://github.com/Andrymeda/MapleStationCode/blob/daf90585c8d2507b6d502fd3ba589917e47fa060/maplestation_modules/code/modules/loadouts/loadout_items/_loadout_datum.dm#L138">
+        <img src="git.png" width="16" height="16" title="maplestation_modules&#x2F;code&#x2F;modules&#x2F;loadouts&#x2F;loadout_items&#x2F;_loadout_datum.dm 138"/></a></aside>
+        </h3>
+        <p>Place our [var/item_path] into [outfit].</p>
+<p>By default, just adds the item into the outfit's backpack contents, if non-visual.</p>
+<p>outfit - The outfit we're equipping our items into.
+equipper - If we're equipping out outfit onto a mob at the time, this is the mob it is equipped on. Can be null.
+visual - If TRUE, then our outfit is only for visual use (for example, a preview).</p><h3 id="proc/on_equip_item"><aside class="declaration">proc </aside>on_equip_item<aside>(/<a href="datum.html">datum</a>/<a href="datum/preferences.html">preferences</a>/preference_source, /<a href="mob.html">mob</a>/<a href="mob/living.html">living</a>/<a href="mob/living/carbon.html">carbon</a>/<a href="mob/living/carbon/human.html">human</a>/equipper, visuals_only, /list/preference_list) 
+        
+    
+            <a href="https://github.com/Andrymeda/MapleStationCode/blob/daf90585c8d2507b6d502fd3ba589917e47fa060/maplestation_modules/code/modules/loadouts/loadout_items/_loadout_datum.dm#L149">
+        <img src="git.png" width="16" height="16" title="maplestation_modules&#x2F;code&#x2F;modules&#x2F;loadouts&#x2F;loadout_items&#x2F;_loadout_datum.dm 149"/></a></aside>
+        </h3>
+        <p>Called When the item is equipped on [equipper].</p>
+<p>preference_source - the datum/preferences our loadout item originated from - cannot be null
+equipper - the mob we're equipping this item onto - cannot be null
+visuals_only - whether or not this is only concerned with visual things (not backpack, not renaming, etc)</p><h3 id="proc/post_equip_item"><aside class="declaration">proc </aside>post_equip_item<aside>(/<a href="datum.html">datum</a>/<a href="datum/preferences.html">preferences</a>/preference_source, /<a href="mob.html">mob</a>/<a href="mob/living.html">living</a>/<a href="mob/living/carbon.html">carbon</a>/<a href="mob/living/carbon/human.html">human</a>/equipper) 
+        
+    
+            <a href="https://github.com/Andrymeda/MapleStationCode/blob/daf90585c8d2507b6d502fd3ba589917e47fa060/maplestation_modules/code/modules/loadouts/loadout_items/_loadout_datum.dm#L183">
+        <img src="git.png" width="16" height="16" title="maplestation_modules&#x2F;code&#x2F;modules&#x2F;loadouts&#x2F;loadout_items&#x2F;_loadout_datum.dm 183"/></a></aside>
+        </h3>
+        <p>Called after the item is equipped on [equipper], at the end of character setup.</p>
+<p>preference_source - the datum/preferences our loadout item originated from - cannot be null
+equipper - the mob we're equipping this item onto - cannot be null</p></main>
+<footer>
+    maplestation.dme
+    <a href="https://github.com/Andrymeda/MapleStationCode/tree/daf90585c8d2507b6d502fd3ba589917e47fa060">daf9058</a>
+        (master) &mdash; <a href="https://github.com/SpaceManiac/SpacemanDMM/blob/master/crates/dmdoc/README.md">dmdoc 1.7.3</a></footer>
+</body>
+</html>

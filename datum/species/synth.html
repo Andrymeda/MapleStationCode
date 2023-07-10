@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <base href="../../" />
+    <link rel="stylesheet" href="dmdoc.css" />
+    <title>&#x2F;datum&#x2F;species&#x2F;synth - &#x2F;tg&#x2F; Station 13</title>
+</head>
+<body>
+<header>
+    <a href="index.html">&#x2F;tg&#x2F; Station 13</a> -
+    <a href="index.html#modules">Modules</a> -
+    <a href="index.html#types">Types</a>
+ &mdash; <a href="datum/species/synth.html#var">Var Details</a> - <a href="datum/species/synth.html#proc">Proc Details</a></header>
+<main>
+<h1>synth <aside>/<a href="datum.html">datum</a>/<a href="datum/species.html">species</a>/<a href="datum/species/synth.html">synth</a></aside>
+        
+    
+            <a href="https://github.com/Andrymeda/MapleStationCode/blob/daf90585c8d2507b6d502fd3ba589917e47fa060/maplestation_modules/code/modules/mob/living/carbon/human/species_types/synths.dm#L10">
+        <img src="git.png" width="16" height="16" title="maplestation_modules&#x2F;code&#x2F;modules&#x2F;mob&#x2F;living&#x2F;carbon&#x2F;human&#x2F;species_types&#x2F;synths.dm 10"/></a></h1>
+
+<table class="summary" cellspacing="0"><tr><td colspan="2"><h2>Vars</h2></td></tr>
+            <tr><th><a href="datum/species/synth.html#var/disguise_fail_health">disguise_fail_health</a></th><td>2021:
+If your health becomes equal to or less than this value, your disguise is supposed to break.
+Unfortunately, that feature currently isn't implemented, so currently, all this threshold is
+used for is (I kid you not) determining whether or not your speech uses SPAN_CLOWN while you're
+disguised as a bananium golem. See the handle_speech() proc further down in this file for more information on that check.
+2023 update:
+Bananium golems are removed, this is now completely dead code. God save us all</td></tr>
+            <tr><th><a href="datum/species/synth.html#var/fake_species">fake_species</a></th><td>a species to do most of our work for us, unless we're damaged</td></tr>
+            <tr><th><a href="datum/species/synth.html#var/initial_species_traits">initial_species_traits</a></th><td>for getting these values back for assume_disguise()</td></tr>
+            <tr><th><a href="datum/species/synth.html#var/silly_owner_weakref">silly_owner_weakref</a></th><td>Hack ahead
+We need to react to [COMSIG_GLOB_ION_STORM], unfortunately we can't do that easily in a species, so we keep a weakref from Grant</td></tr><tr><td colspan="2"><h2>Procs</h2></td></tr>
+            <tr><th><a href="datum/species/synth.html#proc/mutate_after_time">mutate_after_time</a></th><td>For use in a callback in [on_ion_storm].</td></tr>
+            <tr><th><a href="datum/species/synth.html#proc/return_to_normal">return_to_normal</a></th><td>For use in a callback in [on_ion_storm].</td></tr></table>
+    <h2 id="var">Var Details</h2><h3 id="var/disguise_fail_health"><aside class="declaration">var </aside>disguise_fail_health
+            <aside>&ndash; </aside>
+        
+    
+            <a href="https://github.com/Andrymeda/MapleStationCode/blob/daf90585c8d2507b6d502fd3ba589917e47fa060/maplestation_modules/code/modules/mob/living/carbon/human/species_types/synths.dm#L35">
+        <img src="git.png" width="16" height="16" title="maplestation_modules&#x2F;code&#x2F;modules&#x2F;mob&#x2F;living&#x2F;carbon&#x2F;human&#x2F;species_types&#x2F;synths.dm 35"/></a></h3>
+        <p>2021:
+If your health becomes equal to or less than this value, your disguise is supposed to break.
+Unfortunately, that feature currently isn't implemented, so currently, all this threshold is
+used for is (I kid you not) determining whether or not your speech uses SPAN_CLOWN while you're
+disguised as a bananium golem. See the handle_speech() proc further down in this file for more information on that check.
+2023 update:
+Bananium golems are removed, this is now completely dead code. God save us all</p><h3 id="var/fake_species"><aside class="declaration">var </aside>fake_species
+            <aside>&ndash; /<a href="datum.html">datum</a>/<a href="datum/species.html">species</a></aside>
+        
+    
+            <a href="https://github.com/Andrymeda/MapleStationCode/blob/daf90585c8d2507b6d502fd3ba589917e47fa060/maplestation_modules/code/modules/mob/living/carbon/human/species_types/synths.dm#L37">
+        <img src="git.png" width="16" height="16" title="maplestation_modules&#x2F;code&#x2F;modules&#x2F;mob&#x2F;living&#x2F;carbon&#x2F;human&#x2F;species_types&#x2F;synths.dm 37"/></a></h3>
+        <p>a species to do most of our work for us, unless we're damaged</p><h3 id="var/initial_species_traits"><aside class="declaration">var </aside>initial_species_traits
+            <aside>&ndash; /list</aside>
+        
+    
+            <a href="https://github.com/Andrymeda/MapleStationCode/blob/daf90585c8d2507b6d502fd3ba589917e47fa060/maplestation_modules/code/modules/mob/living/carbon/human/species_types/synths.dm#L39">
+        <img src="git.png" width="16" height="16" title="maplestation_modules&#x2F;code&#x2F;modules&#x2F;mob&#x2F;living&#x2F;carbon&#x2F;human&#x2F;species_types&#x2F;synths.dm 39"/></a></h3>
+        <p>for getting these values back for assume_disguise()</p><h3 id="var/silly_owner_weakref"><aside class="declaration">var </aside>silly_owner_weakref
+            <aside>&ndash; /<a href="datum.html">datum</a>/<a href="datum/weakref.html">weakref</a></aside>
+        
+    
+            <a href="https://github.com/Andrymeda/MapleStationCode/blob/daf90585c8d2507b6d502fd3ba589917e47fa060/maplestation_modules/code/modules/mob/living/carbon/human/species_types/synths.dm#L46">
+        <img src="git.png" width="16" height="16" title="maplestation_modules&#x2F;code&#x2F;modules&#x2F;mob&#x2F;living&#x2F;carbon&#x2F;human&#x2F;species_types&#x2F;synths.dm 46"/></a></h3>
+        <p>Hack ahead
+We need to react to [COMSIG_GLOB_ION_STORM], unfortunately we can't do that easily in a species, so we keep a weakref from Grant</p><h2 id="proc">Proc Details</h2><h3 id="proc/mutate_after_time"><aside class="declaration">proc </aside>mutate_after_time<aside>(/<a href="mob.html">mob</a>/<a href="mob/living.html">living</a>/<a href="mob/living/carbon.html">carbon</a>/<a href="mob/living/carbon/human.html">human</a>/target) 
+        
+    
+            <a href="https://github.com/Andrymeda/MapleStationCode/blob/daf90585c8d2507b6d502fd3ba589917e47fa060/maplestation_modules/code/modules/mob/living/carbon/human/species_types/synths.dm#L202">
+        <img src="git.png" width="16" height="16" title="maplestation_modules&#x2F;code&#x2F;modules&#x2F;mob&#x2F;living&#x2F;carbon&#x2F;human&#x2F;species_types&#x2F;synths.dm 202"/></a></aside>
+        </h3>
+        <p>For use in a callback in [on_ion_storm].</p><h3 id="proc/return_to_normal"><aside class="declaration">proc </aside>return_to_normal<aside>(/<a href="mob.html">mob</a>/<a href="mob/living.html">living</a>/<a href="mob/living/carbon.html">carbon</a>/<a href="mob/living/carbon/human.html">human</a>/target, /<a href="datum.html">datum</a>/<a href="datum/dna.html">dna</a>/original) 
+        
+    
+            <a href="https://github.com/Andrymeda/MapleStationCode/blob/daf90585c8d2507b6d502fd3ba589917e47fa060/maplestation_modules/code/modules/mob/living/carbon/human/species_types/synths.dm#L208">
+        <img src="git.png" width="16" height="16" title="maplestation_modules&#x2F;code&#x2F;modules&#x2F;mob&#x2F;living&#x2F;carbon&#x2F;human&#x2F;species_types&#x2F;synths.dm 208"/></a></aside>
+        </h3>
+        <p>For use in a callback in [on_ion_storm].</p></main>
+<footer>
+    maplestation.dme
+    <a href="https://github.com/Andrymeda/MapleStationCode/tree/daf90585c8d2507b6d502fd3ba589917e47fa060">daf9058</a>
+        (master) &mdash; <a href="https://github.com/SpaceManiac/SpacemanDMM/blob/master/crates/dmdoc/README.md">dmdoc 1.7.3</a></footer>
+</body>
+</html>
