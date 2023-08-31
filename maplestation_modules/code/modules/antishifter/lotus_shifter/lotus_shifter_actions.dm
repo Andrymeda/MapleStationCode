@@ -6,8 +6,7 @@
 	var/mob/caster = usr || owner
 	if(!isliving(target))
 		if(caster)
-			target.balloon_alert(caster, "can't target that!")
+			target.balloon_alert(caster, "can't target that!") //should i keep this? i don't know if anyone will ever play as one, but i might keep it for posterity's sake.
 		return FALSE
-	target.balloon_alert(target, "you're fucked!")
 	return TRUE
 	
