@@ -1,4 +1,4 @@
-
+// One of the more common Anti Shifters, and one of the less dangerous. Stays on areas with leylines that are stronger than the average.
 /mob/living/basic/antishifter/lotus_shifter
 	name = "Lotus Shifter"
 	desc = "A floating creature, shaped like a lotus flower with an eye on top."
@@ -19,14 +19,11 @@
 
 	ai_controller = /datum/ai_controller/basic_controller/lotus_shifter
 
-/datum/ai_controller/basic_controller/lotus_shifter
-	blackboard = list(
-		BB_TARGETTING_DATUM = new /datum/targetting_datum/basic(),
-	)
+/mob/living/basic/antishifter/lotus_shifter/Initialize(mapload)
+	. = ..()
+	ADD_TRAIT(src, TRAIT_DEAF, INNATE_TRAIT) //no ears, and even if it had, it's intelligence is low, it cannot out make any words, even common
 
-	ai_traits = null
-	ai_movement = /datum/ai_movement/basic_avoidance
-	idle_behavior = /datum/idle_behavior/idle_random_walk
-	planning_subtrees = list(
-		/datum/ai_planning_subtree/simple_find_target,
-		)
+	// give it it's only ability
+	var/datum/action/cooldown/mob_cooldown/lotus_gaze/lotus_gaze = new(src)
+	lotus_gaze.Grant(src)
+	ai_controller.set_blackboard_key(BB_LOTUS_SHIFTER_LOTUS_GAZE, lotus_gaze)
