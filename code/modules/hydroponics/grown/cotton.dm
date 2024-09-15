@@ -14,7 +14,7 @@
 	potency = 50
 	instability = 15
 	growthstages = 3
-	growing_icon = 'icons/obj/hydroponics/growing.dmi'
+	growing_icon = 'icons/obj/service/hydroponics/growing.dmi'
 	icon_dead = "cotton-dead"
 	mutatelist = list(/obj/item/seeds/cotton/durathread)
 
@@ -30,6 +30,9 @@
 	throw_range = 3
 	attack_verb_continuous = list("pomfs")
 	attack_verb_simple = list("pomf")
+	drop_sound = 'maplestation_modules/sound/items/drop/herb.ogg'
+	pickup_sound = 'maplestation_modules/sound/items/pickup/herb.ogg'
+
 	var/cotton_type = /obj/item/stack/sheet/cotton
 	var/cotton_name = "raw cotton"
 
@@ -71,7 +74,7 @@
 	yield = 2
 	potency = 50
 	growthstages = 3
-	growing_icon = 'icons/obj/hydroponics/growing.dmi'
+	growing_icon = 'icons/obj/service/hydroponics/growing.dmi'
 	icon_dead = "cotton-dead"
 	mutatelist = null
 

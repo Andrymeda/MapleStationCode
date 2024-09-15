@@ -4,9 +4,10 @@
 /obj/structure/flora/ash
 	name = "large mushrooms"
 	desc = "A number of large mushrooms, covered in a faint layer of ash and what can only be spores."
-	icon = 'icons/obj/lavaland/ash_flora.dmi'
+	icon = 'icons/obj/mining_zones/ash_flora.dmi'
 	icon_state = "l_mushroom1"
 	base_icon_state = "l_mushroom"
+	resistance_flags = LAVA_PROOF
 	gender = PLURAL
 	layer = PROJECTILE_HIT_THRESHHOLD_LAYER //sporangiums up don't shoot
 	product_types = list(/obj/item/food/grown/ash_flora/shavings = 1)
@@ -182,7 +183,7 @@
 /obj/item/food/grown/ash_flora
 	name = "mushroom shavings"
 	desc = "Some shavings from a tall mushroom. With enough, might serve as a bowl."
-	icon = 'icons/obj/lavaland/ash_flora.dmi'
+	icon = 'icons/obj/mining_zones/ash_flora.dmi'
 	icon_state = "mushroom_shavings"
 	w_class = WEIGHT_CLASS_TINY
 	resistance_flags = FLAMMABLE
@@ -197,6 +198,8 @@
 
 /obj/item/food/grown/ash_flora/shavings //So we can't craft bowls from everything.
 	grind_results = list(/datum/reagent/toxin/mushroom_powder = 5)
+	drop_sound = 'maplestation_modules/sound/items/drop/herb.ogg'
+	pickup_sound = 'maplestation_modules/sound/items/pickup/herb.ogg'
 
 /obj/item/food/grown/ash_flora/mushroom_leaf
 	name = "mushroom leaf"
@@ -204,6 +207,8 @@
 	icon_state = "mushroom_leaf"
 	seed = /obj/item/seeds/lavaland/porcini
 	wine_power = 40
+	drop_sound = 'maplestation_modules/sound/items/drop/herb.ogg'
+	pickup_sound = 'maplestation_modules/sound/items/pickup/herb.ogg'
 
 /obj/item/food/grown/ash_flora/mushroom_cap
 	name = "mushroom cap"
@@ -211,6 +216,8 @@
 	icon_state = "mushroom_cap"
 	seed = /obj/item/seeds/lavaland/inocybe
 	wine_power = 70
+	drop_sound = 'maplestation_modules/sound/items/drop/herb.ogg'
+	pickup_sound = 'maplestation_modules/sound/items/pickup/herb.ogg'
 
 /obj/item/food/grown/ash_flora/mushroom_stem
 	name = "mushroom stem"
@@ -218,6 +225,8 @@
 	icon_state = "mushroom_stem"
 	seed = /obj/item/seeds/lavaland/ember
 	wine_power = 60
+	drop_sound = 'maplestation_modules/sound/items/drop/herb.ogg'
+	pickup_sound = 'maplestation_modules/sound/items/pickup/herb.ogg'
 
 /obj/item/food/grown/ash_flora/cactus_fruit
 	name = "cactus fruit"
@@ -240,6 +249,8 @@
 	slot_flags = ITEM_SLOT_HEAD
 	seed = /obj/item/seeds/lavaland/fireblossom
 	wine_power = 40
+	drop_sound = 'maplestation_modules/sound/items/drop/herb.ogg'
+	pickup_sound = 'maplestation_modules/sound/items/pickup/herb.ogg'
 
 //SEEDS
 
@@ -253,7 +264,7 @@
 	yield = 4
 	potency = 15
 	growthstages = 3
-	rarity = 20
+	rarity = PLANT_MODERATELY_RARE
 	reagents_add = list(/datum/reagent/consumable/nutriment = 0.1)
 	species = "polypore" // silence unit test
 	genes = list(/datum/plant_gene/trait/fire_resistance)
@@ -268,7 +279,7 @@
 	product = /obj/item/food/grown/ash_flora/cactus_fruit
 	mutatelist = list(/obj/item/seeds/star_cactus)
 	genes = list(/datum/plant_gene/trait/fire_resistance)
-	growing_icon = 'icons/obj/hydroponics/growing_fruits.dmi'
+	growing_icon = 'icons/obj/service/hydroponics/growing_fruits.dmi'
 	growthstages = 2
 	reagents_add = list(/datum/reagent/consumable/nutriment/vitamin = 0.04, /datum/reagent/consumable/nutriment = 0.04, /datum/reagent/consumable/vitfro = 0.08)
 
@@ -288,7 +299,7 @@
 	growthstages = 4
 	genes = list(/datum/plant_gene/trait/sticky, /datum/plant_gene/trait/stinging)
 	graft_gene = /datum/plant_gene/trait/sticky
-	growing_icon = 'icons/obj/hydroponics/growing_vegetables.dmi'
+	growing_icon = 'icons/obj/service/hydroponics/growing_vegetables.dmi'
 	reagents_add = list(/datum/reagent/water = 0.08, /datum/reagent/consumable/nutriment = 0.05, /datum/reagent/medicine/c2/helbital = 0.05)
 
 ///Star Cactus Plants.
@@ -309,7 +320,7 @@
 	plantname = "Polypore Mushrooms"
 	product = /obj/item/food/grown/ash_flora/shavings
 	genes = list(/datum/plant_gene/trait/plant_type/fungal_metabolism, /datum/plant_gene/trait/fire_resistance)
-	growing_icon = 'icons/obj/hydroponics/growing_mushrooms.dmi'
+	growing_icon = 'icons/obj/service/hydroponics/growing_mushrooms.dmi'
 	reagents_add = list(/datum/reagent/consumable/sugar = 0.06, /datum/reagent/consumable/ethanol = 0.04, /datum/reagent/stabilizing_agent = 0.06, /datum/reagent/consumable/mintextract = 0.02)
 
 /obj/item/seeds/lavaland/porcini
@@ -320,7 +331,7 @@
 	plantname = "Porcini Mushrooms"
 	product = /obj/item/food/grown/ash_flora/mushroom_leaf
 	genes = list(/datum/plant_gene/trait/plant_type/fungal_metabolism, /datum/plant_gene/trait/fire_resistance)
-	growing_icon = 'icons/obj/hydroponics/growing_mushrooms.dmi'
+	growing_icon = 'icons/obj/service/hydroponics/growing_mushrooms.dmi'
 	reagents_add = list(/datum/reagent/consumable/nutriment = 0.06, /datum/reagent/consumable/vitfro = 0.04, /datum/reagent/drug/nicotine = 0.04)
 
 /obj/item/seeds/lavaland/inocybe
@@ -331,7 +342,7 @@
 	plantname = "Inocybe Mushrooms"
 	product = /obj/item/food/grown/ash_flora/mushroom_cap
 	genes = list(/datum/plant_gene/trait/plant_type/fungal_metabolism, /datum/plant_gene/trait/fire_resistance)
-	growing_icon = 'icons/obj/hydroponics/growing_mushrooms.dmi'
+	growing_icon = 'icons/obj/service/hydroponics/growing_mushrooms.dmi'
 	reagents_add = list(/datum/reagent/toxin/mindbreaker = 0.04, /datum/reagent/consumable/entpoly = 0.08, /datum/reagent/drug/mushroomhallucinogen = 0.04)
 
 /obj/item/seeds/lavaland/ember
@@ -342,7 +353,7 @@
 	plantname = "Embershroom Mushrooms"
 	product = /obj/item/food/grown/ash_flora/mushroom_stem
 	genes = list(/datum/plant_gene/trait/plant_type/fungal_metabolism, /datum/plant_gene/trait/glow, /datum/plant_gene/trait/fire_resistance)
-	growing_icon = 'icons/obj/hydroponics/growing_mushrooms.dmi'
+	growing_icon = 'icons/obj/service/hydroponics/growing_mushrooms.dmi'
 	reagents_add = list(/datum/reagent/consumable/tinlux = 0.04, /datum/reagent/consumable/nutriment/vitamin = 0.02, /datum/reagent/drug/space_drugs = 0.02)
 
 /obj/item/seeds/lavaland/seraka
@@ -353,7 +364,7 @@
 	plantname = "Seraka Mushrooms"
 	product = /obj/item/food/grown/ash_flora/seraka
 	genes = list(/datum/plant_gene/trait/plant_type/fungal_metabolism, /datum/plant_gene/trait/fire_resistance)
-	growing_icon = 'icons/obj/hydroponics/growing_mushrooms.dmi'
+	growing_icon = 'icons/obj/service/hydroponics/growing_mushrooms.dmi'
 	reagents_add = list(/datum/reagent/toxin/mushroom_powder = 0.1, /datum/reagent/medicine/coagulant/seraka_extract = 0.02)
 
 /obj/item/seeds/lavaland/fireblossom
@@ -365,7 +376,7 @@
 	growthstages = 3
 	product = /obj/item/food/grown/ash_flora/fireblossom
 	genes = list(/datum/plant_gene/trait/fire_resistance, /datum/plant_gene/trait/glow/yellow)
-	growing_icon = 'icons/obj/hydroponics/growing_flowers.dmi'
+	growing_icon = 'icons/obj/service/hydroponics/growing_flowers.dmi'
 	reagents_add = list(/datum/reagent/consumable/tinlux = 0.04, /datum/reagent/consumable/nutriment = 0.03, /datum/reagent/carbon = 0.05)
 
 //CRAFTING
@@ -380,10 +391,10 @@
 /obj/item/reagent_containers/cup/bowl/mushroom_bowl
 	name = "mushroom bowl"
 	desc = "A bowl made out of mushrooms. Not food, though it might have contained some at some point."
-	icon = 'icons/obj/lavaland/ash_flora.dmi'
+	icon = 'icons/obj/mining_zones/ash_flora.dmi'
 	icon_state = "mushroom_bowl"
 	fill_icon_state = "fullbowl"
-	fill_icon = 'icons/obj/lavaland/ash_flora.dmi'
+	fill_icon = 'icons/obj/mining_zones/ash_flora.dmi'
 
 /obj/item/reagent_containers/cup/bowl/mushroom_bowl/update_icon_state()
 	if(!reagents.total_volume)

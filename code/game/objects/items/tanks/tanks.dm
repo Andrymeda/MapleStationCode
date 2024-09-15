@@ -9,12 +9,12 @@
  */
 /obj/item/tank
 	name = "tank"
-	icon = 'icons/obj/atmospherics/tank.dmi'
+	icon = 'icons/obj/canisters.dmi'
 	icon_state = "generic"
 	inhand_icon_state = "generic_tank"
 	lefthand_file = 'icons/mob/inhands/equipment/tanks_lefthand.dmi'
 	righthand_file = 'icons/mob/inhands/equipment/tanks_righthand.dmi'
-	flags_1 = CONDUCT_1
+	obj_flags = CONDUCTS_ELECTRICITY
 	slot_flags = ITEM_SLOT_BACK
 	worn_icon = 'icons/mob/clothing/back.dmi' //since these can also get thrown into suit storage slots. if something goes on the belt, set this to null.
 	hitsound = 'sound/weapons/smash.ogg'
@@ -28,6 +28,10 @@
 	actions_types = list(/datum/action/item_action/set_internals)
 	armor_type = /datum/armor/item_tank
 	integrity_failure = 0.5
+	drop_sound = 'maplestation_modules/sound/items/drop/gascan.ogg'
+	pickup_sound = 'maplestation_modules/sound/items/pickup/gascan.ogg'
+	equip_sound = 'maplestation_modules/sound/items/drop/gascan.ogg'
+
 	/// If we are in the process of exploding, stops multi explosions
 	var/igniting = FALSE
 	/// The gases this tank contains. Don't modify this directly, use return_air() to get it instead

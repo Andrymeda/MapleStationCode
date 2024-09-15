@@ -1,11 +1,13 @@
 /obj/item/folder
 	name = "folder"
 	desc = "A folder."
-	icon = 'icons/obj/bureaucracy.dmi'
+	icon = 'icons/obj/service/bureaucracy.dmi'
 	icon_state = "folder"
 	w_class = WEIGHT_CLASS_SMALL
 	pressure_resistance = 2
 	resistance_flags = FLAMMABLE
+	drop_sound = 'sound/items/handling/paper_drop.ogg'
+	pickup_sound = 'sound/items/handling/paper_pickup.ogg'
 	/// The background color for tgui in hex (with a `#`)
 	var/bg_color = "#7f7f7f"
 	/// A typecache of the objects that can be inserted into a folder
@@ -77,7 +79,7 @@
 			return
 		to_chat(user, span_notice("You put [weapon] into [src]."))
 		update_appearance()
-	else if(istype(weapon, /obj/item/pen))
+	else if(IS_WRITING_UTENSIL(weapon))
 		rename(user, weapon)
 
 /obj/item/folder/attack_self(mob/user)

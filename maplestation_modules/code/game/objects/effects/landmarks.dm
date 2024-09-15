@@ -7,6 +7,7 @@
 		/obj/effect/landmark/start/ordnance_tech,
 		/obj/effect/landmark/start/bridge_officer,
 		/obj/effect/landmark/start/asset_protection,
+		/obj/effect/landmark/start/noble_ambassador,
 	)
 
 /datum/controller/subsystem/minor_mapping/Initialize()
@@ -33,7 +34,7 @@
 	icon_state = "Xenobiologist"
 
 /obj/effect/landmark/start/xenobiologist/find_spot_to_place()
-	for(var/obj/machinery/computer/camera_advanced/xenobio/xb_cam in GLOB.machines)
+	for(var/obj/machinery/computer/camera_advanced/xenobio/xb_cam as anything in SSmachines.get_machines_by_type_and_subtypes(/obj/machinery/computer/camera_advanced/xenobio))
 		if(!is_station_level(xb_cam.z))
 			continue
 		if(!istype(get_area(xb_cam), /area/station/science/xenobiology))
@@ -53,7 +54,7 @@
 	icon_state = "Ordnance_Technician"
 
 /obj/effect/landmark/start/ordnance_tech/find_spot_to_place()
-	for(var/obj/machinery/computer/atmos_control/ordnancemix/ordnance_mix in GLOB.machines)
+	for(var/obj/machinery/computer/atmos_control/ordnancemix/ordnance_mix as anything in SSmachines.get_machines_by_type_and_subtypes(/obj/machinery/computer/atmos_control/ordnancemix))
 		if(!is_station_level(ordnance_mix.z))
 			continue
 		if(!istype(get_area(ordnance_mix), /area/station/science))
@@ -72,7 +73,7 @@
 
 /obj/effect/landmark/start/bridge_officer/find_spot_to_place()
 	var/area/station/command/bridge/bridge = locate() in GLOB.areas
-	for(var/turf/open/open_turf in bridge.get_contained_turfs())
+	for(var/turf/open/open_turf in bridge?.get_turfs_from_all_zlevels())
 		if(locate(/obj/structure/chair) in open_turf)
 			forceMove(open_turf)
 			return
@@ -85,7 +86,20 @@
 
 /obj/effect/landmark/start/asset_protection/find_spot_to_place()
 	var/area/station/command/bridge/bridge = locate() in GLOB.areas
-	for(var/turf/open/open_turf in bridge.get_contained_turfs())
+	for(var/turf/open/open_turf in bridge?.get_turfs_from_all_zlevels())
+		if(locate(/obj/structure/chair) in open_turf)
+			forceMove(open_turf)
+			return
+
+// NA start location
+/obj/effect/landmark/start/noble_ambassador
+	name = "Noble Ambassador"
+	icon = 'maplestation_modules/icons/mob/landmarks.dmi'
+	icon_state = "NobleAmbassador"
+
+/obj/effect/landmark/start/noble_ambassador/find_spot_to_place()
+	var/area/station/command/bridge/bridge = locate() in GLOB.areas
+	for(var/turf/open/open_turf in bridge?.get_turfs_from_all_zlevels())
 		if(locate(/obj/structure/chair) in open_turf)
 			forceMove(open_turf)
 			return
@@ -120,3 +134,8 @@ GLOBAL_LIST_EMPTY(locker_landmarks)
 /obj/effect/landmark/locker_spawner/asset_protection_equipment
 	name = "asset protection locker"
 	spawned_path = /obj/structure/closet/secure_closet/asset_protection
+
+// Landmark for mapping in Noble Ambassador equipment.
+/obj/effect/landmark/locker_spawner/noble_ambassador_equipment
+	name = "noble ambassador locker"
+	spawned_path = /obj/structure/closet/secure_closet/noble_ambassador

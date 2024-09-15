@@ -15,10 +15,10 @@
 	animate_movement = SLIDE_STEPS
 	speech_span = SPAN_ROBOT
 	appearance_flags = APPEARANCE_UI
-	/// A reference to the object in the slot. Grabs or items, generally.
-	var/obj/master = null
+	/// A reference to the object in the slot. Grabs or items, generally, but any datum will do.
+	var/datum/weakref/master_ref = null
 	/// A reference to the owner HUD, if any.
-	var/datum/hud/hud = null
+	VAR_PRIVATE/datum/hud/hud = null
 	/**
 	 * Map name assigned to this object.
 	 * Automatically set by /client/proc/add_obj_to_map.
@@ -36,8 +36,13 @@
 	/// If FALSE, this will not be cleared when calling /client/clear_screen()
 	var/clear_with_screen = TRUE
 
+/atom/movable/screen/Initialize(mapload, datum/hud/hud_owner)
+	. = ..()
+	if(hud_owner && istype(hud_owner))
+		hud = hud_owner
+
 /atom/movable/screen/Destroy()
-	master = null
+	master_ref = null
 	hud = null
 	return ..()
 
@@ -49,6 +54,10 @@
 
 /atom/movable/screen/proc/component_click(atom/movable/screen/component_button/component, params)
 	return
+
+/// Returns the mob this is being displayed to, if any
+/atom/movable/screen/proc/get_mob()
+	return hud?.mymob
 
 /atom/movable/screen/text
 	icon = null
@@ -116,9 +125,7 @@
 	screen_loc = ui_language_menu
 
 /atom/movable/screen/language_menu/Click()
-	var/mob/M = usr
-	var/datum/language_holder/H = M.get_language_holder()
-	H.open_language_menu(usr)
+	usr.get_language_holder().open_language_menu(usr)
 
 /atom/movable/screen/inventory
 	/// The identifier for the slot. It has nothing to do with ID cards.
@@ -242,14 +249,17 @@
 /atom/movable/screen/close
 	name = "close"
 	plane = ABOVE_HUD_PLANE
-	icon_state = "backpack_close"
+	icon = 'icons/hud/screen_midnight.dmi'
+	icon_state = "storage_close"
 
-/atom/movable/screen/close/Initialize(mapload, new_master)
+/atom/movable/screen/close/Initialize(mapload, datum/hud/hud_owner, new_master)
 	. = ..()
-	master = new_master
+	master_ref = WEAKREF(new_master)
 
 /atom/movable/screen/close/Click()
-	var/datum/storage/storage = master
+	var/datum/storage/storage = master_ref?.resolve()
+	if(!storage)
+		return
 	storage.hide_contents(usr)
 	return TRUE
 
@@ -269,7 +279,7 @@
 	icon_state = "combat_off"
 	screen_loc = ui_combat_toggle
 
-/atom/movable/screen/combattoggle/Initialize(mapload)
+/atom/movable/screen/combattoggle/Initialize(mapload, datum/hud/hud_owner)
 	. = ..()
 	update_appearance()
 
@@ -323,17 +333,21 @@
 	toggle(usr)
 
 /atom/movable/screen/mov_intent/update_icon_state()
-	switch(hud?.mymob?.m_intent)
-		if(MOVE_INTENT_WALK)
+	if(!hud || !hud.mymob || !isliving(hud.mymob))
+		return
+	var/mob/living/living_hud_owner = hud.mymob
+	switch(living_hud_owner.move_intent)
+		if(MOVE_INTENT_WALK, MOVE_INTENT_SNEAK) // NON-MODULE CHANGE
 			icon_state = "walking"
 		if(MOVE_INTENT_RUN)
 			icon_state = "running"
+	maptext = "<span style='[maptext_style]'>[capitalize(living_hud_owner.move_intent)]</span>" // NON-MODULE CHANGE
 	return ..()
 
-/atom/movable/screen/mov_intent/proc/toggle(mob/user)
-	if(isobserver(user))
+/atom/movable/screen/mov_intent/proc/toggle(mob/living/user)
+	if(!istype(user))
 		return
-	user.toggle_move_intent(user)
+	user.toggle_move_intent()
 
 /atom/movable/screen/pull
 	name = "stop pulling"
@@ -382,16 +396,16 @@
 
 /atom/movable/screen/storage
 	name = "storage"
-	icon_state = "block"
-	screen_loc = "7,7 to 10,8"
+	icon = 'icons/hud/screen_midnight.dmi'
+	icon_state = "storage_cell"
 	plane = HUD_PLANE
 
-/atom/movable/screen/storage/Initialize(mapload, new_master)
+/atom/movable/screen/storage/Initialize(mapload, datum/hud/hud_owner, new_master)
 	. = ..()
-	master = new_master
+	master_ref = WEAKREF(new_master)
 
 /atom/movable/screen/storage/Click(location, control, params)
-	var/datum/storage/storage_master = master
+	var/datum/storage/storage_master = master_ref?.resolve()
 	if(!istype(storage_master))
 		return FALSE
 
@@ -407,6 +421,45 @@
 		storage_master.attempt_insert(inserted, usr)
 
 	return TRUE
+
+/atom/movable/screen/storage/cell
+
+/atom/movable/screen/storage/cell/MouseDrop_T(atom/target, mob/living/user, params) // NON-MODULAR CHANGE should be mouse_drop_receive with ACR
+	var/datum/storage/storage = master_ref?.resolve()
+
+	if (isnull(storage) || !istype(user) || storage != user.active_storage)
+		return
+
+	if (!user.can_perform_action(storage.parent, FORBID_TELEKINESIS_REACH))
+		return
+
+	if (target.loc != storage.real_location)
+		return
+
+	/// Due to items in storage ignoring transparency for click hitboxes, this only can happen if we drag onto a free cell - aka after all current contents
+	storage.real_location.contents -= target
+	storage.real_location.contents += target
+	storage.refresh_views()
+
+/atom/movable/screen/storage/corner
+	icon_state = "storage_corner_topleft"
+
+/atom/movable/screen/storage/corner/top_right
+	icon_state = "storage_corner_topright"
+
+/atom/movable/screen/storage/corner/bottom_left
+	icon_state = "storage_corner_bottomleft"
+
+/atom/movable/screen/storage/corner/bottom_right
+	icon_state = "storage_corner_bottomright"
+
+/atom/movable/screen/storage/rowjoin
+	name = "storage"
+	icon_state = "storage_rowjoin_left"
+	alpha = 0
+
+/atom/movable/screen/storage/rowjoin/right
+	icon_state = "storage_rowjoin_right"
 
 /atom/movable/screen/throw_catch
 	name = "throw/catch"
@@ -627,7 +680,7 @@
 
 INITIALIZE_IMMEDIATE(/atom/movable/screen/splash)
 
-/atom/movable/screen/splash/Initialize(mapload, client/C, visible, use_previous_title)
+/atom/movable/screen/splash/Initialize(mapload, datum/hud/hud_owner, client/C, visible, use_previous_title)
 	. = ..()
 	if(!istype(C))
 		return
@@ -711,3 +764,102 @@ INITIALIZE_IMMEDIATE(/atom/movable/screen/splash)
 	name = "stamina"
 	icon_state = "stamina0"
 	screen_loc = ui_stamina
+
+#define HUNGER_STATE_FAT 2
+#define HUNGER_STATE_FULL 1
+#define HUNGER_STATE_FINE 0
+#define HUNGER_STATE_HUNGRY -1
+#define HUNGER_STATE_STARVING -2
+
+/atom/movable/screen/hunger
+	name = "hunger"
+	icon_state = "hungerbar"
+	base_icon_state = "hungerbar"
+	screen_loc = ui_hunger
+	mouse_opacity = MOUSE_OPACITY_TRANSPARENT
+	/// What state of hunger are we in?
+	VAR_PRIVATE/state = HUNGER_STATE_FINE
+	/// What food icon do we show by the bar
+	var/food_icon = 'icons/obj/food/burgerbread.dmi'
+	/// What food icon state do we show by the bar
+	var/food_icon_state = "hburger"
+	/// The image shown by the bar.
+	VAR_PRIVATE/image/food_image
+
+/atom/movable/screen/hunger/Initialize(mapload, datum/hud/hud_owner)
+	. = ..()
+	var/mob/living/hungry = hud_owner?.mymob
+	if(!istype(hungry))
+		return
+
+	if(!ishuman(hungry) || CONFIG_GET(flag/disable_human_mood))
+		screen_loc = ui_mood // Slot in where mood normally is if mood is disabled
+
+	food_image = image(icon = food_icon, icon_state = food_icon_state, pixel_x = -5)
+	food_image.plane = plane
+	food_image.appearance_flags |= KEEP_APART // To be unaffected by filters applied to src
+	food_image.add_filter("simple_outline", 2, outline_filter(1, COLOR_BLACK))
+	underlays += food_image // To be below filters applied to src
+
+	SetInvisibility(INVISIBILITY_ABSTRACT, name) // Start invisible, update later
+	update_appearance()
+
+/atom/movable/screen/hunger/proc/update_hunger_state()
+	var/mob/living/hungry = hud?.mymob
+	if(!istype(hungry))
+		return
+
+	if(HAS_TRAIT(hungry, TRAIT_NOHUNGER) || !hungry.get_organ_slot(ORGAN_SLOT_STOMACH))
+		state = HUNGER_STATE_FINE
+		return
+
+	if(HAS_TRAIT(hungry, TRAIT_FAT))
+		state = HUNGER_STATE_FAT
+		return
+
+	switch(hungry.nutrition)
+		if(NUTRITION_LEVEL_FULL to INFINITY)
+			state = HUNGER_STATE_FULL
+		if(NUTRITION_LEVEL_HUNGRY to NUTRITION_LEVEL_FULL)
+			state = HUNGER_STATE_FINE
+		if(NUTRITION_LEVEL_STARVING to NUTRITION_LEVEL_HUNGRY)
+			state = HUNGER_STATE_HUNGRY
+		if(0 to NUTRITION_LEVEL_STARVING)
+			state = HUNGER_STATE_STARVING
+
+/atom/movable/screen/hunger/update_appearance(updates)
+	var/old_state = state
+	update_hunger_state() // Do this before we call all the other update procs
+	. = ..()
+	if(state == old_state) // Let's not be wasteful
+		return
+	if(state == HUNGER_STATE_FINE)
+		SetInvisibility(INVISIBILITY_ABSTRACT, name)
+		return
+
+	else if(invisibility)
+		RemoveInvisibility(name)
+
+	if(state == HUNGER_STATE_STARVING)
+		if(!get_filter("hunger_outline"))
+			add_filter("hunger_outline", 1, list("type" = "outline", "color" = "#FF0033", "alpha" = 0, "size" = 2))
+			animate(get_filter("hunger_outline"), alpha = 200, time = 1.5 SECONDS, loop = -1)
+			animate(alpha = 0, time = 1.5 SECONDS)
+
+	else if(get_filter("hunger_outline"))
+		remove_filter("hunger_outline")
+
+	// Update color of the food
+	underlays -= food_image
+	food_image.color = state == HUNGER_STATE_FAT ? COLOR_DARK : null
+	underlays += food_image
+
+/atom/movable/screen/hunger/update_icon_state()
+	. = ..()
+	icon_state = "[base_icon_state][state]"
+
+#undef HUNGER_STATE_FAT
+#undef HUNGER_STATE_FULL
+#undef HUNGER_STATE_FINE
+#undef HUNGER_STATE_HUNGRY
+#undef HUNGER_STATE_STARVING

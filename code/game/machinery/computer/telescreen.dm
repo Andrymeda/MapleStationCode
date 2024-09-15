@@ -1,7 +1,7 @@
 /obj/machinery/computer/security/telescreen
 	name = "\improper Telescreen"
 	desc = "Used for watching an empty arena."
-	icon = 'icons/obj/stationobjs.dmi'
+	icon = 'icons/obj/wallmounts.dmi'
 	icon_state = "telescreen"
 	icon_keyboard = null
 	icon_screen = null
@@ -16,13 +16,13 @@
 /obj/item/wallframe/telescreen
 	name = "telescreen frame"
 	desc = "A wall-mountable telescreen frame. Apply to wall to use."
-	icon = 'icons/obj/stationobjs.dmi'
+	icon = 'icons/obj/wallmounts.dmi'
 	icon_state = "telescreen"
 	result_path = /obj/machinery/computer/security/telescreen
 	pixel_shift = 32
 
 /obj/machinery/computer/security/telescreen/deconstruct(disassembled = TRUE)
-	if(!(flags_1 & NODECONSTRUCT_1))
+	if(!(obj_flags & NO_DECONSTRUCTION))
 		new frame_type(loc)
 	qdel(src)
 
@@ -35,7 +35,7 @@
 /obj/machinery/computer/security/telescreen/entertainment
 	name = "entertainment monitor"
 	desc = "Damn, they better have the /tg/ channel on these things."
-	icon = 'icons/obj/status_display.dmi'
+	icon = 'icons/obj/machines/status_display.dmi'
 	icon_state = "entertainment_blank"
 	network = list()
 	density = FALSE
@@ -49,13 +49,14 @@ MAPPING_DIRECTIONAL_HELPERS(/obj/machinery/computer/security/telescreen/entertai
 
 /obj/item/wallframe/telescreen/entertainment
 	name = "entertainment telescreen frame"
-	icon = 'icons/obj/status_display.dmi'
+	icon = 'icons/obj/machines/status_display.dmi'
 	icon_state = "entertainment_blank"
 	result_path = /obj/machinery/computer/security/telescreen/entertainment
 
 /obj/machinery/computer/security/telescreen/entertainment/Initialize(mapload)
 	. = ..()
 	RegisterSignal(src, COMSIG_CLICK, PROC_REF(BigClick))
+	find_and_hang_on_wall()
 
 // Bypass clickchain to allow humans to use the telescreen from a distance
 /obj/machinery/computer/security/telescreen/entertainment/proc/BigClick()
@@ -87,6 +88,53 @@ MAPPING_DIRECTIONAL_HELPERS(/obj/machinery/computer/security/telescreen/entertai
 		network -= tv_show_id
 
 	notify(network.len, announcement)
+
+/**
+ * Adds a camera network to all entertainment monitors.
+ *
+ * * camera_net - The camera network ID to add to the monitors.
+ * * announcement - Optional, what announcement to make when the show starts.
+ */
+/proc/start_broadcasting_network(camera_net, announcement)
+	for(var/obj/machinery/computer/security/telescreen/entertainment/tv as anything in SSmachines.get_machines_by_type_and_subtypes(/obj/machinery/computer/security/telescreen/entertainment))
+		tv.update_shows(
+			is_show_active = TRUE,
+			tv_show_id = camera_net,
+			announcement = announcement,
+		)
+
+/**
+ * Removes a camera network from all entertainment monitors.
+ *
+ * * camera_net - The camera network ID to remove from the monitors.
+ * * announcement - Optional, what announcement to make when the show ends.
+ */
+/proc/stop_broadcasting_network(camera_net, announcement)
+	for(var/obj/machinery/computer/security/telescreen/entertainment/tv as anything in SSmachines.get_machines_by_type_and_subtypes(/obj/machinery/computer/security/telescreen/entertainment))
+		tv.update_shows(
+			is_show_active = FALSE,
+			tv_show_id = camera_net,
+			announcement = announcement,
+		)
+
+/**
+ * Sets the camera network status on all entertainment monitors.
+ * A way to force a network to a status if you are unsure of the current state.
+ *
+ * * camera_net - The camera network ID to set on the monitors.
+ * * is_show_active - Whether the show is active or not.
+ * * announcement - Optional, what announcement to make.
+ * Note this announcement will be made regardless of the current state of the show:
+ * This means if it's currently on and you set it to on, the announcement will still be made.
+ * Likewise, there's no way to differentiate off -> on and on -> off, unless you handle that yourself.
+ */
+/proc/set_network_broadcast_status(camera_net, is_show_active, announcement)
+	for(var/obj/machinery/computer/security/telescreen/entertainment/tv as anything in SSmachines.get_machines_by_type_and_subtypes(/obj/machinery/computer/security/telescreen/entertainment))
+		tv.update_shows(
+			is_show_active = is_show_active,
+			tv_show_id = camera_net,
+			announcement = announcement,
+		)
 
 /obj/machinery/computer/security/telescreen/rd
 	name = "\improper Research Director's telescreen"
@@ -271,5 +319,4 @@ MAPPING_DIRECTIONAL_HELPERS(/obj/machinery/computer/security/telescreen/entertai
 	is_show_active = !is_show_active
 	say("The [tv_show_name] show has [is_show_active ? "begun" : "ended"]")
 	var/announcement = is_show_active ? pick(tv_starters) : pick(tv_enders)
-	for(var/obj/machinery/computer/security/telescreen/entertainment/tv in GLOB.machines)
-		tv.update_shows(is_show_active, tv_network_id, announcement)
+	set_network_broadcast_status(tv_network_id, is_show_active, announcement)

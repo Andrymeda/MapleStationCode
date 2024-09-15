@@ -11,6 +11,7 @@
 	min_cold_protection_temperature = FIRE_SUIT_MIN_TEMP_PROTECT
 	heat_protection = CHEST|GROIN|LEGS|ARMS
 	max_heat_protection_temperature = SPACE_SUIT_MAX_TEMP_PROTECT
+	supports_variations_flags = CLOTHING_DIGITIGRADE_FILTER
 	hoodtype = /obj/item/clothing/head/hooded/explorer
 	armor_type = /datum/armor/hooded_explorer
 	allowed = list(
@@ -90,7 +91,7 @@
 /obj/item/clothing/mask/gas/explorer/adjustmask(mob/user)
 	. = ..()
 	// adjusted = out of the way = smaller = can fit in boxes
-	w_class = mask_adjusted ? WEIGHT_CLASS_SMALL : WEIGHT_CLASS_NORMAL
+	update_weight_class(mask_adjusted ? WEIGHT_CLASS_SMALL : WEIGHT_CLASS_NORMAL)
 	inhand_icon_state = mask_adjusted ? "[initial(inhand_icon_state)]_up" : initial(inhand_icon_state)
 	if(user)
 		user.update_held_items()
@@ -353,4 +354,3 @@
 	desc = "An armoured hood for exploring harsh environments."
 	icon_state = "explorer_syndicate"
 	armor_type = /datum/armor/hooded_explorer_syndicate
-

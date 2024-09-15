@@ -12,7 +12,7 @@
 	instability = 20
 	icon_dead = "wheat-dead"
 	mutatelist = list(/obj/item/seeds/wheat/oat, /obj/item/seeds/wheat/meat)
-	reagents_add = list(/datum/reagent/consumable/nutriment = 0.04)
+	reagents_add = list(/datum/reagent/consumable/nutriment = 0.12)
 
 /obj/item/food/grown/wheat
 	seed = /obj/item/seeds/wheat
@@ -25,6 +25,8 @@
 	grind_results = list(/datum/reagent/consumable/flour = 0)
 	tastes = list("wheat" = 1)
 	distill_reagent = /datum/reagent/consumable/ethanol/beer
+	drop_sound = 'maplestation_modules/sound/items/drop/herb.ogg'
+	pickup_sound = 'maplestation_modules/sound/items/pickup/herb.ogg'
 
 // Oat
 /obj/item/seeds/wheat/oat
@@ -47,6 +49,8 @@
 	grind_results = list(/datum/reagent/consumable/flour = 0)
 	tastes = list("oat" = 1)
 	distill_reagent = /datum/reagent/consumable/ethanol/ale
+	drop_sound = 'maplestation_modules/sound/items/drop/herb.ogg'
+	pickup_sound = 'maplestation_modules/sound/items/pickup/herb.ogg'
 
 // Rice
 /obj/item/seeds/wheat/rice
@@ -71,6 +75,8 @@
 	grind_results = list(/datum/reagent/consumable/rice = 0)
 	tastes = list("rice" = 1)
 	distill_reagent = /datum/reagent/consumable/ethanol/sake
+	drop_sound = 'maplestation_modules/sound/items/drop/herb.ogg'
+	pickup_sound = 'maplestation_modules/sound/items/pickup/herb.ogg'
 
 //Meatwheat - grows into synthetic meat
 /obj/item/seeds/wheat/meat
@@ -93,11 +99,14 @@
 	grind_results = list(/datum/reagent/consumable/flour = 0, /datum/reagent/blood = 0)
 	tastes = list("meatwheat" = 1)
 	can_distill = FALSE
+	drop_sound = 'maplestation_modules/sound/items/drop/herb.ogg'
+	pickup_sound = 'maplestation_modules/sound/items/pickup/herb.ogg'
 
 /obj/item/food/grown/meatwheat/attack_self(mob/living/user)
 	user.visible_message(span_notice("[user] crushes [src] into meat."), span_notice("You crush [src] into something that resembles meat."))
 	playsound(user, 'sound/effects/blobattack.ogg', 50, TRUE)
-	var/obj/item/food/meat/slab/meatwheat/M = new
+	var/obj/item/food/meat/slab/meatwheat/meaties = new(null)
+	meaties.reagents.set_all_reagents_purity(seed.get_reagent_purity())
 	qdel(src)
-	user.put_in_hands(M)
-	return 1
+	user.put_in_hands(meaties)
+	return TRUE

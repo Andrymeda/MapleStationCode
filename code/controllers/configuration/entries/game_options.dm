@@ -199,9 +199,6 @@
 	default = list( //DEFAULTS
 	/mob/living/simple_animal = 1,
 	/mob/living/silicon/pai = 1,
-	/mob/living/carbon/alien/adult/hunter = -1,
-	/mob/living/carbon/alien/adult/royal/praetorian = 1,
-	/mob/living/carbon/alien/adult/royal/queen = 3
 	)
 
 /datum/config_entry/keyed_list/multiplicative_movespeed/ValidateAndSet()
@@ -428,4 +425,23 @@
 	default = 4
 	min_val = 1
 
+/datum/config_entry/str_list/tts_voice_blacklist
+
 /datum/config_entry/flag/give_tutorials_without_db
+
+/datum/config_entry/string/new_player_alert_role_id
+
+/datum/config_entry/keyed_list/station_traits
+	default = list(
+		"0" = 12,
+		"1" = 40,
+		"2" = 24,
+		"3" = 12,
+		"4" = 6,
+		"5" = 3,
+		"6" = 2,
+		"7" = 1,
+		"8" = 0,
+	)
+	key_mode = KEY_MODE_TEXT
+	value_mode = VALUE_MODE_NUM

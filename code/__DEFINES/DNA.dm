@@ -11,9 +11,9 @@
 // String identifiers for associative list lookup
 
 //Types of usual mutations
-#define POSITIVE 1
-#define NEGATIVE 2
-#define MINOR_NEGATIVE 4
+#define POSITIVE (1<<0)
+#define NEGATIVE (1<<1)
+#define MINOR_NEGATIVE (1<<2)
 
 
 //Mutation classes. Normal being on them, extra being additional mutations with instability and other being stuff you dont want people to fuck with like wizard mutate
@@ -29,19 +29,18 @@
 
 #define DNA_BLOCK_SIZE_COLOR DEFAULT_HEX_COLOR_LEN
 
-#define DNA_EYE_COLOR_LEFT_BLOCK 4
+#define DNA_GENDER_BLOCK 1
+#define DNA_SKIN_TONE_BLOCK 2
+#define DNA_EYE_COLOR_LEFT_BLOCK 3
 #define DNA_EYE_COLOR_RIGHT_BLOCK 4
-#define DNA_FACIAL_HAIR_COLOR_BLOCK 2
-#define DNA_FACIAL_HAIRSTYLE_BLOCK 6
-#define DNA_GENDER_BLOCK 5
-#define DNA_HAIR_COLOR_BLOCK 1
-#define DNA_HAIRSTYLE_BLOCK 7
-#define DNA_SKIN_TONE_BLOCK 3
-#define DNA_UNI_IDENTITY_BLOCKS 7
+#define DNA_HAIRSTYLE_BLOCK 5
+#define DNA_HAIR_COLOR_BLOCK 6
+#define DNA_FACIAL_HAIRSTYLE_BLOCK 7
+#define DNA_FACIAL_HAIR_COLOR_BLOCK 8
+
+#define DNA_UNI_IDENTITY_BLOCKS 8
 
 /// This number needs to equal the total number of DNA blocks
-#define DNA_FEATURE_BLOCKS 19
-
 #define DNA_MUTANT_COLOR_BLOCK 1
 #define DNA_ETHEREAL_COLOR_BLOCK 2
 #define DNA_LIZARD_MARKINGS_BLOCK 3
@@ -61,38 +60,14 @@
 #define DNA_ARM_WINGS_BLOCK 17 // NON-MODULE CHANGE
 #define DNA_AVIAN_EARS_BLOCK 18 // NON-MODULE CHANGE
 #define DNA_AVIAN_TAIL_BLOCK 19 // NON-MODULE CHANGE
+#define DNA_FEATHER_COLOR_BLOCK 20 // NON-MODULE CHANGE
+#define DNA_SYNTH_HEAD_COVER_BLOCK 21 // NON-MODULE CHANGE
+
+#define DNA_FEATURE_BLOCKS 21 // NON-MODULE CHANGE
 
 #define DNA_SEQUENCE_LENGTH 4
 #define DNA_MUTATION_BLOCKS 8
 #define DNA_UNIQUE_ENZYMES_LEN 32
-
-//species traits for mutantraces
-#define MUTCOLORS 1
-#define HAIR 2
-#define FACEHAIR 3
-#define EYECOLOR 4
-#define LIPS 5
-#define NOTRANSSTING 7
-#define NOZOMBIE 8
-#define NO_UNDERWEAR 9
-#define NO_DNA_COPY 10
-#define DRINKSBLOOD 11
-
-/// Use this if you want to change the race's color without the player being able to pick their own color. AKA special color shifting
-#define DYNCOLORS 12
-#define AGENDER 13
-/// Do not draw eyes or eyeless overlay
-#define NOEYESPRITES 14
-///If we have a limb-specific overlay sprite
-#define HAS_MARKINGS 15
-/// Do not draw blood overlay
-#define NOBLOODOVERLAY 16
-///No augments, for monkeys in specific because they will turn into fucking freakazoids https://cdn.discordapp.com/attachments/326831214667235328/791313258912153640/102707682-fa7cad80-4294-11eb-8f13-8c689468aeb0.png
-#define NOAUGMENTS 17
-///will be assigned a universal vampire themed last name shared by their department. this is preferenced!
-#define BLOOD_CLANS 18
-/// Similar to NOEYESPRITES but only excludes the eyeless overlay
-#define NOEYEHOLES 19
 
 //organ slots
 #define ORGAN_SLOT_ADAMANTINE_RESONATOR "adamantine_resonator"
@@ -130,6 +105,7 @@
 #define ORGAN_SLOT_EXTERNAL_BODYMARKINGS "bodymarkings"
 #define ORGAN_SLOT_EXTERNAL_POD_HAIR "pod_hair"
 #define ORGAN_SLOT_EXTERNAL_HEAD_TENTACLES "head_tentacles" // NON-MODULE CHANGE
+#define ORGAN_SLOT_EXTERNAL_SYNTH_HEAD_COVER "synth_head_cover" //NON-MODULE CHANGE
 
 /// Xenomorph organ slots
 #define ORGAN_SLOT_XENO_ACIDGLAND "acid_gland"
@@ -151,9 +127,11 @@
 #define CHROMOSOME_USED 2
 
 //used for mob's genetic gender (mainly just for pronouns, members of sexed species with plural gender refer to their physique for the actual sprites, which is not genetic)
+#define GENDERS 4
 #define G_MALE 1
 #define G_FEMALE 2
 #define G_PLURAL 3
+#define G_NEUTER 4
 
 /// Defines how a mob's organs_slot is ordered
 /// Exists so Life()'s organ process order is consistent

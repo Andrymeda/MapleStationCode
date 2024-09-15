@@ -75,6 +75,8 @@
 	resistance_flags = FLAMMABLE
 	grind_results = list(/datum/reagent/cellulose = 5)
 	merge_type = /obj/item/stack/package_wrap
+	drop_sound = 'maplestation_modules/sound/items/drop/generic2.ogg'
+	pickup_sound = 'maplestation_modules/sound/items/pickup/generic3.ogg'
 
 /obj/item/stack/package_wrap/suicide_act(mob/living/user)
 	user.visible_message(span_suicide("[user] begins wrapping [user.p_them()]self in \the [src]! It looks like [user.p_theyre()] trying to commit suicide!"))
@@ -130,7 +132,7 @@
 			item.forceMove(parcel)
 			var/size = round(item.w_class)
 			parcel.name = "[weight_class_to_text(size)] parcel"
-			parcel.w_class = size
+			parcel.update_weight_class(size)
 			size = min(size, 5)
 			parcel.base_icon_state = "deliverypackage[size]"
 			parcel.update_icon()

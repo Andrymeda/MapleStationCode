@@ -64,7 +64,7 @@ FLOOR SAFES
 	if(open)
 		. = TRUE //no afterattack
 		if(attacking_item.w_class + space <= maxspace)
-			if(!user.transferItemToLoc(attacking_item, src))
+			if(!user.transferItemToLoc(attacking_item, src, silent = FALSE))
 				to_chat(user, span_warning("\The [attacking_item] is stuck to your hand, you cannot put it in the safe!"))
 				return
 			space += attacking_item.w_class
@@ -121,9 +121,9 @@ FLOOR SAFES
 	if(open)
 		var/list/contents_names = list()
 		data["contents"] = contents_names
-		for(var/obj/O in contents)
-			contents_names[++contents_names.len] = list("name" = O.name, "sprite" = O.icon_state)
-			user << browse_rsc(icon(O.icon, O.icon_state), "[O.icon_state].png")
+		for(var/obj/jewel in contents)
+			contents_names[++contents_names.len] = list("name" = jewel.name, "sprite" = jewel.icon_state)
+			user << browse_rsc(icon(jewel.icon, jewel.icon_state), "[jewel.icon_state].png")
 
 	return data
 

@@ -23,6 +23,10 @@
 	armor_type = /datum/armor/item_spear
 	wound_bonus = -15
 	bare_wound_bonus = 15
+	drop_sound = 'maplestation_modules/sound/items/drop/sword.ogg'
+	pickup_sound = 'maplestation_modules/sound/items/pickup/sword1.ogg'
+	equip_sound = 'maplestation_modules/sound/items/drop/sword.ogg'
+
 	/// For explosive spears, what we cry out when we use this to bap someone
 	var/war_cry = "AAAAARGH!!!"
 	/// The icon prefix for this flavor of spear
@@ -40,7 +44,10 @@
 	. = ..()
 	force = force_unwielded
 	//decent in a pinch, but pretty bad.
-	AddComponent(/datum/component/jousting)
+	AddComponent(/datum/component/jousting, \
+		max_tile_charge = 9, \
+		min_tile_charge = 6, \
+		)
 
 	AddComponent(/datum/component/butchering, \
 		speed = 10 SECONDS, \
@@ -51,7 +58,18 @@
 		force_wielded = force_wielded, \
 		icon_wielded = "[icon_prefix]1", \
 	)
+	add_headpike_component()
 	update_appearance()
+	ADD_TRAIT(src, TRAIT_BLIND_TOOL, INNATE_TRAIT)
+
+// I dunno man
+/obj/item/spear/proc/add_headpike_component()
+	var/static/list/slapcraft_recipe_list = list(/datum/crafting_recipe/headpike)
+
+	AddComponent(
+		/datum/component/slapcrafting,\
+		slapcraft_recipes = slapcraft_recipe_list,\
+	)
 
 /obj/item/spear/update_icon_state()
 	icon_state = "[icon_prefix]0"
@@ -139,7 +157,7 @@
 	user.say("[war_cry]", forced="spear warcry")
 	explosive.forceMove(user)
 	explosive.detonate()
-	user.gib()
+	user.gib(DROP_ALL_REMAINS)
 	qdel(src)
 	return BRUTELOSS
 
@@ -220,6 +238,14 @@
 	force_unwielded = 12
 	force_wielded = 20
 
+/obj/item/spear/bonespear/add_headpike_component()
+	var/static/list/slapcraft_recipe_list = list(/datum/crafting_recipe/headpikebone)
+
+	AddComponent(
+		/datum/component/slapcrafting,\
+		slapcraft_recipes = slapcraft_recipe_list,\
+	)
+
 /*
  * Bamboo Spear
  */
@@ -229,8 +255,20 @@
 	icon_prefix = "bamboo_spear"
 	name = "bamboo spear"
 	desc = "A haphazardly-constructed bamboo stick with a sharpened tip, ready to poke holes into unsuspecting people."
+	drop_sound = 'maplestation_modules/sound/items/drop/wooden.ogg'
+	pickup_sound = 'maplestation_modules/sound/items/pickup/wooden.ogg'
+	equip_sound = 'maplestation_modules/sound/items/drop/wooden.ogg'
 
 	throwforce = 22	//Better to throw
 	custom_materials = list(/datum/material/bamboo = SHEET_MATERIAL_AMOUNT * 20)
 	force_unwielded = 10
 	force_wielded = 18
+
+
+/obj/item/spear/bamboospear/add_headpike_component()
+	var/static/list/slapcraft_recipe_list = list(/datum/crafting_recipe/headpikebamboo)
+
+	AddComponent(
+		/datum/component/slapcrafting,\
+		slapcraft_recipes = slapcraft_recipe_list,\
+	)

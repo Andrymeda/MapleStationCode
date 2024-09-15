@@ -1,6 +1,6 @@
 // -- Xenobiologist job & outfit datum --
 /datum/job/xenobiologist
-	title = "Xenobiologist"
+	title = JOB_XENOBIOLOGIST
 	description = "Feed slimes all shift, never exit xenobiology for any reason. \
 		Leave after two hours as an unkillable god with an army of monsters."
 	department_head = list(JOB_RESEARCH_DIRECTOR)
@@ -44,7 +44,7 @@
 
 	job_flags = JOB_ANNOUNCE_ARRIVAL | JOB_CREW_MANIFEST | JOB_EQUIP_RANK | JOB_CREW_MEMBER | JOB_NEW_PLAYER_JOINABLE | JOB_REOPEN_ON_ROUNDSTART_LOSS | JOB_ASSIGN_QUIRKS | JOB_CAN_BE_INTERN
 	rpg_title = "Beast Tamer"
-	crewmonitor_priority = 35
+	crewmonitor_priority = 34
 
 /datum/outfit/job/scientist/xenobiologist
 	name = "Xenobiologist"

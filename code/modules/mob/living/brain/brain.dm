@@ -1,6 +1,5 @@
 /mob/living/brain
 	var/obj/item/mmi/container = null
-	var/timeofhostdeath = 0
 	var/emp_damage = 0//Handles a type of MMI damage
 	var/datum/dna/stored/stored_dna // dna var for brain. Used to store dna, brain dna is not considered like actual dna, brain.has_dna() returns FALSE.
 	stat = DEAD //we start dead by default
@@ -10,7 +9,7 @@
 /mob/living/brain/Initialize(mapload)
 	. = ..()
 	create_dna(src)
-	stored_dna.initialize_dna(random_blood_type())
+	stored_dna.initialize_dna()
 	if(isturf(loc)) //not spawned in an MMI or brain organ (most likely adminspawned)
 		var/obj/item/organ/internal/brain/OB = new(loc) //we create a new brain organ for it.
 		OB.brainmob = src
@@ -47,7 +46,7 @@
 	visible_message(span_danger(get_visible_suicide_message()), span_userdanger(get_visible_suicide_message()))
 
 /mob/living/brain/get_visible_suicide_message()
-	return "[src]'s brain is growing dull and lifeless. [p_they(TRUE)] look[p_s()] like [p_theyve()] lost the will to live."
+	return "[src]'s brain is growing dull and lifeless. [p_They()] look[p_s()] like [p_theyve()] lost the will to live."
 
 /mob/living/brain/apply_suicide_damage(obj/item/suicide_tool, damage_type = NONE) // we don't really care about applying damage to the brain mob and is just needless work.
 	return FALSE

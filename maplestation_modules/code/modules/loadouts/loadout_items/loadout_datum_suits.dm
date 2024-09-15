@@ -3,13 +3,13 @@
 /// Exosuit / Outersuit Slot Items (Deletes overrided items)
 /datum/loadout_category/outer_suit
 	category_name = "Suit"
-	ui_title = "Outer Suit Slot Items"
 	type_to_generate = /datum/loadout_item/suit
+	tab_order = 6
 
 /datum/loadout_item/suit
 	abstract_type = /datum/loadout_item/suit
 
-/datum/loadout_item/suit/insert_path_into_outfit(datum/outfit/outfit, mob/living/carbon/human/equipper, visuals_only = FALSE)
+/datum/loadout_item/suit/insert_path_into_outfit(datum/outfit/outfit, mob/living/carbon/human/equipper, visuals_only = FALSE, job_equipping_step = FALSE)
 	outfit.suit = item_path
 	if(outfit.suit_store)
 		LAZYADD(outfit.backpack_contents, outfit.suit_store)
@@ -26,7 +26,7 @@
 /datum/loadout_item/suit/parade_jacket_greyscale
 	name = "Greyscale Parade Jacket"
 	item_path = /obj/item/clothing/suit/greyscale_parade
-	additional_tooltip_contents = list(TOOLTIP_NO_ARMOR)
+	additional_displayed_text = list("Cosmetic")
 
 /datum/loadout_item/suit/big_jacket
 	name = "Greyscale Jacket Large"
@@ -56,9 +56,9 @@
 	name = "Purple Suit Jacket"
 	item_path = /obj/item/clothing/suit/toggle/lawyer/purple
 
-/datum/loadout_item/suit/purple_apron
-	name = "Purple Apron"
-	item_path = /obj/item/clothing/suit/apron/purple_bartender
+/datum/loadout_item/suit/greyscale_suit_jacket
+	name = "Greyscale Suit Jacket"
+	item_path = /obj/item/clothing/suit/toggle/lawyer/greyscale
 
 /datum/loadout_item/suit/suspenders_greyscale
 	name = "Suspenders"
@@ -80,7 +80,7 @@
 /datum/loadout_item/suit/goliath_cloak
 	name = "Heirloom Goliath Cloak"
 	item_path = /obj/item/clothing/suit/hooded/cloak/goliath/heirloom
-	additional_tooltip_contents = list(TOOLTIP_NO_ARMOR)
+	additional_displayed_text = list("Cosmetic")
 
 /datum/loadout_item/suit/poncho
 	name = "Poncho"
@@ -161,3 +161,12 @@
 /datum/loadout_item/suit/flannel_jacket
 	name = "Flannel Jacket"
 	item_path = /obj/item/clothing/suit/toggle/flannel
+
+/datum/loadout_item/suit/chesed_jacket
+	name = "Well-Kept Jacket"
+	item_path = /obj/item/clothing/suit/toggle/chesedjacket
+
+/datum/loadout_item/suit/jessie_cape
+	name = "Researcher's Shoulder Cape"
+	item_path = /obj/item/clothing/suit/toggle/labcoat/research_director/jessie_cape
+	additional_displayed_text = list("Character Item")

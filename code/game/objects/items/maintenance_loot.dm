@@ -11,8 +11,8 @@
 	lefthand_file = 'icons/mob/inhands/weapons/melee_lefthand.dmi'
 	righthand_file = 'icons/mob/inhands/weapons/melee_righthand.dmi'
 	//wow, lore
-	desc = "A hefty lead pipe.\nLead in an uncommon sight in this sector after being phased out due to employee health concerns. \
-	\nThose of a more cynical disposition assume that the NT lead ban is a scheme to prevent divertion to Syndicate ammunition factories."
+	desc = "A hefty lead pipe.\nLead is an uncommon sight in this sector after being phased out due to employee health concerns. \
+	\nThose of a more cynical disposition have claimed that the NT lead ban is a scheme to prevent diversion to Syndicate ammunition factories."
 	force = 15
 	throwforce = 12
 	throw_range = 4
@@ -20,17 +20,19 @@
 	wound_bonus = 20
 	demolition_mod = 1.25
 	grind_results = list(/datum/reagent/lead = 20)
+	drop_sound = 'maplestation_modules/sound/items/drop/metal_drop.ogg'
+	pickup_sound = 'maplestation_modules/sound/items/pickup/metalweapon.ogg'
 
 //A good battery early in the shift. Source of lead & sulfuric acid reagents.
 //Add lead material to this once implemented.
 /obj/item/stock_parts/cell/lead
 	name = "lead-acid battery"
-	desc = "A type of primitive battery. It is quite large feels unexpectedly heavy."
+	desc = "A primitive battery. It is quite large and feels unexpectedly heavy."
 	icon = 'icons/obj/maintenance_loot.dmi'
 	icon_state = "lead_battery"
 	throwforce = 10
 	maxcharge = 20000 //decent max charge
-	chargerate = 1400 //charging is about 30% less efficient compared lithium batteries.
+	chargerate = 1400 //charging is about 30% less efficient than lithium batteries.
 	charge_light_type = null
 	connector_type = "leadacid"
 	rating = 2 //Kind of a mid-tier battery

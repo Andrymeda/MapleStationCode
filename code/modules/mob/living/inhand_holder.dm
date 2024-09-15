@@ -20,7 +20,7 @@
 		righthand_file = rh_icon
 	if(worn_slot_flags)
 		slot_flags = worn_slot_flags
-	w_class = M.held_w_class
+	update_weight_class(M.held_w_class)
 	deposit(M)
 	. = ..()
 
@@ -53,7 +53,9 @@
 		return
 
 	var/mob/living/throw_mob = held_mob
-	release()
+	release(display_messages = FALSE)
+	user.set_pulling(throw_mob)
+	user.setGrabState(GRAB_AGGRESSIVE)
 	return throw_mob
 
 /obj/item/clothing/head/mob_holder/dropped()
@@ -114,11 +116,11 @@
 	desc = "This drone is scared and has curled up into a ball!"
 
 /obj/item/clothing/head/mob_holder/drone/update_visuals(mob/living/L)
-	var/mob/living/simple_animal/drone/D = L
-	if(!D)
+	var/mob/living/basic/drone/drone = L
+	if(!drone)
 		return ..()
 	icon = 'icons/mob/silicon/drone.dmi'
-	icon_state = "[D.visualAppearance]_hat"
+	icon_state = "[drone.visualAppearance]_hat"
 
 /obj/item/clothing/head/mob_holder/destructible
 

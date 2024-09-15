@@ -6,7 +6,7 @@
 /obj/machinery/grill
 	name = "grill"
 	desc = "Just like the old days."
-	icon = 'icons/obj/kitchen.dmi'
+	icon = 'icons/obj/machines/kitchen.dmi'
 	icon_state = "grill_open"
 	density = TRUE
 	pass_flags_self = PASSMACHINE | LETPASSTHROW
@@ -91,20 +91,17 @@
 	if(grilled_item)
 		SEND_SIGNAL(grilled_item, COMSIG_ITEM_GRILL_PROCESS, src, seconds_per_tick)
 		grill_time += seconds_per_tick
-		grilled_item.reagents.add_reagent(/datum/reagent/consumable/char, 0.5 * seconds_per_tick)
+		var/char_amount = clamp(grilled_item.reagents.get_reagent_amount(/datum/reagent/consumable/nutriment), 1, (/datum/reagent/consumable/char::overdose_threshold / 3))
+		if(!grilled_item.reagents.has_reagent(/datum/reagent/consumable/char, char_amount))
+			grilled_item.reagents.add_reagent(/datum/reagent/consumable/char, 0.15 * seconds_per_tick)
 		grill_fuel -= GRILL_FUELUSAGE_ACTIVE * seconds_per_tick
 		grilled_item.AddComponent(/datum/component/sizzle)
 
 /obj/machinery/grill/Exited(atom/movable/gone, direction)
+	. = ..()
 	if(gone == grilled_item)
 		finish_grill()
 		grilled_item = null
-	return ..()
-
-/obj/machinery/grill/handle_atom_del(atom/A)
-	if(A == grilled_item)
-		grilled_item = null
-	return ..()
 
 /obj/machinery/grill/wrench_act(mob/living/user, obj/item/I)
 	. = ..()
@@ -114,7 +111,7 @@
 /obj/machinery/grill/deconstruct(disassembled = TRUE)
 	if(grilled_item)
 		finish_grill()
-	if(!(flags_1 & NODECONSTRUCT_1))
+	if(!(obj_flags & NO_DECONSTRUCTION))
 		new /obj/item/stack/sheet/iron(loc, 5)
 		new /obj/item/stack/rods(loc, 5)
 	..()
@@ -131,7 +128,7 @@
 	return ..()
 
 /obj/machinery/grill/proc/finish_grill()
-	if(grilled_item)
+	if(!QDELETED(grilled_item))
 		if(grill_time >= 20)
 			grilled_item.AddElement(/datum/element/grilled_item, grill_time)
 		UnregisterSignal(grilled_item, COMSIG_ITEM_GRILLED)

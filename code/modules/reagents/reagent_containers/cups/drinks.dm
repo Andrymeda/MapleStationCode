@@ -5,7 +5,7 @@
 	name = "drink"
 	desc = "yummy"
 	icon = 'icons/obj/drinks/drinks.dmi'
-	icon_state = null
+	icon_state = "glass_empty"
 	possible_transfer_amounts = list(5,10,15,20,25,30,50)
 	resistance_flags = NONE
 
@@ -15,7 +15,8 @@
 /obj/item/reagent_containers/cup/glass/throw_impact(atom/hit_atom, datum/thrownthing/throwingdatum, do_splash = TRUE)
 	. = ..()
 	if(!.) //if the bottle wasn't caught
-		smash(hit_atom, throwingdatum?.thrower, TRUE)
+		var/mob/thrower = throwingdatum?.get_thrower()
+		smash(hit_atom, thrower, TRUE)
 
 /obj/item/reagent_containers/cup/glass/proc/smash(atom/target, mob/thrower, ranged = FALSE, break_top = FALSE)
 	if(!isGlass)
@@ -49,9 +50,9 @@
 	throwforce = 1
 	amount_per_transfer_from_this = 5
 	custom_materials = list(/datum/material/iron=SMALL_MATERIAL_AMOUNT)
-	possible_transfer_amounts = list(5)
+	has_variable_transfer_amount = FALSE
 	volume = 5
-	flags_1 = CONDUCT_1
+	obj_flags = CONDUCTS_ELECTRICITY
 	spillable = TRUE
 	resistance_flags = FIRE_PROOF
 	isGlass = FALSE
@@ -155,6 +156,8 @@
 	base_icon_state = "tea"
 	inhand_icon_state = "coffee"
 	spillable = TRUE
+	drop_sound = 'sound/items/handling/drinkglass_drop.ogg'
+	pickup_sound = 'sound/items/handling/drinkglass_pickup.ogg'
 
 /obj/item/reagent_containers/cup/glass/mug/update_icon_state()
 	icon_state = "[base_icon_state][reagents.total_volume ? null : "_empty"]"
@@ -227,8 +230,8 @@
 	custom_price = PAYCHECK_LOWER * 0.8
 
 /obj/item/reagent_containers/cup/glass/waterbottle/Initialize(mapload)
-	. = ..()
 	cap_overlay = mutable_appearance(cap_icon, cap_icon_state)
+	. = ..()
 	if(cap_on)
 		spillable = FALSE
 		update_appearance()
@@ -314,9 +317,9 @@
 		return
 	if(prob(flip_chance)) // landed upright
 		src.visible_message(span_notice("[src] lands upright!"))
-		if(throwingdatum.thrower)
-			var/mob/living/living_thrower = throwingdatum.thrower
-			living_thrower.add_mood_event("bottle_flip", /datum/mood_event/bottle_flip)
+		var/mob/living/thrower = throwingdatum?.get_thrower()
+		if(thrower)
+			thrower.add_mood_event("bottle_flip", /datum/mood_event/bottle_flip)
 	else // landed on it's side
 		animate(src, transform = matrix(prob(50)? 90 : -90, MATRIX_ROTATE), time = 3, loop = 0)
 
@@ -365,6 +368,8 @@
 	volume = 10
 	spillable = TRUE
 	isGlass = FALSE
+	drop_sound = 'maplestation_modules/sound/items/drop/papercup.ogg'
+	pickup_sound = 'maplestation_modules/sound/items/pickup/papercup.ogg'
 
 /obj/item/reagent_containers/cup/glass/sillycup/update_icon_state()
 	icon_state = reagents.total_volume ? "water_cup" : "water_cup_e"
@@ -434,6 +439,8 @@
 	amount_per_transfer_from_this = 10
 	volume = 100
 	isGlass = FALSE
+	drop_sound = 'maplestation_modules/sound/items/drop/bottle.ogg'
+	pickup_sound = 'maplestation_modules/sound/items/pickup/bottle.ogg'
 
 /obj/item/reagent_containers/cup/glass/shaker/Initialize(mapload)
 	. = ..()
@@ -451,6 +458,8 @@
 	custom_materials = list(/datum/material/iron=SMALL_MATERIAL_AMOUNT*2.5)
 	volume = 60
 	isGlass = FALSE
+	drop_sound = 'maplestation_modules/sound/items/pickup/bottle.ogg'
+	pickup_sound = 'maplestation_modules/sound/items/pickup/bottle.ogg'
 
 /obj/item/reagent_containers/cup/glass/flask/gold
 	name = "captain's flask"

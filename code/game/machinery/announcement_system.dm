@@ -32,6 +32,9 @@ GLOBAL_LIST_EMPTY(announcement_systems)
 	radio = new /obj/item/radio/headset/silicon/ai(src)
 	update_appearance()
 
+/obj/machinery/announcement_system/randomize_language_if_on_station()
+	return
+
 /obj/machinery/announcement_system/update_icon_state()
 	icon_state = "[base_icon_state]_[is_operational ? "On" : "Off"][panel_open ? "_Open" : null]"
 	return ..()
@@ -176,8 +179,10 @@ GLOBAL_LIST_EMPTY(announcement_systems)
 	if(!(machine_stat & (NOPOWER|BROKEN)) && !(. & EMP_PROTECT_SELF))
 		act_up()
 
-/obj/machinery/announcement_system/emag_act()
+/obj/machinery/announcement_system/emag_act(mob/user, obj/item/card/emag/emag_card)
 	if(obj_flags & EMAGGED)
-		return
+		return FALSE
 	obj_flags |= EMAGGED
 	act_up()
+	balloon_alert(user, "announcement strings corrupted")
+	return TRUE

@@ -1,7 +1,7 @@
 /obj/item/sensor_device
 	name = "handheld crew monitor" //Thanks to Gun Hog for the name!
 	desc = "A miniature machine that tracks suit sensors across the station."
-	icon = 'icons/obj/device.dmi'
+	icon = 'icons/obj/devices/scanner.dmi'
 	icon_state = "scanner"
 	inhand_icon_state = "electronic"
 	worn_icon_state = "electronic"
@@ -11,6 +11,8 @@
 	slot_flags = ITEM_SLOT_BELT
 	custom_price = PAYCHECK_CREW * 5
 	custom_premium_price = PAYCHECK_CREW * 6
+	drop_sound = 'maplestation_modules/sound/items/drop/device2.ogg'
+	pickup_sound = 'maplestation_modules/sound/items/pickup/device.ogg'
 
 /obj/item/sensor_device/attack_self(mob/user)
 	GLOB.crewmonitor.show(user,src) //Proc already exists, just had to call it

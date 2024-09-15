@@ -65,19 +65,34 @@
 	light_range = 2
 	light_power = 1
 	light_on = FALSE
+	item_flags = NO_BLOOD_ON_ITEM
+	///force when active, passed onto component/transforming
+	var/active_force = 18
+	///throwforce when active, passed onto component/transforming
+	var/active_throwforce = 16
+	///hitsound when active, passed onto component/transforming
+	var/active_hitsound = 'maplestation_modules/sound/weapons/plasmaslice.ogg'
+	///w_class when active, passed onto component/transforming
+	var/active_w_class = WEIGHT_CLASS_BULKY
+	///attack_verb_continous_on when active, passed onto component/transforming
+	var/active_attack_verb_continous_on = list("incinerates", "slashes", "singes", "scorches", "tears", "stabs")
+	///attack_verb_simple_on when active, passed onto component/transforming
+	var/active_attack_verb_simple_on = list("incinerate", "slash", "singe", "scorch", "tear", "stab")
+	///light color when active, passed onto proc/on_transform
+	var/active_light_color = COLOR_AMETHYST
 
 
 /obj/item/melee/maple_plasma_blade/Initialize(mapload)
 	. = ..()
 	AddComponent(/datum/component/transforming, \
-		force_on = 18, \
-		throwforce_on = 16, \
+		force_on = active_force, \
+		throwforce_on = active_throwforce, \
 		throw_speed_on = throw_speed, \
 		sharpness_on = SHARP_EDGED, \
-		hitsound_on = 'maplestation_modules/sound/weapons/plasmaslice.ogg', \
-		w_class_on = WEIGHT_CLASS_BULKY, \
-		attack_verb_continuous_on = list("incinerates", "slashes", "singes", "scorches", "tears", "stabs"), \
-		attack_verb_simple_on = list("incinerate", "slash", "singe", "scorch", "tear", "stab"), \
+		hitsound_on = active_hitsound, \
+		w_class_on = active_w_class, \
+		attack_verb_continuous_on = active_attack_verb_continous_on, \
+		attack_verb_simple_on = active_attack_verb_simple_on, \
 	)
 	RegisterSignal(src, COMSIG_TRANSFORMING_ON_TRANSFORM, PROC_REF(on_transform))
 
@@ -87,7 +102,7 @@
 	playsound(user ? user : src, active ? 'maplestation_modules/sound/weapons/plasmaon.ogg' : 'maplestation_modules/sound/weapons/plasmaoff.ogg', 20, TRUE)
 	update_appearance(UPDATE_ICON)
 	set_light_on(active)
-	set_light_color(COLOR_AMETHYST) // shoutouts to jade for the lighting code.
+	set_light_color(active_light_color) // shoutouts to jade for the lighting code.
 	tool_behaviour = (active ? TOOL_KNIFE : NONE) // Yolo. this will let it work as a knife can.
 	slot_flags = active ? NONE : ITEM_SLOT_BELT // this is to prevent it from being storable in belt.
 	return COMPONENT_NO_DEFAULT_MESSAGE
@@ -105,6 +120,8 @@
 	wound_bonus = 20
 	throwforce = 16
 	w_class = WEIGHT_CLASS_BULKY
+	drop_sound = 'maplestation_modules/sound/items/drop/generic2.ogg'
+	pickup_sound = 'maplestation_modules/sound/items/pickup/generic2.ogg'
 
 /obj/item/melee/psych_rock/Initialize(mapload)
 	. = ..()
@@ -116,3 +133,26 @@
 	if(mapload && !paperweight_spawned  && istype(get_area(src), /area/station/medical/psychology))
 		new /obj/item/melee/psych_rock(loc)
 		paperweight_spawned = TRUE
+
+/obj/item/knife/combat/nullknife
+	name = "\improper XM6N Null Knife"
+	icon = 'maplestation_modules/icons/obj/weapons.dmi'
+	icon_state = "null_knife"
+	lefthand_file = 'icons/mob/inhands/equipment/kitchen_lefthand.dmi'
+	righthand_file = 'icons/mob/inhands/equipment/kitchen_righthand.dmi'
+	inhand_icon_state = "knife"
+	worn_icon_state = "knife"
+	desc = "An experimental anti-magic knife."
+	force = 17
+	throwforce = 10
+	embedding = list("pain_mult" = 4, "embed_chance" = 35, "fall_chance" = 10)
+	custom_materials = null
+
+/obj/item/knife/combat/nullknife/Initialize(mapload)
+	AddComponent(/datum/component/anti_magic, MAGIC_RESISTANCE|MAGIC_RESISTANCE_HOLY)
+	AddElement(/datum/element/bane, target_type = /mob/living/basic/revenant, damage_multiplier = 0, added_damage = 25, requires_combat_mode = FALSE)
+	return ..()
+
+/obj/item/knife/combat/nullknife/examine_more(mob/user)
+	. = ..()
+	. += span_notice("<i>While the weapon passed the field-testing phase with the TGMC, TerraGov declined to continue mass-production due to a lack of practical applications at the time. However, paramilitaries foreign to the Mu sector (especially those that don't use magic) will sometimes procure and issue their own knives to deal with the increased usage of magic in the area.</i>")

@@ -1,5 +1,9 @@
 import { BooleanLike } from 'common/react';
+
 import { sendAct } from '../../backend';
+import { Language } from './_LanguagePicker'; // NON-MODULE CHANGE
+import { LimbCategory } from './_LimbManager'; // NON-MODULE CHANGE
+import { LoadoutCategory, LoadoutList } from './loadout/base';
 import { Gender } from './preferences/gender';
 
 export enum Food {
@@ -82,6 +86,8 @@ export type Quirk = {
   icon: string;
   name: string;
   value: number;
+  customizable: boolean;
+  customization_options?: string[];
 };
 
 export type QuirkInfo = {
@@ -135,6 +141,7 @@ export type PreferencesMenuData = {
     };
     secondary_features: Record<string, unknown>;
     supplemental_features: Record<string, unknown>;
+    manually_rendered_features: Record<string, string>;
 
     names: Record<string, string>;
 
@@ -142,6 +149,9 @@ export type PreferencesMenuData = {
       gender: Gender;
       joblessrole: JoblessRole;
       species: string;
+      loadout_list: LoadoutList[];
+      active_loadout: number;
+      job_clothes: BooleanLike;
     };
 
     randomization: Record<string, RandomSetting>;
@@ -186,6 +196,20 @@ export type ServerData = {
   random: {
     randomizable: string[];
   };
+  loadout: {
+    loadout_tabs: LoadoutCategory[];
+    max_loadouts: number;
+  };
   species: Record<string, Species>;
+  // NON-MODULE CHANGE START
+  limbs: {
+    limbs: LimbCategory[];
+  };
+  language: {
+    base_languages: Language[];
+    bonus_languages: Language[];
+    blacklisted_species: string[];
+  };
+  // NON-MODULE CHANGE END
   [otheyKey: string]: unknown;
 };

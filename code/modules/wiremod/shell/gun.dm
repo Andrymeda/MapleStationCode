@@ -6,7 +6,7 @@
 /obj/item/gun/energy/wiremod_gun
 	name = "circuit gun"
 	desc = "A gun that fires projectiles able to control circuitry. It can recharge using power from an attached circuit."
-	icon = 'icons/obj/wiremod.dmi'
+	icon = 'icons/obj/science/circuits.dmi'
 	icon_state = "setup_gun"
 	ammo_type = list(/obj/item/ammo_casing/energy/wiremod_gun)
 	cell_type = /obj/item/stock_parts/cell/emproof/wiremod_gun
@@ -16,6 +16,9 @@
 	automatic_charge_overlays = FALSE
 	trigger_guard = TRIGGER_GUARD_ALLOW_ALL
 	gun_flags = NOT_A_REAL_GUN
+	drop_sound = 'maplestation_modules/sound/items/drop/gun.ogg'
+	pickup_sound = 'maplestation_modules/sound/items/pickup/gun.ogg'
+	equip_sound = 'maplestation_modules/sound/items/drop/gun.ogg'
 
 /obj/item/ammo_casing/energy/wiremod_gun
 	projectile_type = /obj/projectile/energy/wiremod_gun
@@ -68,7 +71,7 @@
 /obj/item/circuit_component/wiremod_gun/proc/handle_shot(atom/source, mob/firer, atom/target, angle)
 	SIGNAL_HANDLER
 
-	playsound(source, get_sfx(SFX_TERMINAL_TYPE), 25, FALSE)
+	playsound(source, SFX_TERMINAL_TYPE, 25, FALSE)
 	shooter.set_output(firer)
 	shot.set_output(target)
 	signal.set_output(COMPONENT_SIGNAL)

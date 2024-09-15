@@ -1,13 +1,16 @@
 /obj/item/megaphone
 	name = "megaphone"
 	desc = "A device used to project your voice. Loudly."
-	icon = 'icons/obj/device.dmi'
+	icon = 'icons/obj/devices/voice.dmi'
 	icon_state = "megaphone"
 	inhand_icon_state = "megaphone"
 	lefthand_file = 'icons/mob/inhands/items/megaphone_lefthand.dmi'
 	righthand_file = 'icons/mob/inhands/items/megaphone_righthand.dmi'
 	w_class = WEIGHT_CLASS_SMALL
 	siemens_coefficient = 1
+	drop_sound = 'maplestation_modules/sound/items/drop/device.ogg'
+	pickup_sound = 'maplestation_modules/sound/items/pickup/device.ogg'
+
 	var/spamcheck = 0
 	var/list/voicespan = list(SPAN_COMMAND)
 
@@ -38,12 +41,13 @@
 			spamcheck = world.time + 50
 			speech_args[SPEECH_SPANS] |= voicespan
 
-/obj/item/megaphone/emag_act(mob/user)
+/obj/item/megaphone/emag_act(mob/user, obj/item/card/emag/emag_card)
 	if(obj_flags & EMAGGED)
-		return
-	to_chat(user, span_warning("You overload \the [src]'s voice synthesizer."))
+		return FALSE
+	balloon_alert(user, "voice synthesizer overloaded")
 	obj_flags |= EMAGGED
 	voicespan = list(SPAN_REALLYBIG, "userdanger")
+	return TRUE
 
 /obj/item/megaphone/sec
 	name = "security megaphone"

@@ -3,6 +3,7 @@
 //Most of the old brain damage effects have been transferred to the dumbness trauma.
 
 /datum/brain_trauma/mild
+	abstract_type = /datum/brain_trauma/mild
 
 /datum/brain_trauma/mild/hallucinations
 	name = "Hallucinations"
@@ -53,8 +54,8 @@
 	owner.adjust_derpspeech_up_to(5 SECONDS * seconds_per_tick, 50 SECONDS)
 	if(SPT_PROB(1.5, seconds_per_tick))
 		owner.emote("drool")
-	else if(owner.stat == CONSCIOUS && SPT_PROB(1.5, seconds_per_tick))
-		owner.say(pick_list_replacements(BRAIN_DAMAGE_FILE, "brain_damage"), forced = "brain damage", filterproof = TRUE)
+	// else if(owner.stat == CONSCIOUS && SPT_PROB(1.5, seconds_per_tick)) // NON-MODULE CHANGE
+	// 	owner.say(pick_list_replacements(BRAIN_DAMAGE_FILE, "brain_damage"), forced = "brain damage", filterproof = TRUE) // NON-MODULE CHANGE
 
 /datum/brain_trauma/mild/dumbness/on_lose()
 	REMOVE_TRAIT(owner, TRAIT_DUMB, TRAUMA_TRAIT)
@@ -88,7 +89,7 @@
 	if(SPT_PROB(2.5, seconds_per_tick))
 		switch(rand(1,11))
 			if(1)
-				owner.vomit()
+				owner.vomit(VOMIT_CATEGORY_DEFAULT)
 			if(2,3)
 				owner.adjust_dizzy(20 SECONDS)
 			if(4,5)
@@ -132,7 +133,7 @@
 
 /datum/brain_trauma/mild/muscle_weakness/on_life(seconds_per_tick, times_fired)
 	var/fall_chance = 1
-	if(owner.m_intent == MOVE_INTENT_RUN)
+	if(owner.move_intent == MOVE_INTENT_RUN)
 		fall_chance += 2
 	if(SPT_PROB(0.5 * fall_chance, seconds_per_tick) && owner.body_position == STANDING_UP)
 		to_chat(owner, span_warning("Your leg gives out!"))
@@ -265,3 +266,18 @@
 			speak_dejavu += speech_args[SPEECH_MESSAGE]
 	else
 		speak_dejavu += speech_args[SPEECH_MESSAGE]
+
+/datum/brain_trauma/mild/color_blindness
+	name = "Achromatopsia"
+	desc = "Patient's occipital lobe is unable to recognize and interpret color, rendering the patient completely colorblind."
+	scan_desc = "colorblindness"
+	gain_text = span_warning("The world around you seems to lose its color.")
+	lose_text = span_notice("The world feels bright and colorful again.")
+
+/datum/brain_trauma/mild/color_blindness/on_gain()
+	owner.add_client_colour(/datum/client_colour/monochrome/colorblind)
+	return ..()
+
+/datum/brain_trauma/mild/color_blindness/on_lose(silent)
+	owner.remove_client_colour(/datum/client_colour/monochrome/colorblind)
+	return ..()

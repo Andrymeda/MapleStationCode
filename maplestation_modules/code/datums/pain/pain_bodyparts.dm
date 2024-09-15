@@ -53,7 +53,10 @@
 		return FALSE
 
 	if(get_modified_pain() >= 65 && can_be_disabled && !HAS_TRAIT_FROM(src, TRAIT_PARALYSIS, PAIN_LIMB_PARALYSIS))
-		to_chat(owner, span_userdanger("Your [plaintext_zone] goes numb from the pain!"))
+		owner.pain_message(
+			span_userdanger("Your [plaintext_zone] goes numb from the pain!"),
+			span_danger("You can't move your [plaintext_zone]!")
+		)
 		ADD_TRAIT(src, TRAIT_PARALYSIS, PAIN_LIMB_PARALYSIS)
 		update_disabled()
 
@@ -69,17 +72,14 @@
 		return FALSE
 
 	if(get_modified_pain() < 65 && HAS_TRAIT_FROM(src, TRAIT_PARALYSIS, PAIN_LIMB_PARALYSIS))
-		to_chat(owner, span_green("You can feel your [plaintext_zone] again!"))
+		owner.pain_message(
+			span_green("You can feel your [plaintext_zone] again!"),
+			span_green("You can move your [plaintext_zone] again!")
+		)
 		REMOVE_TRAIT(src, TRAIT_PARALYSIS, PAIN_LIMB_PARALYSIS)
 		update_disabled()
 
 	return TRUE
-
-/**
- * Effects on this bodypart when pain is processed (every 2 seconds)
- */
-/obj/item/bodypart/proc/processed_pain_effects(seconds_per_tick)
-	return
 
 /**
  * Feedback messages from this limb when it is sustaining pain.
@@ -100,25 +100,26 @@
 			owner.flash_pain_overlay(1)
 			feedback_phrases += list("aches", "feels sore", "stings slightly", "tingles", "twinges")
 		if(25 to 50)
-			owner.pain_emote()
 			owner.flash_pain_overlay(1)
 			feedback_phrases += list("hurts", "feels sore", "stings", "throbs", "pangs", "cramps", "feels wrong", "feels loose")
 			if(last_received_pain_type == BURN)
 				feedback_phrases += list("stings to the touch", "burns")
 		if(50 to 65)
-			owner.pain_emote()
+			if(SPT_PROB(4, seconds_per_tick))
+				owner.pain_emote()
 			owner.flash_pain_overlay(2)
 			feedback_phrases += list("really hurts", "is losing feeling", "throbs painfully", "is in agony", "anguishes", "feels broken", "feels terrible")
 			if(last_received_pain_type == BURN)
 				feedback_phrases += list("burns to the touch", "burns", "singes")
 		if(65 to INFINITY)
-			if(SPT_PROB(12, seconds_per_tick))
-				owner.pain_emote("scream")
+			if(SPT_PROB(8, seconds_per_tick))
+				var/bonus_emote = pick(PAIN_EMOTES)
+				owner.pain_emote(pick("groan", "scream", bonus_emote))
 			owner.flash_pain_overlay(2, 2 SECONDS)
 			feedback_phrases += list("is numb from the pain")
 
 	if(feedback_phrases.len)
-		to_chat(owner, span_danger("Your [plaintext_zone] [pick(feedback_phrases)][healing_pain ? ", [pick(healing_phrases)]." : "!"]"))
+		owner.pain_message(span_danger("Your [plaintext_zone] [pick(feedback_phrases)][healing_pain ? ", [pick(healing_phrases)]." : "!"]"))
 	return TRUE
 
 // --- Chest ---
@@ -152,26 +153,27 @@
 			owner.flash_pain_overlay(1)
 			feedback_phrases += list("aches", "feels sore", "stings slightly", "tingles", "twinges")
 		if(40 to 75)
-			owner.pain_emote()
 			owner.flash_pain_overlay(1, 2 SECONDS)
 			feedback_phrases += list("hurts", "feels sore", "stings", "throbs", "pangs", "cramps", "feels tight")
 			side_feedback += list("Your side hurts", "Your side pangs", "Your ribs hurt", "Your ribs pang", "Your neck stiffs")
 		if(75 to 110)
-			owner.pain_emote()
+			if(SPT_PROB(8, seconds_per_tick))
+				owner.pain_emote()
 			owner.flash_pain_overlay(2, 2 SECONDS)
 			feedback_phrases += list("really hurts", "is losing feeling", "throbs painfully", "stings to the touch", "is in agony", "anguishes", "feels broken", "feels tight")
 			side_feedback += list("You feel a sharp pain in your side", "Your ribs feel broken")
 		if(110 to INFINITY)
-			var/bonus_emote = pick(PAIN_EMOTES)
-			owner.pain_emote(pick("groan", "scream", bonus_emote))
+			if(SPT_PROB(12, seconds_per_tick))
+				var/bonus_emote = pick(PAIN_EMOTES)
+				owner.pain_emote(pick("groan", "scream", bonus_emote))
 			owner.flash_pain_overlay(2, 3 SECONDS)
 			feedback_phrases += list("hurts madly", "is in agony", "is anguishing", "burns to the touch", "feels terrible", "feels constricted")
 			side_feedback += list("You feel your ribs jostle in your [plaintext_zone]")
 
 	if(side_feedback.len && last_received_pain_type == BRUTE && SPT_PROB(50, seconds_per_tick))
-		to_chat(owner, span_danger("[pick(side_feedback)][healing_pain ? ", [pick(healing_phrases)]." : "!"]"))
+		owner.pain_message(span_danger("[pick(side_feedback)][healing_pain ? ", [pick(healing_phrases)]." : "!"]"))
 	else if(feedback_phrases.len)
-		to_chat(owner, span_danger("Your [plaintext_zone] [pick(feedback_phrases)][healing_pain ? ", [pick(healing_phrases)]." : "!"]"))
+		owner.pain_message(span_danger("Your [plaintext_zone] [pick(feedback_phrases)][healing_pain ? ", [pick(healing_phrases)]." : "!"]"))
 
 	return TRUE
 
@@ -190,7 +192,7 @@
 
 	if(amount >= 10)
 		// Large amounts of head pain causes minor brain damage
-		owner.adjustOrganLoss(ORGAN_SLOT_BRAIN, min(pain / 5, 10), 180)
+		owner.adjustOrganLoss(ORGAN_SLOT_BRAIN, min(pain / 5, 10), 50)
 
 	return TRUE
 
@@ -228,9 +230,9 @@
 			side_feedback += list("You feel a splitting migrane", "Pressure floods your [plaintext_zone]", "Your [plaintext_zone] feels as if it's being squeezed", "Your eyes hurt to keep open")
 
 	if(side_feedback.len && last_received_pain_type == BRUTE && SPT_PROB(50, seconds_per_tick))
-		to_chat(owner, span_danger("[pick(side_feedback)][healing_pain ? ", [pick(healing_phrases)]." : "!"]"))
+		owner.pain_message(span_danger("[pick(side_feedback)][healing_pain ? ", [pick(healing_phrases)]." : "!"]"))
 	else if(feedback_phrases.len)
-		to_chat(owner, span_danger("Your [plaintext_zone] [pick(feedback_phrases)][healing_pain ? ", [pick(healing_phrases)]." : "!"]"))
+		owner.pain_message(span_danger("Your [plaintext_zone] [pick(feedback_phrases)][healing_pain ? ", [pick(healing_phrases)]." : "!"]"))
 
 	return TRUE
 

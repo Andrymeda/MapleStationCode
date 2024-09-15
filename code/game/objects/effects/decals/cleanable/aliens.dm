@@ -7,13 +7,14 @@
 	icon_state = "xfloor1"
 	random_icon_states = list("xfloor1", "xfloor2", "xfloor3", "xfloor4", "xfloor5", "xfloor6", "xfloor7")
 	bloodiness = BLOOD_AMOUNT_PER_DECAL
-	blood_state = BLOOD_STATE_XENO
 	beauty = -250
 	clean_type = CLEAN_TYPE_BLOOD
+	decal_reagent = /datum/blood_type/xenomorph::reagent_type // NON-MODULE CHANGE
+	reagent_amount = 15 // NON-MODULE CHANGE
 
 /obj/effect/decal/cleanable/xenoblood/Initialize(mapload)
 	. = ..()
-	add_blood_DNA(list("UNKNOWN DNA" = "X*"))
+	add_blood_DNA(list("UNKNOWN DNA" = /datum/blood_type/xenomorph)) // NON-MODULE CHANGE
 
 /obj/effect/decal/cleanable/xenoblood/xsplatter
 	random_icon_states = list("xgibbl1", "xgibbl2", "xgibbl3", "xgibbl4", "xgibbl5")
@@ -40,7 +41,9 @@
 		return
 	if(mapload)
 		for (var/i in 1 to range)
-			new /obj/effect/decal/cleanable/xenoblood/xsplatter(loc)
+			var/turf/my_turf = get_turf(src)
+			if(!isgroundlessturf(my_turf) || GET_TURF_BELOW(my_turf))
+				new /obj/effect/decal/cleanable/xenoblood/xsplatter(my_turf)
 			if (!step_to(src, get_step(src, direction), 0))
 				break
 		return
@@ -50,6 +53,8 @@
 
 /obj/effect/decal/cleanable/xenoblood/xgibs/proc/spread_movement_effects(datum/move_loop/has_target/source)
 	SIGNAL_HANDLER
+	if(NeverShouldHaveComeHere(loc))
+		return
 	new /obj/effect/decal/cleanable/xenoblood/xsplatter(loc)
 
 /obj/effect/decal/cleanable/xenoblood/xgibs/proc/on_pipe_eject(atom/source, direction)
@@ -98,10 +103,6 @@
 	icon_state = "xgiblarvatorso"
 	random_icon_states = list("xgiblarvahead", "xgiblarvatorso")
 
-/obj/effect/decal/cleanable/blood/xtracks
+/obj/effect/decal/cleanable/xenoblood/xtracks // NON-MODULE CHANGE : repathed
 	icon_state = "xtracks"
 	random_icon_states = null
-
-/obj/effect/decal/cleanable/blood/xtracks/Initialize(mapload)
-	. = ..()
-	add_blood_DNA(list("Unknown DNA" = "X*"))

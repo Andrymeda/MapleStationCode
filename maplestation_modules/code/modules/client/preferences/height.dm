@@ -37,46 +37,35 @@
 		return
 
 	// Snowflake, but otherwise the dummy in the prefs menu will be resized and you can't see anything
-	if(istype(target, /mob/living/carbon/human/dummy))
+	if(isdummy(target))
 		return
 	// Just in case
 	if(!ishuman(target))
 		return
 
 	target.transform = null
-
 	var/resize_amount = 1
-	var/y_offset = 0
 
 	switch(value)
 		if(HEIGHT_EXTREMELY_LARGE)
 			resize_amount = 1.5
-			y_offset = 8
 		if(HEIGHT_VERY_LARGE)
 			resize_amount = 1.2
-			y_offset = 3
 		if(HEIGHT_LARGE)
 			resize_amount = 1.1
-			y_offset = 2
 		if(HEIGHT_SMALL)
 			resize_amount = 0.9
-			y_offset = -2
 		if(HEIGHT_VERY_SMALL)
 			resize_amount = 0.8
-			y_offset = -3
 		if(HEIGHT_EXTREMELY_SMALL)
 			resize_amount = 0.7
-			y_offset = -5
 
 	if(value >= HEIGHT_VERY_LARGE)
 		ADD_TRAIT(target, TRAIT_GIANT, ROUNDSTART_TRAIT)
 	else if(value <= HEIGHT_VERY_SMALL)
 		ADD_TRAIT(target, TRAIT_DWARF, ROUNDSTART_TRAIT)
 
-	target.resize = resize_amount
-	target.update_transform()
-	target.base_pixel_y += y_offset
-	target.pixel_y += y_offset
+	target.update_transform(resize_amount)
 
 /datum/preference/choiced/mob_size/is_accessible(datum/preferences/preferences)
 	if(!..(preferences))
@@ -142,6 +131,19 @@
 
 #undef SIZE_PREF_PRIORITY
 #undef HEIGHT_PREF_PRIORITY
+
+// To speed up the preference menu, we apply 1 filter to the entire mob
+/mob/living/carbon/human/dummy/regenerate_icons()
+	. = ..()
+	apply_height_filters(src, TRUE)
+
+/mob/living/carbon/human/dummy/apply_height_filters(image/appearance, only_apply_in_prefs = FALSE)
+	if(only_apply_in_prefs)
+		return ..()
+
+// Not necessary with above
+/mob/living/carbon/human/dummy/apply_height_offsets(image/appearance, upper_torso)
+	return
 
 /mob/living/carbon/human/get_mob_height()
 	// If you have roundstart dwarfism (IE: resized), it'll just return normal mob height, so no filters are applied

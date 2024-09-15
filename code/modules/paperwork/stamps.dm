@@ -1,8 +1,9 @@
 /obj/item/stamp
 	name = "\improper GRANTED rubber stamp"
 	desc = "A rubber stamp for stamping important documents."
-	icon = 'icons/obj/bureaucracy.dmi'
+	icon = 'icons/obj/service/bureaucracy.dmi'
 	icon_state = "stamp-ok"
+	worn_icon_state = "nothing"
 	inhand_icon_state = "stamp"
 	throwforce = 0
 	w_class = WEIGHT_CLASS_TINY
@@ -12,6 +13,8 @@
 	pressure_resistance = 2
 	attack_verb_continuous = list("stamps")
 	attack_verb_simple = list("stamp")
+	drop_sound = 'maplestation_modules/sound/items/drop/accessory.ogg'
+	pickup_sound = 'maplestation_modules/sound/items/pickup/accessory.ogg'
 
 /obj/item/stamp/suicide_act(mob/living/user)
 	user.visible_message(span_suicide("[user] stamps 'VOID' on [user.p_their()] forehead, then promptly falls over, dead."))

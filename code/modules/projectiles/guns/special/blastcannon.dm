@@ -27,6 +27,9 @@
 	item_flags = NONE
 	clumsy_check = FALSE
 	randomspread = FALSE
+	drop_sound = 'maplestation_modules/sound/items/drop/gun.ogg'
+	pickup_sound = 'maplestation_modules/sound/items/pickup/gun.ogg'
+	equip_sound = 'maplestation_modules/sound/items/drop/gun.ogg'
 
 	// Firing data.
 	/// The person who opened the valve on the TTV loaded into this.
@@ -62,11 +65,11 @@
 	cached_target = null
 	return ..()
 
-/obj/item/gun/blastcannon/handle_atom_del(atom/A)
-	if(A == bomb)
+/obj/item/gun/blastcannon/Exited(atom/movable/gone, direction)
+	. = ..()
+	if(gone == bomb)
 		bomb = null
 		update_appearance()
-	return ..()
 
 /obj/item/gun/blastcannon/assume_air(datum/gas_mixture/giver)
 	qdel(giver)

@@ -3,13 +3,13 @@
 /// Mask Slot Items (Deletes overrided items)
 /datum/loadout_category/mask
 	category_name = "Mask"
-	ui_title = "Mouth Slot Items"
 	type_to_generate = /datum/loadout_item/mask
+	tab_order = 4
 
 /datum/loadout_item/mask
 	abstract_type = /datum/loadout_item/mask
 
-/datum/loadout_item/mask/insert_path_into_outfit(datum/outfit/outfit, mob/living/carbon/human/equipper, visuals_only = FALSE)
+/datum/loadout_item/mask/insert_path_into_outfit(datum/outfit/outfit, mob/living/carbon/human/equipper, visuals_only = FALSE, job_equipping_step = FALSE)
 	if(isplasmaman(equipper))
 		if(!visuals_only)
 			to_chat(equipper, "Your loadout mask was not equipped directly due to your envirosuit mask.")
@@ -30,11 +30,11 @@
 	item_path = /obj/item/clothing/mask/bandana
 
 /datum/loadout_item/mask/bandana_striped_greyscale
-	name = "Striped Bandana"
+	name = "Bandana (Striped)"
 	item_path = /obj/item/clothing/mask/bandana/striped
 
 /datum/loadout_item/mask/skull_bandana
-	name = "Skull Bandana"
+	name = "Bandana (Skull)"
 	item_path = /obj/item/clothing/mask/bandana/skull
 
 /datum/loadout_item/mask/surgical_mask

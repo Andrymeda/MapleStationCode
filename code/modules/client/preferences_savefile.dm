@@ -5,7 +5,7 @@
 // You do not need to raise this if you are adding new values that have sane defaults.
 // Only raise this value when changing the meaning/format/name/layout of an existing value
 // where you would want the updater procs below to run
-#define SAVEFILE_VERSION_MAX 43
+#define SAVEFILE_VERSION_MAX 45
 
 /*
 SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Carn
@@ -91,6 +91,9 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 	if (current_version < 41)
 		migrate_preferences_to_tgui_prefs_menu()
 
+	if (current_version < 44)
+		update_tts_blip_prefs()
+
 /datum/preferences/proc/update_character(current_version, list/save_data)
 	if (current_version < 41)
 		migrate_character_to_tgui_prefs_menu()
@@ -100,6 +103,13 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 
 	if (current_version < 43)
 		migrate_legacy_sound_toggles(savefile)
+
+	if (current_version < 45)
+		migrate_quirk_to_loadout(
+			quirk_to_migrate = "Pride Pin",
+			new_typepath = /obj/item/clothing/accessory/pride,
+			data_to_migrate = list(INFO_RESKIN = save_data?["pride_pin"]),
+		)
 
 /// checks through keybindings for outdated unbound keys and updates them
 /datum/preferences/proc/check_keybindings()
@@ -281,13 +291,13 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 		return FALSE
 
 	// Read everything into cache
-	for (var/preference_type in GLOB.preference_entries)
-		var/datum/preference/preference = GLOB.preference_entries[preference_type]
+	// Uses priority order as some values may rely on others for creating default values
+	for (var/datum/preference/preference as anything in get_preferences_in_priority_order())
 		if (preference.savefile_identifier != PREFERENCE_CHARACTER)
 			continue
 
-		value_cache -= preference_type
-		read_preference(preference_type)
+		value_cache -= preference.type
+		read_preference(preference.type)
 
 	//Character
 	randomise = save_data?["randomise"]
@@ -313,8 +323,14 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 		if(job_preferences[j] != JP_LOW && job_preferences[j] != JP_MEDIUM && job_preferences[j] != JP_HIGH)
 			job_preferences -= j
 
-	all_quirks = SSquirks.filter_invalid_quirks(SANITIZE_LIST(all_quirks), src) // NON-MODULE CHANGE
+	all_quirks = SSquirks.filter_invalid_quirks(SANITIZE_LIST(all_quirks))
 	validate_quirks()
+
+	if(isnewplayer(parent?.mob))
+		// Update the report that appears in ready menu if applicable
+		// (Yeah I could signalize this but whatever)
+		var/mob/dead/new_player/cycle = parent?.mob
+		cycle.update_ready_report()
 
 	return TRUE
 

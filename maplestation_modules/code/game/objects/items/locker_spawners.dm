@@ -4,9 +4,11 @@
 /obj/item/locker_spawner
 	name = "Locker Summoning Device"
 	desc = "Because your job is unique, you get this."
-	icon = 'icons/obj/device.dmi'
+	icon = 'icons/obj/devices/remote.dmi'
 	icon_state = "gangtool-red"
 	w_class = WEIGHT_CLASS_SMALL
+	drop_sound = 'maplestation_modules/sound/items/drop/device2.ogg'
+	pickup_sound = 'maplestation_modules/sound/items/pickup/device.ogg'
 	/// Job required to use the beacon; If null, anyone can
 	var/requires_job_path
 	/// Path of the locker and its contents
@@ -58,3 +60,11 @@
 	requires_job_path = /datum/job/asset_protection
 	spawned_locker_path = /obj/structure/closet/secure_closet/asset_protection
 
+// NA Locker summoner
+/obj/item/locker_spawner/noble_ambassador
+	name = "noble ambassador equipment beacon"
+	desc = "A beacon handed out for refined noble ambassadors being assigned to stations without proper \
+		accommodations made for their occupation. When used, drop-pods in a fully stocked locker of equipment \
+		for use when upholding the laws of joint Mu-Nanotrasen research stations."
+	requires_job_path = /datum/job/noble_ambassador
+	spawned_locker_path = /obj/structure/closet/secure_closet/noble_ambassador

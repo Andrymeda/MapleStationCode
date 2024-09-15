@@ -5,6 +5,7 @@
 #define RADIO_EXTENSION "department specific"
 #define RADIO_KEY "department specific key"
 #define LANGUAGE_EXTENSION "language specific"
+#define SAY_MOD_VERB "say_mod_verb"
 
 //Message modes. Each one defines a radio channel, more or less.
 //if you use ! as a mode key for some ungodly reason, change the first character for ion_num() so get_message_mode() doesn't freak out with state law prompts - shiz.
@@ -78,7 +79,11 @@
 #define REDUCE_RANGE (1<<1)
 #define NOPASS (1<<2)
 
-//Eavesdropping
+/// Range to hear normal messages
+#define MESSAGE_RANGE 7
+/// Range to hear whispers normally
+#define WHISPER_RANGE 1
+/// Additional range to partially hear whispers
 #define EAVESDROP_EXTRA_RANGE 1 //how much past the specified message_range does the message get starred, whispering only
 
 /// How close intercoms can be for radio code use
@@ -95,6 +100,7 @@
 #define MAX_BROADCAST_LEN 512
 #define MAX_CHARTER_LEN 80
 #define MAX_PLAQUE_LEN 144
+#define MAX_LABEL_LEN 64
 
 // Audio/Visual Flags. Used to determine what sense are required to notice a message.
 #define MSG_VISUAL (1<<0)
@@ -102,5 +108,10 @@
 
 
 
-//Used in visible_message_flags, audible_message_flags and runechat_flags
+// Used in visible_message_flags, audible_message_flags and runechat_flags
+/// Automatically applies emote related spans/fonts/formatting to the message
 #define EMOTE_MESSAGE (1<<0)
+/// By default, self_message will respect the visual / audible component of the message.
+/// Meaning that if the message is visual, and sourced from a blind mob, they will not see it.
+/// This flag skips that behavior, and will always show the self message to the mob.
+#define ALWAYS_SHOW_SELF_MESSAGE (1<<1)

@@ -1,8 +1,8 @@
 /obj/item/anomaly_neutralizer
 	name = "anomaly neutralizer"
 	desc = "A one-use device capable of instantly neutralizing anomalous or otherworldly entities."
-	icon = 'icons/obj/device.dmi'
-	icon_state = "memorizer2"
+	icon = 'icons/obj/devices/tool.dmi'
+	icon_state = "neutralyzer"
 	inhand_icon_state = "electronic"
 	worn_icon_state = "electronic"
 	lefthand_file = 'icons/mob/inhands/items/devices_lefthand.dmi'
@@ -10,6 +10,8 @@
 	w_class = WEIGHT_CLASS_SMALL
 	slot_flags = ITEM_SLOT_BELT
 	item_flags = NOBLUDGEON
+	drop_sound = 'maplestation_modules/sound/items/drop/device2.ogg'
+	pickup_sound = 'maplestation_modules/sound/items/pickup/device.ogg'
 
 /obj/item/anomaly_neutralizer/Initialize(mapload)
 	. = ..()

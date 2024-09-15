@@ -17,11 +17,22 @@
 	var/list/towels = list()
 
 /obj/structure/towel_rack/Destroy()
+	QDEL_LIST(towels)
+	return ..()
+
+/obj/structure/towel_rack/deconstruct(disassembled)
+	var/atom/drop_loc = drop_location()
 	for(var/obj/item/towel/dropped_towel as anything in towels)
-		dropped_towel.forceMove(drop_location())
-		towels -= dropped_towel
+		dropped_towel.forceMove(drop_loc)
+		dropped_towel.pixel_x = rand(-8, 8)
+		dropped_towel.pixel_y = rand(-8, 8)
 
 	return ..()
+
+/obj/structure/towel_rack/Exited(atom/movable/gone, direction)
+	. = ..()
+	if(gone in towels)
+		towels -= gone
 
 /obj/structure/towel_rack/attackby(obj/item/attacked_item, mob/living/user, params)
 	. = ..()
@@ -62,7 +73,7 @@
 		to_chat(user, span_warning("[src] is full!"))
 		return FALSE
 
-	if(!user.transferItemToLoc(added_towel, src))
+	if(!user.transferItemToLoc(added_towel, src, silent = FALSE))
 		to_chat(user, span_warning("You can't seem to place [added_towel] in [src]!"))
 		return FALSE
 
@@ -80,29 +91,23 @@
  */
 /obj/structure/towel_rack/proc/remove_towel(mob/living/user)
 	var/obj/item/removed_towel = towels[towels.len]
-	if(iscarbon(user))
-		var/mob/living/carbon/carbon_user = user
-		if(carbon_user.put_in_hands(removed_towel))
-			to_chat(user, span_notice("You remove [removed_towel] from [src]."))
-		else
-			to_chat(user, span_notice("You remove [removed_towel] from [src], dumping it onto the floor."))
+	if(user.put_in_hands(removed_towel))
+		to_chat(user, span_notice("You remove [removed_towel] from [src]."))
 	else
 		to_chat(user, span_notice("You remove [removed_towel] from [src], dumping it onto the floor."))
-		removed_towel.forceMove(drop_location())
 
-	towels -= removed_towel
 	update_appearance()
 	return removed_towel
 
 /// Preset full towel rack
-/obj/structure/towel_rack/full/Initialize()
+/obj/structure/towel_rack/full/Initialize(mapload)
 	. = ..()
 	for(var/towel_num in 1 to max_towels)
 		towels += new /obj/item/towel(src)
 	update_appearance()
 
 /// Preset full beach towel rack
-/obj/structure/towel_rack/full_beach/Initialize()
+/obj/structure/towel_rack/full_beach/Initialize(mapload)
 	. = ..()
 	for(var/towel_num in 1 to max_towels)
 		towels += new /obj/item/towel/beach(src)
@@ -160,7 +165,7 @@
 		removed_towel.cooling_timer_id = addtimer(CALLBACK(removed_towel, TYPE_PROC_REF(/obj/item/towel, cool_towel)), 3 MINUTES, TIMER_STOPPABLE)
 
 /// Preset filled towel warming rack (all the towels are warm, too)
-/obj/structure/towel_rack/warmer/full/Initialize()
+/obj/structure/towel_rack/warmer/full/Initialize(mapload)
 	. = ..()
 	for(var/towel_num in 1 to max_towels)
 		var/obj/item/towel/added_towel = new(src)
@@ -169,7 +174,7 @@
 	update_appearance()
 
 /// Above but with beach towels.
-/obj/structure/towel_rack/warmer/full_beach/Initialize()
+/obj/structure/towel_rack/warmer/full_beach/Initialize(mapload)
 	. = ..()
 	for(var/towel_num in 1 to max_towels)
 		var/obj/item/towel/beach/added_towel = new(src)

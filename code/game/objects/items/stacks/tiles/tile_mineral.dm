@@ -1,4 +1,6 @@
 /obj/item/stack/tile/mineral
+	drop_sound = 'maplestation_modules/sound/items/drop/metal_pot.ogg'
+	pickup_sound = 'maplestation_modules/sound/items/pickup/metalweapon.ogg'
 	/// Determines what stack is gotten out of us when welded.
 	var/mineralType = null
 
@@ -95,7 +97,7 @@
 	name = "alien floor tile"
 	singular_name = "alien floor tile"
 	desc = "A tile made out of alien alloy."
-	icon = 'icons/obj/abductor.dmi'
+	icon = 'icons/obj/antags/abductor.dmi'
 	icon_state = "tile_abductor"
 	inhand_icon_state = "tile-abductor"
 	mats_per_unit = list(/datum/material/alloy/alien=SHEET_MATERIAL_AMOUNT*0.25)
@@ -230,3 +232,5 @@
 	turf_type = /turf/open/floor/fake_snow
 	mineralType = "snow"
 	merge_type = /obj/item/stack/tile/mineral/snow
+	drop_sound = 'maplestation_modules/sound/items/drop/food.ogg'
+	pickup_sound = 'maplestation_modules/sound/items/pickup/food.ogg'

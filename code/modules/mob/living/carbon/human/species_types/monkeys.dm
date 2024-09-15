@@ -1,35 +1,28 @@
 #define MONKEY_SPEC_ATTACK_BITE_MISS_CHANCE 25
 
 /datum/species/monkey
-	name = "Monkey"
+	name = "\improper Monkey"
 	id = SPECIES_MONKEY
-	bodytype = BODYTYPE_ORGANIC | BODYTYPE_MONKEY
 	external_organs = list(
-		/obj/item/organ/external/tail/monkey = "Monkey"
+		/obj/item/organ/external/tail/monkey = "Monkey",
 	)
 	mutanttongue = /obj/item/organ/internal/tongue/monkey
 	mutantbrain = /obj/item/organ/internal/brain/primate
 	skinned_type = /obj/item/stack/sheet/animalhide/monkey
 	meat = /obj/item/food/meat/slab/monkey
 	knife_butcher_results = list(/obj/item/food/meat/slab/monkey = 5, /obj/item/stack/sheet/animalhide/monkey = 1)
-	species_traits = list(
-		NO_UNDERWEAR,
-		LIPS,
-		NOEYESPRITES,
-		NOBLOODOVERLAY,
-		NOTRANSSTING,
-		NOAUGMENTS,
-	)
 	inherent_traits = list(
 		TRAIT_GUN_NATURAL,
-		//TRAIT_LITERATE,
+		TRAIT_NO_AUGMENTS,
+		TRAIT_NO_BLOOD_OVERLAY,
+		TRAIT_NO_DNA_COPY,
+		TRAIT_NO_UNDERWEAR,
 		TRAIT_VENTCRAWLER_NUDE,
 		TRAIT_WEAK_SOUL,
 	)
 	no_equip_flags = ITEM_SLOT_OCLOTHING | ITEM_SLOT_GLOVES | ITEM_SLOT_FEET | ITEM_SLOT_SUITSTORE
 	changesource_flags = MIRROR_BADMIN | WABBAJACK | MIRROR_PRIDE | MIRROR_MAGIC | ERT_SPAWN | SLIME_EXTRACT
-	liked_food = MEAT | FRUIT | BUGS
-	disliked_food = CLOTH
+	species_cookie = /obj/item/food/grown/banana
 	sexes = FALSE
 	species_language_holder = /datum/language_holder/monkey
 
@@ -47,102 +40,27 @@
 
 	payday_modifier = 1.5
 	ai_controlled_species = TRUE
+	monkey_type = null
 
-
-
-/datum/species/monkey/random_name(gender,unique,lastname)
-	var/randname = "monkey ([rand(1,999)])"
-
-	return randname
-
-/datum/species/monkey/on_species_gain(mob/living/carbon/human/H, datum/species/old_species)
+/datum/species/monkey/on_species_gain(mob/living/carbon/human/human_who_gained_species, datum/species/old_species, pref_load)
 	. = ..()
-	H.pass_flags |= PASSTABLE
-	H.butcher_results = knife_butcher_results
-	H.dna.add_mutation(/datum/mutation/human/race, MUT_NORMAL)
-	H.dna.activate_mutation(/datum/mutation/human/race)
+	passtable_on(human_who_gained_species, SPECIES_TRAIT)
+	human_who_gained_species.dna.add_mutation(/datum/mutation/human/race, MUT_NORMAL)
+	human_who_gained_species.dna.activate_mutation(/datum/mutation/human/race)
+	human_who_gained_species.AddElement(/datum/element/human_biter)
 
-
-/datum/species/monkey/on_species_loss(mob/living/carbon/C)
+/datum/species/monkey/on_species_loss(mob/living/carbon/human/C)
 	. = ..()
-	C.pass_flags = initial(C.pass_flags)
-	C.butcher_results = null
+	passtable_off(C, SPECIES_TRAIT)
 	C.dna.remove_mutation(/datum/mutation/human/race)
-
-/datum/species/monkey/spec_unarmedattack(mob/living/carbon/human/user, atom/target, modifiers)
-	// If our hands are not blocked, dont try to bite them
-	if(!HAS_TRAIT(user, TRAIT_HANDS_BLOCKED))
-		// if we aren't an advanced tool user, we call attack_paw and cancel the preceeding attack chain
-		if(!ISADVANCEDTOOLUSER(user))
-			target.attack_paw(user, modifiers)
-			return TRUE
-		return ..()
-
-	// this shouldn't even be possible, but I'm sure the check was here for a reason
-	if(!iscarbon(target))
-		stack_trace("HEY LISTEN! We are performing a species spec_unarmed attack with a non-carbon user. How did you fuck this up?")
-		return TRUE
-	var/mob/living/carbon/victim = target
-	if(user.is_muzzled())
-		return TRUE // cannot bite them if we're muzzled
-
-	var/obj/item/bodypart/affecting
-	if(ishuman(victim))
-		var/mob/living/carbon/human/human_victim = victim
-		affecting = human_victim.get_bodypart(human_victim.get_random_valid_zone(even_weights = TRUE))
-	var/armor = victim.run_armor_check(affecting, MELEE)
-
-	if(prob(MONKEY_SPEC_ATTACK_BITE_MISS_CHANCE))
-		victim.visible_message(
-			span_danger("[user]'s bite misses [victim]!"),
-			span_danger("You avoid [user]'s bite!"),
-			span_hear("You hear jaws snapping shut!"),
-			COMBAT_MESSAGE_RANGE,
-			user,
-		)
-		to_chat(user, span_danger("Your bite misses [victim]!"))
-		return TRUE
-
-	var/obj/item/bodypart/head/mouth = user.get_bodypart(BODY_ZONE_HEAD)
-	if(!mouth) // check for them having a head, ala HARS
-		return TRUE
-
-	var/damage_roll = rand(mouth.unarmed_damage_low, mouth.unarmed_damage_high)
-	victim.apply_damage(damage_roll, BRUTE, affecting, armor)
-
-	victim.visible_message(
-		span_danger("[name] bites [victim]!"),
-		span_userdanger("[name] bites you!"),
-		span_hear("You hear a chomp!"),
-		COMBAT_MESSAGE_RANGE,
-		name,
-	)
-	to_chat(user, span_danger("You bite [victim]!"))
-
-	if(armor >= 2) // if they have basic armor on the limb we bit, don't spread diseases
-		return TRUE
-	for(var/datum/disease/bite_infection as anything in user.diseases)
-		if(bite_infection.spread_flags & (DISEASE_SPREAD_SPECIAL | DISEASE_SPREAD_NON_CONTAGIOUS))
-			continue // ignore diseases that have special spread logic, or are not contagious
-		victim.ForceContractDisease(bite_infection)
-
-	return TRUE
-
-/datum/species/monkey/check_roundstart_eligible()
-	if(check_holidays(MONKEYDAY))
-		return TRUE
-	return ..()
+	C.RemoveElement(/datum/element/human_biter)
 
 /datum/species/monkey/get_scream_sound(mob/living/carbon/human/monkey)
-	return pick(
-		'sound/creatures/monkey/monkey_screech_1.ogg',
-		'sound/creatures/monkey/monkey_screech_2.ogg',
-		'sound/creatures/monkey/monkey_screech_3.ogg',
-		'sound/creatures/monkey/monkey_screech_4.ogg',
-		'sound/creatures/monkey/monkey_screech_5.ogg',
-		'sound/creatures/monkey/monkey_screech_6.ogg',
-		'sound/creatures/monkey/monkey_screech_7.ogg',
-	)
+	return get_sfx(SFX_SCREECH)
+
+/datum/species/monkey/get_physical_attributes()
+	return "Monkeys are slippery, can crawl into vents, and are more dextrous than humans.. but only when stealing things. \
+		Natural monkeys cannot operate machinery or most tools with their paws, but unusually clever monkeys or those that were once something else can."
 
 /datum/species/monkey/get_species_description()
 	return "Monkeys are a type of primate that exist between humans and animals on the evolutionary chain. \
@@ -231,12 +149,11 @@
 		to_chat(monkey_brain.owner, span_notice("You will now stumble while while colliding with people who are in combat mode."))
 	build_all_button_icons()
 
-
-/obj/item/organ/internal/brain/primate/on_insert(mob/living/carbon/primate)
+/obj/item/organ/internal/brain/primate/on_mob_insert(mob/living/carbon/primate)
 	. = ..()
 	RegisterSignal(primate, COMSIG_MOVABLE_CROSS, PROC_REF(on_crossed), TRUE)
 
-/obj/item/organ/internal/brain/primate/on_remove(mob/living/carbon/primate)
+/obj/item/organ/internal/brain/primate/on_mob_remove(mob/living/carbon/primate)
 	. = ..()
 	UnregisterSignal(primate, COMSIG_MOVABLE_CROSS)
 
@@ -257,3 +174,98 @@
 	return owner.get_bodypart(BODY_ZONE_HEAD)
 
 #undef MONKEY_SPEC_ATTACK_BITE_MISS_CHANCE
+
+/datum/species/monkey/lizard
+	name = "\improper Kobold"
+	id = SPECIES_MONKEY_LIZARD
+	examine_limb_id = SPECIES_LIZARD
+	inherent_traits = list(
+		// monke
+		TRAIT_GUN_NATURAL,
+		TRAIT_NO_AUGMENTS,
+		TRAIT_NO_BLOOD_OVERLAY,
+		TRAIT_NO_DNA_COPY,
+		TRAIT_NO_UNDERWEAR,
+		TRAIT_VENTCRAWLER_NUDE,
+		TRAIT_WEAK_SOUL,
+		// unique
+		TRAIT_MUTANT_COLORS,
+		TRAIT_TACKLING_TAILED_DEFENDER,
+	)
+	inherent_biotypes = MOB_ORGANIC|MOB_HUMANOID|MOB_REPTILE
+	digitigrade_customization = DIGITIGRADE_FORCED
+	mutant_bodyparts = list("legs" = DIGITIGRADE_LEGS)
+	external_organs = list(
+		/obj/item/organ/external/horns = "None",
+		/obj/item/organ/external/frills = "None",
+		/obj/item/organ/external/snout = "Round",
+		/obj/item/organ/external/spines = "None",
+		/obj/item/organ/external/tail/lizard = "Smooth",
+	)
+	mutanttongue = /datum/species/lizard::mutanttongue
+	species_cookie = /datum/species/lizard::species_cookie
+	meat = /datum/species/lizard::meat
+	skinned_type = /datum/species/lizard::skinned_type
+	knife_butcher_results = list(/datum/species/lizard::meat = 5, /datum/species/lizard::skinned_type = 1)
+	species_language_holder = /datum/language_holder/lizard/ash/primative
+
+	bodytemp_heat_damage_limit = /datum/species/lizard::bodytemp_heat_damage_limit
+	bodytemp_cold_damage_limit = /datum/species/lizard::bodytemp_cold_damage_limit
+
+	ass_image = /datum/species/lizard::ass_image
+
+	bodypart_overrides = list(
+		BODY_ZONE_HEAD = /obj/item/bodypart/head/lizard,
+		BODY_ZONE_CHEST = /obj/item/bodypart/chest/lizard/lizmonkey,
+		BODY_ZONE_L_ARM = /obj/item/bodypart/arm/left/lizard/lizmonkey,
+		BODY_ZONE_R_ARM = /obj/item/bodypart/arm/right/lizard/lizmonkey,
+		BODY_ZONE_L_LEG = /obj/item/bodypart/leg/left/digitigrade,
+		BODY_ZONE_R_LEG = /obj/item/bodypart/leg/right/digitigrade,
+	)
+
+/datum/species/monkey/lizard/body_temperature_core(mob/living/carbon/human/humi, seconds_per_tick, times_fired)
+	return
+
+/datum/species/monkey/lizard/get_scream_sound(mob/living/carbon/human/lizard)
+	return pick(
+		'sound/voice/lizard/lizard_scream_1.ogg',
+		'sound/voice/lizard/lizard_scream_2.ogg',
+		'sound/voice/lizard/lizard_scream_3.ogg',
+	)
+
+/datum/species/monkey/lizard/get_laugh_sound(mob/living/carbon/human/lizard)
+	return 'sound/voice/lizard/lizard_laugh1.ogg'
+
+/obj/item/bodypart/arm/left/lizard/lizmonkey
+	wound_resistance = -10
+	unarmed_damage_low = 1
+	unarmed_damage_high = 2
+	unarmed_effectiveness = 0
+
+/obj/item/bodypart/arm/left/lizard/lizmonkey/Initialize(mapload)
+	. = ..()
+	name = "kobold [plaintext_zone]"
+
+/obj/item/bodypart/arm/right/lizard/lizmonkey
+	wound_resistance = -10
+	unarmed_damage_low = 1
+	unarmed_damage_high = 2
+	unarmed_effectiveness = 0
+
+/obj/item/bodypart/arm/right/lizard/lizmonkey/Initialize(mapload)
+	. = ..()
+	name = "kobold [plaintext_zone]"
+
+/obj/item/bodypart/chest/lizard/lizmonkey
+	wound_resistance = -10
+
+/obj/item/bodypart/chest/lizard/lizmonkey/Initialize(mapload)
+	. = ..()
+	name = "kobold [plaintext_zone]"
+
+/obj/item/bodypart/head/lizard/lizmonkey
+	wound_resistance = -10
+
+/obj/item/bodypart/head/lizard/lizmonkey/Initialize(mapload)
+	. = ..()
+	name = "kobold [plaintext_zone]"

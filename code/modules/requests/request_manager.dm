@@ -4,6 +4,8 @@
 #define REQUEST_CENTCOM "request_centcom"
 /// Requests for the Syndicate
 #define REQUEST_SYNDICATE "request_syndicate"
+/// Requests for Mu
+#define REQUEST_MU "request_mu" //NON-MODULE CHANGE
 /// Requests for the nuke code
 #define REQUEST_NUKE "request_nuke"
 /// Requests somebody from fax
@@ -25,7 +27,7 @@ GLOBAL_DATUM_INIT(requests, /datum/request_manager, new)
 	/// List where requests can be accessed by ID
 	var/list/requests_by_id = list()
 
-/datum/request_manager/Destroy(force, ...)
+/datum/request_manager/Destroy(force)
 	QDEL_LIST(requests)
 	return ..()
 
@@ -66,7 +68,7 @@ GLOBAL_DATUM_INIT(requests, /datum/request_manager, new)
 /datum/request_manager/proc/pray(client/C, message, is_chaplain)
 	request_for_client(C, REQUEST_PRAYER, message)
 	for(var/client/admin in GLOB.admins)
-		if(is_chaplain && admin.prefs.chat_toggles & CHAT_PRAYER && admin.prefs.toggles & SOUND_PRAYERS)
+		if(is_chaplain && get_chat_toggles(admin) & CHAT_PRAYER && admin.prefs.toggles & SOUND_PRAYERS)
 			SEND_SOUND(admin, sound('sound/effects/pray.ogg'))
 
 /**
@@ -88,6 +90,18 @@ GLOBAL_DATUM_INIT(requests, /datum/request_manager, new)
  */
 /datum/request_manager/proc/message_syndicate(client/C, message)
 	request_for_client(C, REQUEST_SYNDICATE, message)
+
+//NON-MODULE CHANGE START
+/**
+ * Creates a request for a Syndicate message
+ *
+ * Arguments:
+ * * C - The client who is sending the request
+ * * message - The message
+ */
+/datum/request_manager/proc/message_mu(client/C, message)
+	request_for_client(C, REQUEST_MU, message)
+//NON-MODULE CHANGE END
 
 /**
  * Creates a request for the nuclear self destruct codes
@@ -216,14 +230,25 @@ GLOBAL_DATUM_INIT(requests, /datum/request_manager, new)
 				to_chat(usr, "Cannot reply to a prayer", confidential = TRUE)
 				return TRUE
 			var/mob/M = request.owner?.mob
-			usr.client.admin_headset_message(M, request.req_type == REQUEST_SYNDICATE ? RADIO_CHANNEL_SYNDICATE : RADIO_CHANNEL_CENTCOM)
+			//NON-MODULE CHANGE START
+			var/channel_to_reply_with = RADIO_CHANNEL_CENTCOM
+			switch(request.req_type)
+				if(REQUEST_CENTCOM)
+					channel_to_reply_with = RADIO_CHANNEL_CENTCOM
+				if(REQUEST_SYNDICATE)
+					channel_to_reply_with = RADIO_CHANNEL_SYNDICATE
+				if(REQUEST_MU)
+					channel_to_reply_with = RADIO_CHANNEL_MU
+
+			usr.client.admin_headset_message(M, channel_to_reply_with)
+			//NON-MODULE CHANGE END
 			return TRUE
 		if ("setcode")
 			if (request.req_type != REQUEST_NUKE)
 				to_chat(usr, "You cannot set the nuke code for a non-nuke-code-request request!", confidential = TRUE)
 				return TRUE
 			var/code = random_nukecode()
-			for(var/obj/machinery/nuclearbomb/selfdestruct/SD in GLOB.nuke_list)
+			for(var/obj/machinery/nuclearbomb/selfdestruct/SD in SSmachines.get_machines_by_type_and_subtypes(/obj/machinery/nuclearbomb/selfdestruct))
 				SD.r_code = code
 			message_admins("[key_name_admin(usr)] has set the self-destruct code to \"[code]\".")
 			return TRUE
@@ -267,6 +292,7 @@ GLOBAL_DATUM_INIT(requests, /datum/request_manager, new)
 #undef REQUEST_PRAYER
 #undef REQUEST_CENTCOM
 #undef REQUEST_SYNDICATE
+#undef REQUEST_MU
 #undef REQUEST_NUKE
 #undef REQUEST_FAX
 #undef REQUEST_INTERNET_SOUND

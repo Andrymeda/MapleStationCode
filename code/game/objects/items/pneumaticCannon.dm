@@ -42,7 +42,9 @@
 	var/fire_sound = 'sound/weapons/sonic_jackhammer.ogg'
 	var/spin_item = TRUE //Do the projectiles spin when launched?
 	trigger_guard = TRIGGER_GUARD_NORMAL
-
+	drop_sound = 'maplestation_modules/sound/items/drop/gun.ogg'
+	pickup_sound = 'maplestation_modules/sound/items/pickup/gun.ogg'
+	equip_sound = 'maplestation_modules/sound/items/drop/gun.ogg'
 
 /datum/armor/item_pneumatic_cannon
 	fire = 60
@@ -250,15 +252,15 @@
 	var/turf/newtarget = locate(new_x, new_y, starting.z)
 	return newtarget
 
-/obj/item/pneumatic_cannon/handle_atom_del(atom/A)
+/obj/item/pneumatic_cannon/Exited(atom/movable/gone, direction)
 	. = ..()
-	if (loadedItems.Remove(A))
-		var/obj/item/I = A
-		if(istype(I))
-			loadedWeightClass -= I.w_class
+	if(loadedItems.Remove(gone))
+		var/obj/item/item = gone
+		if(istype(item))
+			loadedWeightClass -= item.w_class
 		else
 			loadedWeightClass--
-	else if (A == tank)
+	else if (gone == tank)
 		tank = null
 		update_appearance()
 
@@ -281,7 +283,7 @@
 		if(tank)
 			to_chat(user, span_warning("\The [src] already has a tank."))
 			return
-		if(!user.transferItemToLoc(thetank, src))
+		if(!user.transferItemToLoc(thetank, src, silent = FALSE))
 			return
 		to_chat(user, span_notice("You hook \the [thetank] up to \the [src]."))
 		tank = thetank

@@ -1,6 +1,6 @@
 // -- Ordnance Tech job & outfit datum --
 /datum/job/ordnance_tech
-	title = "Ordnance Technician"
+	title = JOB_ORDNANCE_TECH
 	description = "Complete your bomb in the first half hour of the \
 		shift, make the station shake repeatedly as you refine cores, \
 		then sit around as you have nothing else to do."
@@ -44,7 +44,7 @@
 
 	job_flags = JOB_ANNOUNCE_ARRIVAL | JOB_CREW_MANIFEST | JOB_EQUIP_RANK | JOB_CREW_MEMBER | JOB_NEW_PLAYER_JOINABLE | JOB_REOPEN_ON_ROUNDSTART_LOSS | JOB_ASSIGN_QUIRKS | JOB_CAN_BE_INTERN
 	rpg_title = "Dwarven Miner"
-	crewmonitor_priority = 34
+	crewmonitor_priority = 35
 
 /datum/outfit/job/scientist/ordnance_tech
 	name = "Ordnance Technician"

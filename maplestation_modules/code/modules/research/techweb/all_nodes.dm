@@ -13,7 +13,31 @@
 
 /datum/techweb_node/base
 	id_additions = list(
-		"fax_machine",
+		"ashtray",
+		"fax_machine_deluxe",
+	)
+
+/datum/techweb_node/mod_advanced
+	id_additions = list(
+		"mod_helmet_desync",
+	)
+
+/datum/techweb_node/biotech
+	id_additions = list(
+		"scanning_pad",
+		"triage_zone_projector",
+		"vitals_monitor",
+	)
+
+/datum/techweb_node/adv_biotech
+	id_additions = list(
+		"auto_cpr_device",
+		"vitals_monitor_advanced",
+	)
+
+/datum/techweb_node/cryotech
+	id_additions = list(
+		"stasis_bodybag",
 	)
 
 /datum/techweb_node/exp_surgery
@@ -61,3 +85,9 @@
 		"mech_gauss_ammo",
 	)
 	research_costs = list(TECHWEB_POINT_TYPE_GENERIC = 2500)
+
+/datum/techweb_node/adv_shells
+	id_additions = list(
+		"headset_shell",
+	)
+	research_costs = list(TECHWEB_POINT_TYPE_GENERIC = 1500)

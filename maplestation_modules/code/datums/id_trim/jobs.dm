@@ -1,22 +1,36 @@
-/// --ID Trims for modular jobs. --
-// -Modular changes for jobs.-
+// Some ID trim changes
+
+// Notably absent: Cardboard trims and RPG trims, because the former is PITA and the latter is ???
+
+// Modular job ID trims
 /datum/id_trim/job/research_director
+	trim_state = "trim_scientist"
 	trim_icon = 'maplestation_modules/icons/obj/card.dmi'
 	sechud_icon = 'maplestation_modules/icons/mob/huds/hud.dmi'
 
 /datum/id_trim/job/scientist
+	trim_state = "trim_scientist"
 	trim_icon = 'maplestation_modules/icons/obj/card.dmi'
 	sechud_icon = 'maplestation_modules/icons/mob/huds/hud.dmi'
 	minimal_access = list(ACCESS_AUX_BASE, ACCESS_MECH_SCIENCE, ACCESS_MINERAL_STOREROOM, ACCESS_RESEARCH, ACCESS_SCIENCE, ACCESS_TECH_STORAGE)
 
-// -New job trims.-
-//Asset Protection
+/datum/id_trim/job/quartermaster
+	trim_state = "trim_quartermaster"
+	trim_icon = 'maplestation_modules/icons/obj/card.dmi'
+	sechud_icon = 'maplestation_modules/icons/mob/huds/hud.dmi'
+
+// New job trims
+
+// Asset Protection
 /datum/id_trim/job/asset_protection
 	assignment = "Asset Protection"
 	trim_icon = 'maplestation_modules/icons/obj/card.dmi'
 	trim_state = "trim_assetprotection"
 	sechud_icon = 'maplestation_modules/icons/mob/huds/hud.dmi'
 	sechud_icon_state = "hudassetprotection"
+	department_state = "departmenthead"
+	department_color = COLOR_COMMAND_BLUE
+	subdepartment_color = COLOR_COMMAND_BLUE
 	extra_access = list(ACCESS_ENGINE_EQUIP, ACCESS_SHIPPING)
 	minimal_access = list(ACCESS_BRIG, ACCESS_CARGO, ACCESS_CONSTRUCTION, ACCESS_COURT, ACCESS_EVA,
 		ACCESS_EXTERNAL_AIRLOCKS, ACCESS_DETECTIVE, ACCESS_COMMAND, ACCESS_KEYCARD_AUTH, ACCESS_LAWYER,
@@ -34,6 +48,9 @@
 	trim_state = "trim_bridgeofficer"
 	sechud_icon = 'maplestation_modules/icons/mob/huds/hud.dmi'
 	sechud_icon_state = "hudbridgeofficer"
+	department_state = "departmenthead"
+	department_color = COLOR_COMMAND_BLUE
+	subdepartment_color = COLOR_COMMAND_BLUE
 	extra_access = list(ACCESS_RESEARCH, ACCESS_SCIENCE)
 	extra_wildcard_access = list(ACCESS_ARMORY)
 	minimal_access = list(ACCESS_BRIG, ACCESS_CARGO, ACCESS_CONSTRUCTION, ACCESS_COURT, ACCESS_COMMAND,
@@ -50,6 +67,8 @@
 	trim_state = "trim_ordnance_tech"
 	sechud_icon = 'maplestation_modules/icons/mob/huds/hud.dmi'
 	sechud_icon_state = "hudordnancetechnician"
+	department_color = COLOR_SCIENCE_PINK
+	subdepartment_color = COLOR_SCIENCE_PINK
 	extra_access = list(ACCESS_GENETICS, ACCESS_ROBOTICS, ACCESS_XENOBIOLOGY)
 	minimal_access = list(ACCESS_AUX_BASE, ACCESS_MECH_SCIENCE, ACCESS_MINERAL_STOREROOM, ACCESS_ORDNANCE,
 		ACCESS_ORDNANCE_STORAGE, ACCESS_RESEARCH, ACCESS_SCIENCE)
@@ -63,7 +82,57 @@
 	trim_state = "trim_xenobiologist"
 	sechud_icon = 'maplestation_modules/icons/mob/huds/hud.dmi'
 	sechud_icon_state = "hudxenobiologist"
+	department_color = COLOR_SCIENCE_PINK
+	subdepartment_color = COLOR_SCIENCE_PINK
 	extra_access = list(ACCESS_GENETICS, ACCESS_ROBOTICS, ACCESS_ORDNANCE, ACCESS_ORDNANCE_STORAGE)
 	minimal_access = list(ACCESS_AUX_BASE, ACCESS_MECH_SCIENCE, ACCESS_MINERAL_STOREROOM, ACCESS_RESEARCH, ACCESS_SCIENCE, ACCESS_XENOBIOLOGY)
 	template_access = list(ACCESS_CAPTAIN, ACCESS_RD, ACCESS_CHANGE_IDS)
 	job = /datum/job/xenobiologist
+
+/datum/id_trim/job/noble_ambassador
+	assignment = "Noble Ambassador"
+	intern_alt_name = "Noble Squire"
+	trim_icon = 'maplestation_modules/icons/obj/card.dmi'
+	trim_state = "trim_noble"
+	sechud_icon = 'maplestation_modules/icons/mob/huds/hud.dmi'
+	sechud_icon_state = "hudnoble"
+	department_color = COLOR_COMMAND_BLUE
+	subdepartment_color = COLOR_COMMAND_BLUE
+	minimal_access = list(
+		ACCESS_AUX_BASE,
+		ACCESS_BAR,
+		ACCESS_BRIG_ENTRANCE,
+		ACCESS_CARGO,
+		ACCESS_CHAPEL_OFFICE,
+		ACCESS_CREMATORIUM,
+		ACCESS_COMMAND,
+		ACCESS_COURT,
+		ACCESS_ENGINEERING,
+		ACCESS_EVA,
+		ACCESS_GATEWAY,
+		ACCESS_HYDROPONICS,
+		ACCESS_JANITOR,
+		ACCESS_KEYCARD_AUTH,
+		ACCESS_KITCHEN,
+		ACCESS_LAWYER,
+		ACCESS_LIBRARY,
+		ACCESS_MEDICAL,
+		ACCESS_MINERAL_STOREROOM,
+		ACCESS_MORGUE,
+		ACCESS_MORGUE_SECURE,
+		ACCESS_PSYCHOLOGY,
+		ACCESS_RC_ANNOUNCE,
+		ACCESS_SCIENCE,
+		ACCESS_SERVICE,
+		ACCESS_TELEPORTER,
+		ACCESS_THEATRE,
+		ACCESS_WEAPONS, //nt scared shitless of finding out what happens if they weapons permit check a noble
+	)
+	minimal_wildcard_access = list()
+	extra_access = list()
+	extra_wildcard_access = list()
+	template_access = list(
+		ACCESS_CAPTAIN,
+		ACCESS_CHANGE_IDS,
+	)
+	job = /datum/job/noble_ambassador

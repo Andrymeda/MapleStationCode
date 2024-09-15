@@ -4,18 +4,18 @@
 /obj/vehicle/ridden/lavaboat
 	name = "lava boat"
 	desc = "A boat used for traversing lava."
-	icon = 'icons/obj/lavaland/dragonboat.dmi'
+	icon = 'icons/obj/mining_zones/dragonboat.dmi'
 	icon_state = "goliath_boat"
-	icon_preview = 'icons/obj/previews.dmi'
+	icon_preview = 'icons/obj/fluff/previews.dmi'
 	icon_state_preview = "boat"
 	resistance_flags = LAVA_PROOF | FIRE_PROOF
 	can_buckle = TRUE
 	key_type = /obj/item/oar
-	var/allowed_turf = /turf/open/lava
+	var/component_type = /datum/component/riding/vehicle/lavaboat
 
 /obj/vehicle/ridden/lavaboat/Initialize(mapload)
 	. = ..()
-	AddElement(/datum/element/ridable, /datum/component/riding/vehicle/lavaboat)
+	AddElement(/datum/element/ridable, component_type)
 
 /obj/item/oar
 	name = "oar"
@@ -46,7 +46,7 @@
 /obj/vehicle/ridden/lavaboat/plasma
 	name = "plasma boat"
 	desc = "A boat used for traversing the streams of plasma without turning into an icecube."
-	icon = 'icons/obj/lavaland/dragonboat.dmi'
+	icon = 'icons/obj/mining_zones/dragonboat.dmi'
 	icon_state = "goliath_boat"
 	resistance_flags = FREEZE_PROOF
 	can_buckle = TRUE
@@ -62,7 +62,7 @@
 /obj/item/ship_in_a_bottle
 	name = "ship in a bottle"
 	desc = "A tiny ship inside a bottle."
-	icon = 'icons/obj/lavaland/artefacts.dmi'
+	icon = 'icons/obj/mining_zones/artefacts.dmi'
 	icon_state = "ship_bottle"
 
 /obj/item/ship_in_a_bottle/attack_self(mob/user)
@@ -76,7 +76,10 @@
 	desc = "This boat moves where you will it, without the need for an oar."
 	icon_state = "dragon_boat"
 	resistance_flags = LAVA_PROOF | FIRE_PROOF | FREEZE_PROOF
+	component_type = /datum/component/riding/vehicle/lavaboat/dragonboat
 
-/obj/vehicle/ridden/lavaboat/dragon/Initialize(mapload)
-	. = ..()
-	AddElement(/datum/element/ridable, /datum/component/riding/vehicle/lavaboat/dragonboat)
+// Cursed typepath but not refactoring this for now
+/obj/vehicle/ridden/lavaboat/not_lava
+	name = "boat"
+	desc = "A boat used for traversing water."
+	component_type = /datum/component/riding/vehicle/lavaboat/not_lava

@@ -12,10 +12,24 @@
 	custom_materials = list(/datum/material/iron=SHEET_MATERIAL_AMOUNT)
 	clumsy_check = FALSE
 	fire_sound = 'sound/items/syringeproj.ogg'
+	drop_sound = 'maplestation_modules/sound/items/drop/gun.ogg'
+	pickup_sound = 'maplestation_modules/sound/items/pickup/gun.ogg'
+	equip_sound = 'maplestation_modules/sound/items/drop/gun.ogg'
 	var/time_per_syringe = 250
 	var/syringes_left = 4
 	var/max_syringes = 4
 	var/last_synth = 0
+
+/obj/item/gun/chem/apply_fantasy_bonuses(bonus)
+	. = ..()
+	max_syringes = modify_fantasy_variable("max_syringes", max_syringes, bonus, minimum = 1)
+	time_per_syringe = modify_fantasy_variable("time_per_syringe", time_per_syringe, -bonus * 10)
+
+/obj/item/gun/chem/remove_fantasy_bonuses(bonus)
+	max_syringes = reset_fantasy_variable("max_syringes", max_syringes)
+	time_per_syringe = reset_fantasy_variable("time_per_syringe", time_per_syringe)
+	return ..()
+
 
 /obj/item/gun/chem/Initialize(mapload)
 	. = ..()

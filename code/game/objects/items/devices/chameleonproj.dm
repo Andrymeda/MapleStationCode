@@ -1,8 +1,8 @@
 /obj/item/chameleon
 	name = "chameleon projector"
-	icon = 'icons/obj/device.dmi'
+	icon = 'icons/obj/devices/syndie_gadget.dmi'
 	icon_state = "shield0"
-	flags_1 = CONDUCT_1
+	obj_flags = CONDUCTS_ELECTRICITY
 	item_flags = NOBLUDGEON
 	slot_flags = ITEM_SLOT_BELT
 	inhand_icon_state = "electronic"
@@ -13,6 +13,8 @@
 	throw_speed = 3
 	throw_range = 5
 	w_class = WEIGHT_CLASS_SMALL
+	drop_sound = 'maplestation_modules/sound/items/drop/device.ogg'
+	pickup_sound = 'maplestation_modules/sound/items/pickup/device.ogg'
 	var/can_use = 1
 	var/obj/effect/dummy/chameleon/active_dummy = null
 	var/saved_appearance = null
@@ -58,6 +60,9 @@
 	if(iseffect(target))
 		if(!(istype(target, /obj/effect/decal))) //be a footprint
 			return
+	make_copy(target, user)
+
+/obj/item/chameleon/proc/make_copy(atom/target, mob/user)
 	playsound(get_turf(src), 'sound/weapons/flash.ogg', 100, TRUE, -6)
 	to_chat(user, span_notice("Scanned [target]."))
 	var/obj/temp = new /obj()
@@ -135,9 +140,6 @@
 	master.disrupt()
 
 /obj/effect/dummy/chameleon/attack_animal(mob/user, list/modifiers)
-	master.disrupt()
-
-/obj/effect/dummy/chameleon/attack_slime(mob/user, list/modifiers)
 	master.disrupt()
 
 /obj/effect/dummy/chameleon/attack_alien(mob/user, list/modifiers)

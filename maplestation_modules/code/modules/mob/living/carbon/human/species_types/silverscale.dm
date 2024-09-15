@@ -13,7 +13,7 @@
 	cost = CARGO_CRATE_VALUE * 70 // this shit is SO culturally, functionally, and scientifically important.
 
 	unit_name = "silverscale tongue"
-	export_types = (/obj/item/organ/internal/tongue/lizard/silver)
+	export_types = list(/obj/item/organ/internal/tongue/lizard/silver)
 
 /datum/export/organ/tongue/lizard/silver/total_printout(datum/export_report/ex, notes = TRUE)
 	. = ..()
@@ -25,6 +25,8 @@
 	var/old_skincolor
 	///stored mutcolor for when we turn back off of a silverscale.
 	var/old_mutcolor
+	///stored horn color for when we turn back off of a silverscale.
+	var/old_horncolor
 	///stored eye color for when we turn back off of a silverscale.
 	var/old_eye_color_left
 	///See above
@@ -48,14 +50,16 @@
 		TRAIT_WINE_TASTER,
 	))
 
-/obj/item/organ/internal/tongue/lizard/silver/on_insert(mob/living/carbon/organ_owner, special)
+/obj/item/organ/internal/tongue/lizard/silver/on_mob_insert(mob/living/carbon/organ_owner, special, movement_flags)
 	. = ..()
 
 	if (!ishuman(organ_owner) || isnull(organ_owner.dna))
 		return
 	var/mob/living/carbon/human/he_who_was_blessed_with_silver = organ_owner
 
+	old_skincolor = he_who_was_blessed_with_silver.skin_tone
 	old_mutcolor = he_who_was_blessed_with_silver.dna.features["mcolor"]
+	old_horncolor = he_who_was_blessed_with_silver.dna.features["lizard_horn_color"]
 	old_eye_color_left = he_who_was_blessed_with_silver.eye_color_left
 	old_eye_color_right = he_who_was_blessed_with_silver.eye_color_right
 
@@ -72,23 +76,25 @@
 
 	he_who_was_blessed_with_silver.skin_tone = "albino"
 	he_who_was_blessed_with_silver.dna.features["mcolor"] = "#eeeeee"
+	he_who_was_blessed_with_silver.dna.features["lizard_horn_color"] = "#eeeeee"
 	he_who_was_blessed_with_silver.eye_color_left = "#0000a0"
 	he_who_was_blessed_with_silver.eye_color_right = "#0000a0"
 	he_who_was_blessed_with_silver.add_filter("silver_glint", 2, list("type" = "outline", "color" = "#ffffff63", "size" = 2))
 
 	he_who_was_blessed_with_silver.physiology?.damage_resistance += 10
-
+	he_who_was_blessed_with_silver.dna.species.exotic_bloodtype = /datum/blood_type/crew/lizard/silver
 	organ_owner.update_body(TRUE)
 
-/obj/item/organ/internal/tongue/lizard/silver/on_remove(mob/living/carbon/organ_owner, special)
+/obj/item/organ/internal/tongue/lizard/silver/on_mob_remove(mob/living/carbon/organ_owner, special)
 	. = ..()
 
-	if (!ishuman(organ_owner) || isnull(organ_owner.dna))
+	if (!ishuman(organ_owner) || isnull(organ_owner.dna) || QDELING(organ_owner))
 		return
 	var/mob/living/carbon/human/he_who_has_been_outcast = organ_owner
 
 	he_who_has_been_outcast.skin_tone = old_skincolor
 	he_who_has_been_outcast.dna.features["mcolor"] = old_mutcolor
+	he_who_has_been_outcast.dna.features["lizard_horn_color"] = old_horncolor
 	he_who_has_been_outcast.eye_color_left = old_eye_color_left
 	he_who_has_been_outcast.eye_color_right = old_eye_color_right
 
@@ -102,19 +108,21 @@
 
 	old_skincolor = null
 	old_mutcolor = null
+	old_horncolor = null
 	old_eye_color_left = null
 	old_eye_color_right = null
 
 	he_who_has_been_outcast.physiology?.damage_resistance -= 10
+	he_who_has_been_outcast.dna.species.exotic_bloodtype = initial(he_who_has_been_outcast.dna.species.exotic_bloodtype)
 
 	organ_owner.update_body(TRUE)
 
-	for(var/datum/action/item_action/organ_action/statue/statue in actions)
+	for(var/datum/action/cooldown/turn_to_statue/statue in actions)
 		if(organ_owner.loc == statue.statue)
 			organ_owner.forceMove(statue.statue.loc)
 			organ_owner.Paralyze(12 SECONDS)
 
-/datum/action/item_action/organ_action/statue
+/datum/action/cooldown/turn_to_statue
 	/// Traits granted to the mob when in statue form
 	/// Overlaps with Silverscale traits a bit, don't really care, we're just being thorough
 	var/list/traits_in_statue = list(
@@ -132,21 +140,19 @@
 		TRAIT_NEVER_WOUNDED,
 	)
 
-/datum/action/item_action/organ_action/statue/New(Target)
+/datum/action/cooldown/turn_to_statue/init_statue()
 	. = ..()
-	statue.set_armor(/datum/armor/silverscale_statue_armor)
-	statue.flags_ricochet |= RICOCHET_SHINY
 	RegisterSignal(statue, COMSIG_ATOM_ENTERED, PROC_REF(statue_entered))
 	RegisterSignal(statue, COMSIG_ATOM_EXITED, PROC_REF(statue_exited))
 
-/datum/action/item_action/organ_action/statue/Trigger(trigger_flags)
+/datum/action/cooldown/turn_to_statue/Activate(atom/target)
 	if(owner.loc != statue)
 		// Fixes a weird bug where the overlays of the previous time you entered statue form stuck around.
 		statue.cut_overlays()
 
 	return ..()
 
-/datum/action/item_action/organ_action/statue/proc/statue_entered(datum/source, mob/living/lizard)
+/datum/action/cooldown/turn_to_statue/proc/statue_entered(datum/source, mob/living/lizard)
 	SIGNAL_HANDLER
 
 	if(lizard != owner)
@@ -169,7 +175,7 @@
 	// Ensures it matches your current direction, rather the last direction
 	statue.setDir(lizard.dir)
 
-/datum/action/item_action/organ_action/statue/proc/statue_exited(datum/source, mob/living/lizard)
+/datum/action/cooldown/turn_to_statue/proc/statue_exited(datum/source, mob/living/lizard)
 	SIGNAL_HANDLER
 
 	if(lizard != owner)
@@ -188,13 +194,6 @@
 	// Matches up dirs again, someone could've rotated our statue
 	lizard.setDir(statue.dir)
 
-/datum/armor/silverscale_statue_armor
-	melee = 50
-	bullet = 50
-	laser = 75
-	energy = 50
-	bomb = 50
-
 /datum/mood_event/silverscale_lost_tongue
 	description = "I lost my silvery tongue, the link between me and the silverscale society -- I need it back, or else I'll be considered sub-lizard!"
 	mood_change = -25 // God forbid you return to your society without your tongue - you're an outcast, now
@@ -205,13 +204,8 @@
 
 /datum/species/lizard/silverscale
 	plural_form = "Silverscales"
-	armor = 0 //It belongs on the tongue now
-
+	damage_modifier = 0 //It belongs on the tongue now
 	mutantlungs = /obj/item/organ/internal/lungs
-	inherent_traits = list(
-		TRAIT_CAN_USE_FLIGHT_POTION,
-		TRAIT_TACKLING_TAILED_DEFENDER,
-	)
 
 /datum/species/lizard/silverscale/on_species_loss(mob/living/carbon/human/C, datum/species/new_species, pref_load)
 	. = ..()

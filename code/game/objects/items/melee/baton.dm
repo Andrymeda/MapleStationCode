@@ -12,6 +12,9 @@
 	force = 12 //9 hit crit
 	w_class = WEIGHT_CLASS_NORMAL
 	wound_bonus = 15
+	drop_sound = 'maplestation_modules/sound/items/drop/wooden.ogg'
+	pickup_sound = 'maplestation_modules/sound/items/pickup/wooden.ogg'
+	equip_sound = 'maplestation_modules/sound/items/drop/wooden.ogg'
 
 	/// Whether this baton is active or not
 	var/active = TRUE
@@ -42,22 +45,22 @@
 	/// Boolean on whether people with chunky fingers can use this baton.
 	var/chunky_finger_usable = FALSE
 
-	/// The context to show when the baton is active and targetting a living thing
+	/// The context to show when the baton is active and targeting a living thing
 	var/context_living_target_active = "Stun"
 
-	/// The context to show when the baton is active and targetting a living thing in combat mode
+	/// The context to show when the baton is active and targeting a living thing in combat mode
 	var/context_living_target_active_combat_mode = "Stun"
 
-	/// The context to show when the baton is inactive and targetting a living thing
+	/// The context to show when the baton is inactive and targeting a living thing
 	var/context_living_target_inactive = "Prod"
 
-	/// The context to show when the baton is inactive and targetting a living thing in combat mode
+	/// The context to show when the baton is inactive and targeting a living thing in combat mode
 	var/context_living_target_inactive_combat_mode = "Attack"
 
-	/// The RMB context to show when the baton is active and targetting a living thing
+	/// The RMB context to show when the baton is active and targeting a living thing
 	var/context_living_rmb_active = "Attack"
 
-	/// The RMB context to show when the baton is inactive and targetting a living thing
+	/// The RMB context to show when the baton is inactive and targeting a living thing
 	var/context_living_rmb_inactive = "Attack"
 
 /obj/item/melee/baton/Initialize(mapload)
@@ -95,6 +98,15 @@
 		if(BATON_ATTACKING)
 			finalize_baton_attack(target, user, modifiers)
 
+/obj/item/melee/baton/apply_fantasy_bonuses(bonus)
+	. = ..()
+	stamina_damage = modify_fantasy_variable("stamina_damage", stamina_damage, bonus * 4)
+
+
+/obj/item/melee/baton/remove_fantasy_bonuses(bonus)
+	stamina_damage = reset_fantasy_variable("stamina_damage", stamina_damage)
+	return ..()
+
 /obj/item/melee/baton/add_item_context(datum/source, list/context, atom/target, mob/living/user)
 	if (isturf(target))
 		return NONE
@@ -127,7 +139,7 @@
 
 	if(!chunky_finger_usable && ishuman(user))
 		var/mob/living/carbon/human/potential_chunky_finger_human = user
-		if(potential_chunky_finger_human.check_chunky_fingers() && user.is_holding(src) && !HAS_TRAIT(user, TRAIT_CHUNKYFINGERS_IGNORE_BATON) && (user.mind && !HAS_TRAIT(user.mind, TRAIT_CHUNKYFINGERS_IGNORE_BATON)))
+		if(potential_chunky_finger_human.check_chunky_fingers() && user.is_holding(src) && !HAS_MIND_TRAIT(user, TRAIT_CHUNKYFINGERS_IGNORE_BATON))
 			balloon_alert(potential_chunky_finger_human, "fingers are too big!")
 			return BATON_ATTACK_DONE
 
@@ -166,13 +178,10 @@
 		target.visible_message(desc["visible"], desc["local"])
 
 /obj/item/melee/baton/proc/check_parried(mob/living/carbon/human/human_target, mob/living/user)
-	if(!ishuman(human_target))
-		return
-	if (human_target.check_shields(src, 0, "[user]'s [name]", MELEE_ATTACK))
+	if (human_target.check_block(src, 0, "[user]'s [name]", MELEE_ATTACK))
 		playsound(human_target, 'sound/weapons/genhit.ogg', 50, TRUE)
 		return TRUE
-	if(check_martial_counter(human_target, user))
-		return TRUE
+	return FALSE
 
 /obj/item/melee/baton/proc/finalize_baton_attack(mob/living/target, mob/living/user, modifiers, in_attack_chain = TRUE)
 	if(!in_attack_chain && HAS_TRAIT_FROM(target, TRAIT_IWASBATONED, REF(user)))
@@ -312,6 +321,9 @@
 	bare_wound_bonus = 5
 	clumsy_knockdown_time = 15 SECONDS
 	active = FALSE
+	drop_sound = 'maplestation_modules/sound/items/drop/metal_drop.ogg'
+	pickup_sound = 'maplestation_modules/sound/items/pickup/metalweapon.ogg'
+	equip_sound = 'maplestation_modules/sound/items/drop/metal_drop.ogg'
 
 	/// The sound effecte played when our baton is extended.
 	var/on_sound = 'sound/weapons/batonextend.ogg'
@@ -322,13 +334,15 @@
 
 /obj/item/melee/baton/telescopic/Initialize(mapload)
 	. = ..()
-	AddComponent(/datum/component/transforming, \
+	AddComponent( \
+		/datum/component/transforming, \
 		force_on = active_force, \
 		hitsound_on = hitsound, \
 		w_class_on = WEIGHT_CLASS_NORMAL, \
 		clumsy_check = FALSE, \
 		attack_verb_continuous_on = list("smacks", "strikes", "cracks", "beats"), \
-		attack_verb_simple_on = list("smack", "strike", "crack", "beat"))
+		attack_verb_simple_on = list("smack", "strike", "crack", "beat"), \
+	)
 	RegisterSignal(src, COMSIG_TRANSFORMING_ON_TRANSFORM, PROC_REF(on_transform))
 
 /obj/item/melee/baton/telescopic/suicide_act(mob/living/user)
@@ -361,8 +375,9 @@
 
 	src.active = active
 	inhand_icon_state = active ? on_inhand_icon_state : null // When inactive, there is no inhand icon_state.
-	balloon_alert(user, active ? "extended" : "collapsed")
-	playsound(user ? user : src, on_sound, 50, TRUE)
+	if(user)
+		balloon_alert(user, active ? "extended" : "collapsed")
+	playsound(src, on_sound, 50, TRUE)
 	return COMPONENT_NO_DEFAULT_MESSAGE
 
 /obj/item/melee/baton/telescopic/contractor_baton
@@ -418,6 +433,9 @@
 	on_stun_volume = 50
 	active = FALSE
 	context_living_rmb_active = "Harmful Stun"
+	drop_sound = 'maplestation_modules/sound/items/drop/metal_drop.ogg'
+	pickup_sound = 'maplestation_modules/sound/items/pickup/metalweapon.ogg'
+	equip_sound = 'maplestation_modules/sound/items/drop/metal_drop.ogg'
 
 	var/throw_stun_chance = 35
 	var/obj/item/stock_parts/cell/cell
@@ -438,7 +456,7 @@
 			log_mapping("[src] at [AREACOORD(src)] had an invalid preload_cell_type: [preload_cell_type].")
 		else
 			cell = new preload_cell_type(src)
-	RegisterSignal(src, COMSIG_PARENT_ATTACKBY, PROC_REF(convert))
+	RegisterSignal(src, COMSIG_ATOM_ATTACKBY, PROC_REF(convert))
 	update_appearance()
 
 /obj/item/melee/baton/security/get_cell()
@@ -456,7 +474,7 @@
 /obj/item/melee/baton/security/Destroy()
 	if(cell)
 		QDEL_NULL(cell)
-	UnregisterSignal(src, COMSIG_PARENT_ATTACKBY)
+	UnregisterSignal(src, COMSIG_ATOM_ATTACKBY)
 	return ..()
 
 /obj/item/melee/baton/security/proc/convert(datum/source, obj/item/item, mob/user)
@@ -616,11 +634,11 @@
 	. = list()
 
 	.["visible"] = span_danger("[user] tries to stun [target] with [src], and predictably fails!")
-	.["local"] = span_userdanger("[target] tries to... stun you with [src]?")
+	.["local"] = span_userdanger("[user] tries to... stun you with [src]?")
 
 /obj/item/melee/baton/security/throw_impact(atom/hit_atom, datum/thrownthing/throwingdatum)
 	. = ..()
-	if(active && prob(throw_stun_chance) && isliving(hit_atom))
+	if(!. && active && prob(throw_stun_chance) && isliving(hit_atom))
 		finalize_baton_attack(hit_atom, thrownby?.resolve(), in_attack_chain = FALSE)
 
 /obj/item/melee/baton/security/emp_act(severity)
@@ -786,9 +804,10 @@
 	if(!.)
 		return
 	var/obj/item/stuff_in_hand = target.get_active_held_item()
-	if(stuff_in_hand && target.temporarilyRemoveItemFromInventory(stuff_in_hand))
-		if(user.put_in_inactive_hand(stuff_in_hand))
-			stuff_in_hand.loc.visible_message(span_warning("[stuff_in_hand] suddenly appears in [user]'s hand!"))
-		else
-			stuff_in_hand.forceMove(user.drop_location())
-			stuff_in_hand.loc.visible_message(span_warning("[stuff_in_hand] suddenly appears!"))
+	if(!user || !stuff_in_hand || !target.temporarilyRemoveItemFromInventory(stuff_in_hand))
+		return
+	if(user.put_in_inactive_hand(stuff_in_hand))
+		stuff_in_hand.loc.visible_message(span_warning("[stuff_in_hand] suddenly appears in [user]'s hand!"))
+	else
+		stuff_in_hand.forceMove(user.drop_location())
+		stuff_in_hand.loc.visible_message(span_warning("[stuff_in_hand] suddenly appears!"))

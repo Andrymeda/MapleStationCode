@@ -13,8 +13,8 @@
 	if(!SSticker.HasRoundStarted())
 		tgui_alert(usr, "The game hasn't started yet!")
 		return
-	var/data = "<b>Showing last [length(GLOB.lastsignalers)] signalers.</b><hr>"
-	for(var/entry in GLOB.lastsignalers)
+	var/data = "<b>Showing last [length(GLOB.investigate_signaler)] signalers.</b><hr>"
+	for(var/entry in GLOB.investigate_signaler)
 		data += "[entry]<BR>"
 	usr << browse(data, "window=lastsignalers;size=800x500")
 
@@ -33,7 +33,7 @@
 	for(var/entry in GLOB.human_list)
 		var/mob/living/carbon/human/subject = entry
 		if(subject.ckey)
-			data += "<tr><td>[subject]</td><td>[subject.dna.unique_enzymes]</td><td>[subject.dna.blood_type]</td></tr>"
+			data += "<tr><td>[subject]</td><td>[subject.dna.unique_enzymes]</td><td>[subject.get_blood_type()]</td></tr>" // NON-MODULE CHANGE
 	data += "</table>"
 	usr << browse(data, "window=DNA;size=440x410")
 
@@ -51,12 +51,7 @@
 	if(!SSticker.HasRoundStarted())
 		tgui_alert(usr, "The game hasn't started yet!")
 		return
-	var/data = "<b>Showing Crew Manifest.</b><hr>"
-	data += "<table cellspacing=5 border=1><tr><th>Name</th><th>Position</th></tr>"
-	for(var/datum/record/crew/entry in GLOB.manifest.general)
-		data += "<tr><td>[entry.name]</td><td>[entry.rank][entry.rank != entry.trim ? " ([entry.trim])" : ""]</td></tr>"
-	data += "</table>"
-	usr << browse(data, "window=manifest;size=440x410")
+	GLOB.manifest.ui_interact(usr)
 
 /datum/admins/proc/output_ai_laws()
 	var/law_bound_entities = 0

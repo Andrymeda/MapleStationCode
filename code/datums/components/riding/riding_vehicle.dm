@@ -137,17 +137,16 @@
 	. = ..()
 	allowed_turf_typecache = typecacheof(allowed_turf)
 
-/datum/component/riding/vehicle/lavaboat/dragonboat
-	vehicle_move_delay = 1
-
-/datum/component/riding/vehicle/lavaboat/dragonboat/handle_specials()
-	. = ..()
-	set_riding_offsets(RIDING_OFFSET_ALL, list(TEXT_NORTH = list(1, 2), TEXT_SOUTH = list(1, 2), TEXT_EAST = list(1, 2), TEXT_WEST = list( 1, 2)))
+/datum/component/riding/vehicle/lavaboat/not_lava
+	allowed_turf = /turf/open/water
 
 /datum/component/riding/vehicle/lavaboat/dragonboat
 	vehicle_move_delay = 1
 	keytype = null
 
+/datum/component/riding/vehicle/lavaboat/dragonboat/handle_specials()
+	. = ..()
+	set_riding_offsets(RIDING_OFFSET_ALL, list(TEXT_NORTH = list(1, 2), TEXT_SOUTH = list(1, 2), TEXT_EAST = list(1, 2), TEXT_WEST = list( 1, 2)))
 
 /datum/component/riding/vehicle/janicart
 	keytype = /obj/item/key/janitor
@@ -263,12 +262,9 @@
 	return ..()
 
 /datum/component/riding/vehicle/wheelchair/motorized/driver_move(obj/vehicle/vehicle_parent, mob/living/user, direction)
-	var/speed = 1 // Should never be under 1
-	var/delay_multiplier = 6.7 // magic number from wheelchair code
-
 	var/obj/vehicle/ridden/wheelchair/motorized/our_chair = parent
-	for(var/datum/stock_part/servo/servo in our_chair.component_parts)
-		speed += servo.tier
+	var/speed = our_chair.speed
+	var/delay_multiplier = our_chair.delay_multiplier
 	vehicle_move_delay = round(CONFIG_GET(number/movedelay/run_delay) * delay_multiplier) / speed
 	return ..()
 

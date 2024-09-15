@@ -62,7 +62,7 @@
 	var/card_reader_installed = FALSE
 	/// physical reference of the players id card to check for PERSONAL access level
 	var/datum/weakref/id_card = null
-	/// should we prevent furthur access change
+	/// should we prevent further access change
 	var/access_locked = FALSE
 
 /obj/machinery/suit_storage_unit/standard_unit
@@ -138,6 +138,14 @@
 	storage_type = /obj/item/tank/jetpack/oxygen/harness
 	mod_type = /obj/item/mod/control/pre_equipped/nuclear
 
+/obj/machinery/suit_storage_unit/syndicate/lavaland
+	mod_type = /obj/item/mod/control/pre_equipped/nuclear/no_jetpack
+
+/obj/machinery/suit_storage_unit/interdyne
+	mask_type = /obj/item/clothing/mask/gas/syndicate
+	storage_type = /obj/item/tank/internals/oxygen
+	mod_type = /obj/item/mod/control/pre_equipped/interdyne
+
 /obj/machinery/suit_storage_unit/void_old
 	suit_type = /obj/item/clothing/suit/space/nasavoid/old
 	helmet_type = /obj/item/clothing/head/helmet/space/nasavoid/old
@@ -172,7 +180,7 @@
 	. = ..()
 
 	set_access()
-	wires = new /datum/wires/suit_storage_unit(src)
+	set_wires(new /datum/wires/suit_storage_unit(src))
 	if(suit_type)
 		suit = new suit_type(src)
 	if(helmet_type)
@@ -300,7 +308,7 @@
 	set_occupant(null)
 
 /obj/machinery/suit_storage_unit/deconstruct(disassembled = TRUE)
-	if(!(flags_1 & NODECONSTRUCT_1))
+	if(!(obj_flags & NO_DECONSTRUCTION))
 		open_machine()
 		dump_inventory_contents()
 		if(card_reader_installed)
@@ -372,6 +380,7 @@
 		choices,
 		custom_check = CALLBACK(src, PROC_REF(check_interactable), user),
 		require_near = !issilicon(user),
+		autopick_single_option = FALSE
 	)
 
 	if (!choice)
@@ -519,7 +528,7 @@
 				visible_message(span_notice("[src]'s door slides open. The glowing yellow lights dim to a gentle green."))
 			else
 				visible_message(span_warning("[src]'s door slides open, barraging you with the nauseating smell of charred flesh."))
-				qdel(mob_occupant.GetComponent(/datum/component/irradiated))
+				mob_occupant.remove_status_effect(/datum/status_effect/irradiated)
 			playsound(src, 'sound/machines/airlockclose.ogg', 25, TRUE)
 			var/list/things_to_clear = list() //Done this way since using GetAllContents on the SSU itself would include circuitry and such.
 			if(suit)
@@ -540,25 +549,31 @@
 			if(mob_occupant)
 				things_to_clear += mob_occupant
 				things_to_clear += mob_occupant.get_all_contents()
-			for(var/am in things_to_clear) //Scorches away blood and forensic evidence, although the SSU itself is unaffected
-				var/atom/movable/dirty_movable = am
+			for(var/atom/movable/dirty_movable as anything in things_to_clear) //Scorches away blood and forensic evidence, although the SSU itself is unaffected
 				dirty_movable.wash(CLEAN_ALL)
 		open_machine(FALSE)
 		if(mob_occupant)
 			dump_inventory_contents()
 
 /obj/machinery/suit_storage_unit/process(seconds_per_tick)
-	var/obj/item/stock_parts/cell/cell
-	if(suit && istype(suit))
-		cell = suit.cell
-	if(mod)
-		cell = mod.get_cell()
-	if(!cell || cell.charge == cell.maxcharge)
+	var/list/cells_to_charge = list()
+	for(var/obj/item/charging in list(mod, suit, helmet, mask, storage))
+		var/obj/item/stock_parts/cell/cell_charging = charging.get_cell()
+		if(!istype(cell_charging) || cell_charging.charge == cell_charging.maxcharge)
+			continue
+
+		cells_to_charge += cell_charging
+
+	var/cell_count = length(cells_to_charge)
+	if(cell_count <= 0)
 		return
 
-	var/cell_charged = cell.give(final_charge_rate * seconds_per_tick)
-	if(cell_charged)
-		use_power((active_power_usage + final_charge_rate) * seconds_per_tick)
+	var/charge_per_item = (final_charge_rate * seconds_per_tick) / cell_count
+	for(var/obj/item/stock_parts/cell/cell as anything in cells_to_charge)
+		var/charge_used = use_power_from_net(charge_per_item, take_any = TRUE)
+		if(charge_used <= 0)
+			break
+		cell.give(charge_used)
 
 /obj/machinery/suit_storage_unit/proc/shock(mob/user, prb)
 	if(!prob(prb))
@@ -692,7 +707,7 @@
 		else
 			balloon_alert(user, "set to [choice]")
 
-	else if(!state_open && istype(weapon, /obj/item/pen))
+	else if(!state_open && IS_WRITING_UTENSIL(weapon))
 		if(locked)
 			balloon_alert(user, "unlock first!")
 			return
@@ -727,35 +742,35 @@
 			if(suit)
 				to_chat(user, span_warning("The unit already contains a suit!."))
 				return
-			if(!user.transferItemToLoc(weapon, src))
+			if(!user.transferItemToLoc(weapon, src, silent = FALSE))
 				return
 			suit = weapon
 		else if(istype(weapon, /obj/item/clothing/head))
 			if(helmet)
 				to_chat(user, span_warning("The unit already contains a helmet!"))
 				return
-			if(!user.transferItemToLoc(weapon, src))
+			if(!user.transferItemToLoc(weapon, src, silent = FALSE))
 				return
 			helmet = weapon
 		else if(istype(weapon, /obj/item/clothing/mask))
 			if(mask)
 				to_chat(user, span_warning("The unit already contains a mask!"))
 				return
-			if(!user.transferItemToLoc(weapon, src))
+			if(!user.transferItemToLoc(weapon, src, silent = FALSE))
 				return
 			mask = weapon
 		else if(istype(weapon, /obj/item/mod/control))
 			if(mod)
 				to_chat(user, span_warning("The unit already contains a MOD!"))
 				return
-			if(!user.transferItemToLoc(weapon, src))
+			if(!user.transferItemToLoc(weapon, src, silent = FALSE))
 				return
 			mod = weapon
 		else
 			if(storage)
 				to_chat(user, span_warning("The auxiliary storage compartment is full!"))
 				return
-			if(!user.transferItemToLoc(weapon, src))
+			if(!user.transferItemToLoc(weapon, src, silent = FALSE))
 				return
 			storage = weapon
 
@@ -785,20 +800,27 @@
 	causes the SSU to break due to state_open being set to TRUE at the end, and the panel becoming inaccessible.
 */
 /obj/machinery/suit_storage_unit/default_deconstruction_screwdriver(mob/user, icon_state_open, icon_state_closed, obj/item/screwdriver)
-	if(!(flags_1 & NODECONSTRUCT_1) && screwdriver.tool_behaviour == TOOL_SCREWDRIVER && (uv || locked))
+	if(!(obj_flags & NO_DECONSTRUCTION) && screwdriver.tool_behaviour == TOOL_SCREWDRIVER && (uv || locked))
 		to_chat(user, span_warning("You cant open the panel while its [locked ? "locked" : "decontaminating"]"))
 		return TRUE
 	return ..()
 
 
 /obj/machinery/suit_storage_unit/default_pry_open(obj/item/crowbar)//needs to check if the storage is locked.
-	. = !(state_open || panel_open || is_operational || locked || (flags_1 & NODECONSTRUCT_1)) && crowbar.tool_behaviour == TOOL_CROWBAR
+	. = !(state_open || panel_open || is_operational || locked || (obj_flags & NO_DECONSTRUCTION)) && crowbar.tool_behaviour == TOOL_CROWBAR
 	if(.)
 		crowbar.play_tool_sound(src, 50)
 		visible_message(span_notice("[usr] pries open \the [src]."), span_notice("You pry open \the [src]."))
 		open_machine()
 
 /obj/machinery/suit_storage_unit/default_deconstruction_crowbar(obj/item/crowbar, ignore_panel, custom_deconstruct)
-	. = (!locked && panel_open && !(flags_1 & NODECONSTRUCT_1) && crowbar.tool_behaviour == TOOL_CROWBAR)
+	. = (!locked && panel_open && !(obj_flags & NO_DECONSTRUCTION) && crowbar.tool_behaviour == TOOL_CROWBAR)
 	if(.)
 		return ..()
+
+/// If the SSU needs to have any communications wires cut.
+/obj/machinery/suit_storage_unit/proc/disable_modlink()
+	if(isnull(mod))
+		return
+
+	mod.disable_modlink()

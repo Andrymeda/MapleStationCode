@@ -7,8 +7,11 @@
 /datum/quirk/bad_touch
 	value = -2
 
-/datum/quirk/light_drinker
-	desc = "You just can't handle your drinks and get drunk very quickly. (Unallowed: Skrell)"
+/datum/quirk/numb
+	value = -2 // This is a small buff but a large nerf so it's balanced at a relatively low cost
+	desc = "You don't feel pain as much as others. \
+		It's harder to pinpoint which parts of your body are injured, and \
+		you are immune to some effects of pain - possibly to your detriment."
 
 // Modular quirks
 // More vulnerabile to pain (increased pain modifier)
@@ -17,8 +20,8 @@
 	desc = "You're less resistant to pain - Your pain naturally decreases slower and you receive more overall."
 	icon = FA_ICON_USER_INJURED
 	value = -6
-	gain_text = "<span class='danger'>You feel sharper.</span>"
-	lose_text = "<span class='notice'>You feel duller.</span>"
+	gain_text = span_danger("You feel sharper.")
+	lose_text = span_notice("You feel duller.")
 	medical_record_text = "Patient has Hyperalgesia, and is more susceptible to pain stimuli than most."
 	mail_goodies = list(/obj/item/temperature_pack/cold)
 
@@ -38,8 +41,8 @@
 	desc = "Your nerves are extremely sensitive - you may receive pain from things that wouldn't normally be painful, such as hugs."
 	icon = FA_ICON_TIRED
 	value = -10
-	gain_text = "<span class='danger'>You feel fragile.</span>"
-	lose_text = "<span class='notice'>You feel less delicate.</span>"
+	gain_text = span_danger("You feel fragile.")
+	lose_text = span_notice("You feel less delicate.")
 	medical_record_text = "Patient has Allodynia, and is extremely sensitive to touch, pain, and similar stimuli."
 	mail_goodies = list(/obj/item/temperature_pack/cold, /obj/item/temperature_pack/heat)
 	COOLDOWN_DECLARE(time_since_last_touch)

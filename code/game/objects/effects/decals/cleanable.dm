@@ -1,6 +1,6 @@
 /obj/effect/decal/cleanable
 	gender = PLURAL
-	layer = ABOVE_NORMAL_TURF_LAYER
+	layer = FLOOR_CLEAN_LAYER
 	var/list/random_icon_states = null
 	///I'm sorry but cleanable/blood code is ass, and so is blood_DNA
 	var/blood_state = ""
@@ -15,6 +15,16 @@
 	var/datum/reagent/decal_reagent
 	///The amount of reagent this decal holds, if decal_reagent is defined
 	var/reagent_amount = 0
+
+/// Creates a cleanable decal on a turf
+/// Use this if your decal is one of one, and thus we should not spawn it if it's there already
+/// Returns either the existing cleanable, the one we created, or null if we can't spawn on that turf
+/turf/proc/spawn_unique_cleanable(obj/effect/decal/cleanable/cleanable_type)
+	// There is no need to spam unique cleanables, they don't stack and it just chews cpu
+	var/obj/effect/decal/cleanable/existing = locate(cleanable_type) in src
+	if(existing)
+		return existing
+	return new cleanable_type(src)
 
 /obj/effect/decal/cleanable/Initialize(mapload, list/datum/disease/diseases)
 	. = ..()
@@ -47,6 +57,8 @@
 		COMSIG_ATOM_ENTERED = PROC_REF(on_entered),
 	)
 	AddElement(/datum/element/connect_loc, loc_connections)
+	if(bloodiness)
+		update_appearance()
 
 /obj/effect/decal/cleanable/Destroy()
 	var/turf/T = get_turf(src)
@@ -58,9 +70,35 @@
 	if(mergeable_decal)
 		return TRUE
 
+/// Increments or decrements the bloodiness value
+/obj/effect/decal/cleanable/proc/adjust_bloodiness(by_amount)
+	if(by_amount == 0)
+		return FALSE
+	if(QDELING(src))
+		return FALSE
+
+	bloodiness = clamp((bloodiness + by_amount), 0, BLOOD_POOL_MAX)
+	update_appearance()
+	return TRUE
+
+/// Called before attempting to scoop up reagents from this decal to only load reagents when necessary
+/obj/effect/decal/cleanable/proc/lazy_init_reagents()
+	return
+
+#ifdef TESTING
+/obj/effect/decal/cleanable/update_overlays()
+	. = ..()
+	if(bloodiness)
+		var/mutable_appearance/blah_text = new()
+		blah_text.maptext = MAPTEXT_TINY_UNICODE("[bloodiness]")
+		blah_text.appearance_flags |= (KEEP_APART|RESET_ALPHA|RESET_COLOR|RESET_TRANSFORM)
+		. += blah_text
+#endif
+
 /obj/effect/decal/cleanable/attackby(obj/item/W, mob/user, params)
 	if((istype(W, /obj/item/reagent_containers/cup) && !istype(W, /obj/item/reagent_containers/cup/rag)) || istype(W, /obj/item/reagent_containers/cup/glass))
 		if(src.reagents && W.reagents)
+			lazy_init_reagents()
 			. = 1 //so the containers don't splash their content on the src while scooping.
 			if(!src.reagents.total_volume)
 				to_chat(user, span_notice("[src] isn't thick enough to scoop up!"))
@@ -69,7 +107,7 @@
 				to_chat(user, span_notice("[W] is full!"))
 				return
 			to_chat(user, span_notice("You scoop up [src] into [W]!"))
-			reagents.trans_to(W, reagents.total_volume, transfered_by = user)
+			reagents.trans_to(W, reagents.total_volume, transferred_by = user)
 			if(!reagents.total_volume) //scooped up all of it
 				qdel(src)
 				return
@@ -93,7 +131,7 @@
 //This is on /cleanable because fuck this ancient mess
 /obj/effect/decal/cleanable/proc/on_entered(datum/source, atom/movable/AM)
 	SIGNAL_HANDLER
-	if(iscarbon(AM) && blood_state && bloodiness >= 40)
+	if(isliving(AM) && bloodiness >= 40)
 		SEND_SIGNAL(AM, COMSIG_STEP_ON_BLOOD, src)
 		update_appearance()
 
@@ -108,24 +146,7 @@
  * Checks if this decal is a valid decal that can be blood crawled in.
  */
 /obj/effect/decal/cleanable/proc/can_bloodcrawl_in()
-	if((blood_state != BLOOD_STATE_OIL) && (blood_state != BLOOD_STATE_NOT_BLOODY))
-		return bloodiness
-
-	return FALSE
-
-/**
- * Gets the color associated with the any blood present on this decal. If there is no blood, returns null.
- */
-/obj/effect/decal/cleanable/proc/get_blood_color()
-	switch(blood_state)
-		if(BLOOD_STATE_HUMAN)
-			return rgb(149, 10, 10)
-		if(BLOOD_STATE_XENO)
-			return rgb(43, 186, 0)
-		if(BLOOD_STATE_OIL)
-			return rgb(22, 22, 22)
-
-	return null
+	return decal_reagent == /datum/reagent/blood
 
 /obj/effect/decal/cleanable/proc/handle_merge_decal(obj/effect/decal/cleanable/merger)
 	if(!merger)

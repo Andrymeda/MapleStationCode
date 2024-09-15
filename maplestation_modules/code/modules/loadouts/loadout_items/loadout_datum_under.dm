@@ -3,18 +3,19 @@
 /// Underslot - Jumpsuit Items (Deletes overrided items)
 /datum/loadout_category/undersuit
 	category_name = "Jumpsuit"
-	ui_title = "Under Suit Slot Items"
 	type_to_generate = /datum/loadout_item/under/jumpsuit
+	tab_order = 7
 
 /// Underslot - Formal Suit Items (Deletes overrided items)
 /datum/loadout_category/undersuit/formal
 	category_name = "Formal"
 	type_to_generate = /datum/loadout_item/under/formal
+	tab_order = 8
 
 /datum/loadout_item/under
 	abstract_type = /datum/loadout_item/under
 
-/datum/loadout_item/under/insert_path_into_outfit(datum/outfit/outfit, mob/living/carbon/human/equipper, visuals_only = FALSE)
+/datum/loadout_item/under/insert_path_into_outfit(datum/outfit/outfit, mob/living/carbon/human/equipper, visuals_only = FALSE, job_equipping_step = FALSE)
 	if(isplasmaman(equipper))
 		if(!visuals_only)
 			to_chat(equipper, "Your loadout uniform was not equipped directly due to your envirosuit.")
@@ -38,14 +39,28 @@
 	name = "Random Jumpsuit"
 	can_be_greyscale = DONT_GREYSCALE
 	item_path = /obj/item/clothing/under/color/random
-	additional_tooltip_contents = list(TOOLTIP_RANDOM_COLOR)
+	additional_displayed_text = list("Random Color")
 
-/datum/loadout_item/under/jumpsuit/random/on_equip_item(datum/preferences/preference_source, mob/living/carbon/human/equipper, visuals_only, list/preference_list)
-	return
+/datum/loadout_item/under/jumpsuit/random/on_equip_item(
+	obj/item/equipped_item,
+	datum/preferences/preference_source,
+	list/preference_list,
+	mob/living/carbon/human/equipper,
+	visuals_only = FALSE,
+)
+	return NONE
 
 /datum/loadout_item/under/jumpsuit/random/skirt
 	name = "Random Jumpskirt"
 	item_path = /obj/item/clothing/under/color/jumpskirt/random
+
+/datum/loadout_item/under/jumpsuit/rainbow
+	name = "Rainbow Jumpsuit"
+	item_path = /obj/item/clothing/under/color/rainbow
+
+/datum/loadout_item/under/jumpsuit/rainbow_skirt
+	name = "Rainbow Jumpskirt"
+	item_path = /obj/item/clothing/under/color/jumpskirt/rainbow
 
 /datum/loadout_item/under/jumpsuit/jeans
 	name = "Jeans"
@@ -135,10 +150,6 @@
 /datum/loadout_item/under/formal
 	abstract_type = /datum/loadout_item/under/formal
 
-/datum/loadout_item/under/formal/amish_suit
-	name = "Amish Suit"
-	item_path = /obj/item/clothing/under/suit/sl
-
 /datum/loadout_item/under/formal/assistant
 	name = "Assistant Formal"
 	item_path = /obj/item/clothing/under/misc/assistantformal
@@ -166,10 +177,6 @@
 /datum/loadout_item/under/formal/tango
 	name = "Tango Dress"
 	item_path = /obj/item/clothing/under/dress/tango
-
-/datum/loadout_item/under/formal/Black_twopiece
-	name = "Black Two-Piece Suit"
-	item_path = /obj/item/clothing/under/suit/blacktwopiece
 
 /datum/loadout_item/under/formal/black_lawyer_suit
 	name = "Black Lawyer Suit"
@@ -255,10 +262,6 @@
 	name = "Purple Suitskirt"
 	item_path = /obj/item/clothing/under/rank/civilian/lawyer/purpsuit/skirt
 
-/datum/loadout_item/under/formal/red_suit
-	name = "Red Suit"
-	item_path = /obj/item/clothing/under/suit/red
-
 /datum/loadout_item/under/formal/red_lawyer_skirt
 	name = "Red Lawyer Suit"
 	item_path = /obj/item/clothing/under/rank/civilian/lawyer/red
@@ -278,10 +281,6 @@
 /datum/loadout_item/under/formal/sailor_skirt
 	name = "Sailor Dress"
 	item_path = /obj/item/clothing/under/dress/sailor
-
-/datum/loadout_item/under/formal/scratch_suit
-	name = "Scratch Suit"
-	item_path = /obj/item/clothing/under/suit/white_on_white
 
 /datum/loadout_item/under/formal/striped_skirt
 	name = "Striped Dress"
@@ -338,11 +337,65 @@
 /datum/loadout_item/under/formal/nndress
 	name = "Blue Dress"
 	item_path = /obj/item/clothing/under/dress/nndress
+	additional_displayed_text = list("Character Item")
 
 /datum/loadout_item/under/formal/ritzuniform
 	name = "Malheur Research Association uniform"
 	item_path = /obj/item/clothing/under/rank/rnd/mrauniform
+	additional_displayed_text = list("Character Item")
 
 /datum/loadout_item/under/formal/reshiacoat
 	name = "Black Uniform Coat"
 	item_path = /obj/item/clothing/under/jumpsuit/reshiacoat
+	additional_displayed_text = list("Character Item")
+
+/datum/loadout_item/under/formal/arbitersuit
+	name = "Arbiter's Suit"
+	item_path = /obj/item/clothing/under/arbitersuit
+
+/datum/loadout_item/under/formal/chesedsuit
+	name = "Blue Waistcoat"
+	item_path = /obj/item/clothing/under/chesedsuit
+
+/datum/loadout_item/under/formal/kimono
+	name = "Black Kimono"
+	item_path = /obj/item/clothing/under/kimono
+
+/datum/loadout_item/under/formal/kimono2
+	name = "Red Kimono"
+	item_path = /obj/item/clothing/under/kimono/red
+
+/datum/loadout_item/under/formal/kimono3
+	name = "Purple Kimono"
+	item_path = /obj/item/clothing/under/kimono/purple
+
+/datum/loadout_item/under/formal/yukata
+	name = "Black Yukata"
+	item_path = /obj/item/clothing/under/yukata
+
+/datum/loadout_item/under/formal/yukata2
+	name = "Green Yukata"
+	item_path = /obj/item/clothing/under/yukata/green
+
+/datum/loadout_item/under/formal/yukata3
+	name = "Blue Yukata"
+	item_path = /obj/item/clothing/under/yukata/blue
+
+/datum/loadout_item/under/formal/grey
+	name = "Designer Outfit"
+	item_path = /obj/item/clothing/under/jumpsuit/greyshirt
+	additional_displayed_text = list("Character Item")
+
+/datum/loadout_item/under/formal/countess
+	name = "Countess Dress"
+	item_path = /obj/item/clothing/under/dress/countess
+
+/datum/loadout_item/under/jumpsuit/pilot
+	name = "Berbier Uniform"
+	item_path = /obj/item/clothing/under/jumpsuit/lini
+	additional_displayed_text = list("Character Item")
+
+/datum/loadout_item/under/jumpsuit/jessie_turtleneck
+	name = "Holointegrated Turtleneck"
+	item_path = /obj/item/clothing/under/rank/rnd/research_director/jessie_turtleneck
+	additional_displayed_text = list("Character Item")

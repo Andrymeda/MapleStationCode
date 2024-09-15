@@ -17,6 +17,18 @@
 
 	return final_color
 
+/// Given a color in the format of "#RRGGBB" or "#RRGGBBAA", gives back a 4 entry list with the number values of each
+/proc/split_color(color)
+	var/list/output = list()
+	output += hex2num(copytext(color, 2, 4))
+	output += hex2num(copytext(color, 4, 6))
+	output += hex2num(copytext(color, 6, 8))
+	if(length(color) == 9)
+		output += hex2num(copytext(color, 8, 10))
+	else
+		output += 255
+	return output
+
 ///Returns a random color picked from a list, has 2 modes (0 and 1), mode 1 doesn't pick white, black or gray
 /proc/random_colour(mode = 0)
 	switch(mode)
@@ -42,24 +54,24 @@
 	var/textb = copytext(HTMLstring, 6, 8)
 	return rgb(255 - hex2num(textr), 255 - hex2num(textg), 255 - hex2num(textb))
 
-///Flash a color on the client
+///Flash a color on the passed mob
 /proc/flash_color(mob_or_client, flash_color="#960000", flash_time=20)
-	var/client/flashed_client
+	var/mob/flashed_mob
 	if(ismob(mob_or_client))
-		var/mob/client_mob = mob_or_client
-		if(client_mob.client)
-			flashed_client = client_mob.client
-		else
-			return
+		flashed_mob = mob_or_client
 	else if(istype(mob_or_client, /client))
-		flashed_client = mob_or_client
+		var/client/flashed_client = mob_or_client
+		flashed_mob = flashed_client.mob
 
-	if(!istype(flashed_client))
+	if(!istype(flashed_mob))
 		return
 
-	var/animate_color = flashed_client.color
-	flashed_client.color = flash_color
-	animate(flashed_client, color = animate_color, time = flash_time)
+	var/datum/client_colour/temp/temp_color = new(flashed_mob)
+	temp_color.colour = flash_color
+	temp_color.fade_in = flash_time * 0.25
+	temp_color.fade_out = flash_time * 0.25
+	QDEL_IN(temp_color, (flash_time * 0.5) + 1)
+	flashed_mob.add_client_colour(temp_color)
 
 /// Blends together two colors (passed as 3 or 4 length lists) using the screen blend mode
 /// Much like multiply, screen effects the brightness of the resulting color
@@ -98,4 +110,3 @@
 
 
 #define RANDOM_COLOUR (rgb(rand(0,255),rand(0,255),rand(0,255)))
-

@@ -60,3 +60,28 @@
 	desc = "An old ship uniform from the days of spacefarers past. In the old days, engineering wore red and command wore gold. And women wore less."
 	icon_state = "turtlefool_skirt"
 
+/obj/item/clothing/under/arbitersuit
+	name = "arbiter's suit"
+	desc = "A curious garb that has varying cultural significance to many Ornithid groups. Doesn't pair well with the color red."
+	icon = 'maplestation_modules/icons/obj/clothing/under/ornithid_clothes.dmi'
+	worn_icon = 'maplestation_modules/icons/mob/clothing/under/ornithid_clothes.dmi'
+	icon_state = "arbiter_suit"
+	can_adjust = FALSE
+
+/obj/item/clothing/under/chesedsuit
+	name = "blue waistcoat"
+	desc = "A simple and clean blue waist coat, light blue business shirt, and dark purple slacks combo. Smells faintly of coffee."
+	icon = 'maplestation_modules/icons/obj/clothing/under/ornithid_clothes.dmi'
+	worn_icon = 'maplestation_modules/icons/mob/clothing/under/ornithid_clothes.dmi'
+	icon_state = "chesed_suit"
+	clothing_traits = list(TRAIT_CAFFEINE_LOVER)
+
+// https://github.com/Skyrat-SS13/Skyrat-tg/pull/17098
+/obj/item/clothing/under/dress/countess
+	name = "countess dress"
+	desc = "A wide flowing dress fitting for a countess; may be prone to catching onto stuff as you pass."
+	icon = 'maplestation_modules/icons/obj/clothing/under/countess.dmi'
+	worn_icon = 'maplestation_modules/icons/mob/clothing/under/countess.dmi'
+	icon_state = "countess"
+	body_parts_covered = CHEST|GROIN|LEGS|ARMS
+	flags_inv = HIDESHOES

@@ -83,21 +83,6 @@
 	. = ..()
 	disconnect_from_area(area_to_unregister)
 
-///adds a gas or list of gases to our filter_types. used so that the scrubber can check if its supposed to be processing after each change
-/obj/machinery/atmospherics/components/unary/vent_scrubber/proc/add_filters(filter_or_filters)
-	if(!islist(filter_or_filters))
-		filter_or_filters = list(filter_or_filters)
-
-	for(var/gas_to_filter in filter_or_filters)
-		var/translated_gas = istext(gas_to_filter) ? gas_id2path(gas_to_filter) : gas_to_filter
-
-		if(ispath(translated_gas, /datum/gas))
-			filter_types |= translated_gas
-			continue
-
-	atmos_conditions_changed()
-	return TRUE
-
 ///remove a gas or list of gases from our filter_types.used so that the scrubber can check if its supposed to be processing after each change
 /obj/machinery/atmospherics/components/unary/vent_scrubber/proc/remove_filters(filter_or_filters)
 	if(!islist(filter_or_filters))
@@ -261,10 +246,10 @@
 			for(var/gas in filter_types & env_gases)
 				filtered_out.add_gas(gas)
 				//take this gases portion of removal_ratio of the turfs air, or all of that gas if less than or equal to MINIMUM_MOLES_TO_SCRUB
-				var/transfered_moles = max(QUANTIZE(env_gases[gas][MOLES] * removal_ratio * (env_gases[gas][MOLES] / total_moles_to_remove)), min(MINIMUM_MOLES_TO_SCRUB, env_gases[gas][MOLES]))
+				var/transferred_moles = max(QUANTIZE(env_gases[gas][MOLES] * removal_ratio * (env_gases[gas][MOLES] / total_moles_to_remove)), min(MINIMUM_MOLES_TO_SCRUB, env_gases[gas][MOLES]))
 
-				filtered_gases[gas][MOLES] = transfered_moles
-				env_gases[gas][MOLES] -= transfered_moles
+				filtered_gases[gas][MOLES] = transferred_moles
+				env_gases[gas][MOLES] -= transferred_moles
 
 			environment.garbage_collect()
 
@@ -298,7 +283,7 @@
 
 /obj/machinery/atmospherics/components/unary/vent_scrubber/welder_act(mob/living/user, obj/item/welder)
 	..()
-	if(!welder.tool_start_check(user, amount=0))
+	if(!welder.tool_start_check(user, amount=1))
 		return TRUE
 	to_chat(user, span_notice("Now welding the scrubber."))
 	if(welder.use_tool(src, user, 20, volume=50))

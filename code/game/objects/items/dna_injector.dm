@@ -10,6 +10,8 @@
 	throw_speed = 3
 	throw_range = 5
 	w_class = WEIGHT_CLASS_TINY
+	drop_sound = 'maplestation_modules/sound/items/drop/glass_small.ogg'
+	pickup_sound = 'maplestation_modules/sound/items/pickup/glass_small.ogg'
 
 	var/damage_coeff = 1
 	var/list/fields
@@ -57,7 +59,7 @@
 			target.real_name = fields["name"]
 			target.dna.unique_enzymes = fields["UE"]
 			target.name = target.real_name
-			target.dna.blood_type = fields["blood_type"]
+			target.dna.human_blood_type = blood_name_to_blood_type(fields["blood_type"])
 		if(fields["UI"]) //UI+UE
 			target.dna.unique_identity = merge_text(target.dna.unique_identity, fields["UI"])
 		if(fields["UF"])
@@ -112,7 +114,7 @@
 		if(mutation == /datum/mutation/human/race)
 			if(!ismonkey(target))
 				continue
-			target = target.dna.remove_mutation(mutation)
+			target.dna.remove_mutation(mutation)
 		else
 			target.dna.remove_mutation(mutation)
 	for(var/mutation in add_mutations)
@@ -120,7 +122,7 @@
 			continue //Skip permanent mutations we already have.
 		if(mutation == /datum/mutation/human/race && !ismonkey(target))
 			message_admins("[ADMIN_LOOKUPFLW(user)] injected [key_name_admin(target)] with the [name] [span_danger("(MONKEY)")]")
-			target = target.dna.add_mutation(mutation, MUT_OTHER, endtime)
+			target.dna.add_mutation(mutation, MUT_OTHER, endtime)
 		else
 			target.dna.add_mutation(mutation, MUT_OTHER, endtime)
 	if(fields)
@@ -130,11 +132,11 @@
 			if(!target.dna.previous["UE"])
 				target.dna.previous["UE"] = target.dna.unique_enzymes
 			if(!target.dna.previous["blood_type"])
-				target.dna.previous["blood_type"] = target.dna.blood_type
+				target.dna.previous["blood_type"] = "[initial(target.dna.human_blood_type.name)]"
 			target.real_name = fields["name"]
 			target.dna.unique_enzymes = fields["UE"]
 			target.name = target.real_name
-			target.dna.blood_type = fields["blood_type"]
+			target.dna.human_blood_type = blood_name_to_blood_type(fields["blood_type"])
 			target.dna.temporary_mutations[UE_CHANGED] = endtime
 		if(fields["UI"]) //UI+UE
 			if(!target.dna.previous["UI"])

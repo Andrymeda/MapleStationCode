@@ -1,7 +1,7 @@
 /obj/item/mop
 	desc = "The world of janitalia wouldn't be complete without a mop."
 	name = "mop"
-	icon = 'icons/obj/janitor.dmi'
+	icon = 'icons/obj/service/janitor.dmi'
 	icon_state = "mop"
 	inhand_icon_state = "mop"
 	lefthand_file = 'icons/mob/inhands/equipment/custodial_lefthand.dmi'
@@ -14,6 +14,9 @@
 	attack_verb_continuous = list("mops", "bashes", "bludgeons", "whacks")
 	attack_verb_simple = list("mop", "bash", "bludgeon", "whack")
 	resistance_flags = FLAMMABLE
+	drop_sound = 'maplestation_modules/sound/items/drop/metal_drop.ogg'
+	pickup_sound = 'maplestation_modules/sound/items/pickup/metalweapon.ogg'
+
 	var/mopcount = 0
 	///Maximum volume of reagents it can hold.
 	var/max_reagent_volume = 15
@@ -24,6 +27,14 @@
 		/obj/item/reagent_containers/cup/bucket,
 		/obj/structure/mop_bucket,
 	))
+
+/obj/item/mop/apply_fantasy_bonuses(bonus)
+	. = ..()
+	mopspeed = modify_fantasy_variable("mopspeed", mopspeed, -bonus)
+
+/obj/item/mop/remove_fantasy_bonuses(bonus)
+	mopspeed = reset_fantasy_variable("mopspeed", mopspeed)
+	return ..()
 
 /obj/item/mop/Initialize(mapload)
 	. = ..()
@@ -40,9 +51,9 @@
 	if(clean_blacklist[atom_to_clean.type])
 		return DO_NOT_CLEAN
 	if(reagents.total_volume < 0.1)
-		to_chat(cleaner, span_warning("Your mop is dry!"))
+		cleaner.balloon_alert(cleaner, "mop is dry!")
 		return DO_NOT_CLEAN
-	return reagents.has_chemical_flag(REAGENT_CLEANS, 1)
+	return reagents.has_reagent(amount = 1, chemical_flags = REAGENT_CLEANS)
 
 /**
  * Applies reagents to the cleaned floor and removes them from the mop.
@@ -52,7 +63,9 @@
  * * cleaned_turf the turf that is being cleaned
  * * cleaner the mob that is doing the cleaning
  */
-/obj/item/mop/proc/apply_reagents(datum/cleaning_source, turf/cleaned_turf, mob/living/cleaner)
+/obj/item/mop/proc/apply_reagents(datum/cleaning_source, turf/cleaned_turf, mob/living/cleaner, clean_succeeded)
+	if(!clean_succeeded)
+		return
 	reagents.expose(cleaned_turf, TOUCH, 10) //Needed for proper floor wetting.
 	var/val2remove = 1
 	if(cleaner?.mind)
@@ -90,7 +103,7 @@
 		START_PROCESSING(SSobj, src)
 	else
 		STOP_PROCESSING(SSobj,src)
-	to_chat(user, span_notice("You set the condenser switch to the '[refill_enabled ? "ON" : "OFF"]' position."))
+	user.balloon_alert(user, "condenser switch [refill_enabled ? "on" : "off"]")
 	playsound(user, 'sound/machines/click.ogg', 30, TRUE)
 
 /obj/item/mop/advanced/process(seconds_per_tick)

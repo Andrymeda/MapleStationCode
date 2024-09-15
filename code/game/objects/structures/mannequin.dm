@@ -6,7 +6,7 @@
 /obj/structure/mannequin
 	name = "mannequin"
 	desc = "Oh, so this is a dress-up game now."
-	icon = 'icons/mob/species/human/mannequin.dmi'
+	icon = 'icons/mob/human/mannequin.dmi'
 	icon_state = "mannequin_wood_male"
 	density = TRUE
 	resistance_flags = FLAMMABLE
@@ -87,7 +87,7 @@
 /obj/structure/mannequin/wrench_act(mob/living/user, obj/item/tool)
 	. = ..()
 	default_unfasten_wrench(user, tool)
-	return TOOL_ACT_TOOLTYPE_SUCCESS
+	return ITEM_INTERACT_SUCCESS
 
 /obj/structure/mannequin/update_overlays()
 	. = ..()
@@ -97,15 +97,15 @@
 	var/datum/sprite_accessory/underwear/underwear = GLOB.underwear_list[underwear_name]
 	if(underwear)
 		if(body_type == FEMALE && underwear.gender == MALE)
-			. += wear_female_version(underwear.icon_state, underwear.icon, BODY_LAYER, FEMALE_UNIFORM_FULL)
+			. += mutable_appearance(wear_female_version(underwear.icon_state, underwear.icon, FEMALE_UNIFORM_FULL), layer = -BODY_LAYER)
 		else
-			. += mutable_appearance(underwear.icon, underwear.icon_state, -BODY_LAYER)
+			. += mutable_appearance(underwear.icon, underwear.icon_state, layer = -BODY_LAYER)
 	var/datum/sprite_accessory/undershirt/undershirt = GLOB.undershirt_list[undershirt_name]
 	if(undershirt)
 		if(body_type == FEMALE)
-			. += wear_female_version(undershirt.icon_state, undershirt.icon, BODY_LAYER)
+			. += mutable_appearance(wear_female_version(undershirt.icon_state, undershirt.icon), layer = -BODY_LAYER)
 		else
-			. += mutable_appearance(undershirt.icon, undershirt.icon_state, -BODY_LAYER)
+			. += mutable_appearance(undershirt.icon, undershirt.icon_state, layer = -BODY_LAYER)
 	var/datum/sprite_accessory/socks/socks = GLOB.socks_list[socks_name]
 	if(socks)
 		. += mutable_appearance(socks.icon, socks.icon_state, -BODY_LAYER)
@@ -191,6 +191,7 @@
 	desc = "Not to knock over."
 	material = MANNEQUIN_SKELETON
 	anchored = TRUE
+	obj_flags = UNIQUE_RENAME
 	starting_items = list(
 		/obj/item/clothing/glasses/eyepatch,
 		/obj/item/clothing/suit/costume/hawaiian,

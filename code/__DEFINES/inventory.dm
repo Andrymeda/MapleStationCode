@@ -14,6 +14,9 @@
 /// Essentially means it cannot be picked up or placed in an inventory, (e.g. mech parts, safe)
 #define WEIGHT_CLASS_GIGANTIC 6
 
+/// Weight class that can fit in pockets
+#define POCKET_WEIGHT_CLASS WEIGHT_CLASS_SMALL
+
 //Inventory depth: limits how many nested storage items you can access directly.
 //1: stuff in mob, 2: stuff in backpack, 3: stuff in box in backpack, etc
 #define INVENTORY_DEPTH 3
@@ -64,6 +67,20 @@
 /// Total amount of slots
 #define SLOTS_AMT 20 // Keep this up to date!
 
+///Inventory slots that can be blacklisted by a species from being equipped into
+DEFINE_BITFIELD(no_equip_flags, list(
+	"EXOSUIT" = ITEM_SLOT_OCLOTHING,
+	"JUMPSUIT" = ITEM_SLOT_ICLOTHING,
+	"GLOVES" = ITEM_SLOT_GLOVES,
+	"GLASSES" = ITEM_SLOT_EYES,
+	"EARPIECES" = ITEM_SLOT_EARS,
+	"MASKS" = ITEM_SLOT_MASK,
+	"HATS" = ITEM_SLOT_HEAD,
+	"SHOES" = ITEM_SLOT_FEET,
+	"BACKPACKS" = ITEM_SLOT_BACK,
+	"TIES" = ITEM_SLOT_NECK,
+))
+
 //SLOT GROUP HELPERS
 #define ITEM_SLOT_POCKETS (ITEM_SLOT_LPOCKET|ITEM_SLOT_RPOCKET)
 /// Slots that are physically on you
@@ -107,7 +124,7 @@
 #define HAND_RIGHT (1<<10)
 #define HANDS (HAND_LEFT | HAND_RIGHT)
 #define NECK (1<<11)
-#define FULL_BODY (~0)
+#define FULL_BODY ALL
 
 //defines for the index of hands
 #define LEFT_HANDS 1
@@ -135,8 +152,13 @@
 #define CLOTHING_DIGITIGRADE_VARIATION (1<<1)
 ///The sprite works fine for digitigrade legs as-is.
 #define CLOTHING_DIGITIGRADE_VARIATION_NO_NEW_ICON (1<<2)
-///has a sprite for monkeys
-#define CLOTHING_MONKEY_VARIATION (1<<3)
+/// When worn by a mob with digitigrade, apply a filter
+#define CLOTHING_DIGITIGRADE_FILTER (1<<3)
+/// Auto-generates the leg portion of the sprite with GAGS
+#define CLOTHING_DIGITIGRADE_MASK (1<<4)
+
+/// All variation flags which render correctly on a digitigrade leg setup
+#define DIGITIGRADE_VARIATIONS (CLOTHING_DIGITIGRADE_VARIATION|CLOTHING_DIGITIGRADE_VARIATION_NO_NEW_ICON|CLOTHING_DIGITIGRADE_FILTER|CLOTHING_DIGITIGRADE_MASK)
 
 //flags for covering body parts
 #define GLASSESCOVERSEYES (1<<0)
@@ -145,6 +167,7 @@
 #define MASKCOVERSMOUTH (1<<3) // on other items, these are just for mask/head
 #define HEADCOVERSMOUTH (1<<4)
 #define PEPPERPROOF (1<<5) //protects against pepperspray
+#define EARS_COVERED (1<<6)
 
 #define TINT_DARKENED 2 //Threshold of tint level to apply weld mask overlay
 #define TINT_BLIND 3 //Threshold of tint level to obscure vision fully
@@ -164,8 +187,6 @@
 //Allowed equipment lists for security vests.
 
 GLOBAL_LIST_INIT(detective_vest_allowed, list(
-	/obj/item/ammo_box,
-	/obj/item/ammo_casing,
 	/obj/item/detective_scanner,
 	/obj/item/flashlight,
 	/obj/item/gun/ballistic,
@@ -181,11 +202,10 @@ GLOBAL_LIST_INIT(detective_vest_allowed, list(
 	/obj/item/storage/belt/holster/detective,
 	/obj/item/storage/belt/holster/nukie,
 	/obj/item/storage/belt/holster/energy,
+	/obj/item/gun/ballistic/shotgun/automatic/combat/compact,
 ))
 
 GLOBAL_LIST_INIT(security_vest_allowed, list(
-	/obj/item/ammo_box,
-	/obj/item/ammo_casing,
 	/obj/item/flashlight,
 	/obj/item/gun/ballistic,
 	/obj/item/gun/energy,
@@ -198,11 +218,11 @@ GLOBAL_LIST_INIT(security_vest_allowed, list(
 	/obj/item/storage/belt/holster/detective,
 	/obj/item/storage/belt/holster/nukie,
 	/obj/item/storage/belt/holster/energy,
+	/obj/item/gun/ballistic/shotgun/automatic/combat/compact,
+	/obj/item/pen/red/security,
 ))
 
 GLOBAL_LIST_INIT(security_wintercoat_allowed, list(
-	/obj/item/ammo_box,
-	/obj/item/ammo_casing,
 	/obj/item/gun/ballistic,
 	/obj/item/gun/energy,
 	/obj/item/melee/baton,
@@ -211,6 +231,21 @@ GLOBAL_LIST_INIT(security_wintercoat_allowed, list(
 	/obj/item/storage/belt/holster/detective,
 	/obj/item/storage/belt/holster/nukie,
 	/obj/item/storage/belt/holster/energy,
+	/obj/item/gun/ballistic/shotgun/automatic/combat/compact,
+))
+
+//Allowed list for all chaplain suits (except the honkmother robe)
+
+GLOBAL_LIST_INIT(chaplain_suit_allowed, list(
+	/obj/item/book/bible,
+	/obj/item/nullrod,
+	/obj/item/reagent_containers/cup/glass/bottle/holywater,
+	/obj/item/storage/fancy/candle_box,
+	/obj/item/flashlight/flare/candle,
+	/obj/item/tank/internals/emergency_oxygen,
+	/obj/item/tank/internals/plasmaman,
+	/obj/item/gun/ballistic/bow/divine,
+	/obj/item/gun/ballistic/revolver/chaplain,
 ))
 
 /// String for items placed into the left pocket.

@@ -11,10 +11,12 @@
 	w_class = WEIGHT_CLASS_NORMAL
 	resistance_flags = FLAMMABLE
 	max_integrity = 100
+	drop_sound = 'maplestation_modules/sound/items/drop/bottle.ogg'
+	pickup_sound = 'maplestation_modules/sound/items/pickup/bottle.ogg'
 	/// With what color will we paint with
 	var/paint_color = COLOR_WHITE
 	/// How many uses are left
-	var/paintleft = 10
+	var/paintleft = 200
 
 /obj/item/paint/Initialize(mapload)
 	. = ..()

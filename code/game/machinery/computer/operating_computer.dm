@@ -17,19 +17,23 @@
 
 /obj/machinery/computer/operating/Initialize(mapload)
 	. = ..()
-	if(!CONFIG_GET(flag/no_default_techweb_link) && !linked_techweb)
-		linked_techweb = SSresearch.science_tech
 	find_table()
 	return INITIALIZE_HINT_LATELOAD
 
 /obj/machinery/computer/operating/LateInitialize()
 	. = ..()
+	if(!CONFIG_GET(flag/no_default_techweb_link) && !linked_techweb)
+		CONNECT_TO_RND_SERVER_ROUNDSTART(linked_techweb, src)
 
-	experiment_handler = AddComponent( \
+	var/list/operating_signals = list(
+		COMSIG_OPERATING_COMPUTER_AUTOPSY_COMPLETE = TYPE_PROC_REF(/datum/component/experiment_handler, try_run_autopsy_experiment),
+	)
+	experiment_handler = AddComponent(
 		/datum/component/experiment_handler, \
-		allowed_experiments = list(/datum/experiment/dissection), \
+		allowed_experiments = list(/datum/experiment/autopsy), \
 		config_flags = EXPERIMENT_CONFIG_ALWAYS_ACTIVE, \
 		config_mode = EXPERIMENT_CONFIG_ALTCLICK, \
+		experiment_signals = operating_signals, \
 	)
 
 /obj/machinery/computer/operating/Destroy()
@@ -79,7 +83,7 @@
 	. = ..()
 	ui = SStgui.try_update_ui(user, src, ui)
 	if(!ui)
-		ui = new(user, src, "OperatingComputer", name)
+		ui = new(user, src, "_OperatingComputer", name) // NON-MODULE CHANGE
 		ui.open()
 
 /obj/machinery/computer/operating/ui_data(mob/user)
@@ -97,7 +101,7 @@
 		data["patient"] = null
 		return data
 
-	data["table"] = table
+	data["table"] = !!table // NON-MODULE CHANGE
 	data["patient"] = list()
 	if(!table.patient)
 		return data
@@ -119,13 +123,7 @@
 	data["patient"]["health"] = patient.health
 
 	// check here to see if the patient has standard blood reagent, or special blood (like how ethereals bleed liquid electricity) to show the proper name in the computer
-	var/blood_id = patient.get_blood_id()
-	if(blood_id == /datum/reagent/blood)
-		data["patient"]["blood_type"] = patient.dna?.blood_type
-	else
-		var/datum/reagent/special_blood = GLOB.chemical_reagents_list[blood_id]
-		data["patient"]["blood_type"] = special_blood ? special_blood.name : blood_id
-
+	data["patient"]["blood_type"] = "[patient.get_blood_type() || "None"]" // NON-MODULE CHANGE
 	data["patient"]["maxHealth"] = patient.maxHealth
 	data["patient"]["minHealth"] = HEALTH_THRESHOLD_DEAD
 	data["patient"]["bruteLoss"] = patient.getBruteLoss()
@@ -164,9 +162,10 @@
 	switch(action)
 		if("sync")
 			sync_surgeries()
+			return TRUE // NON-MODULE CHANGE
 		if("open_experiments")
 			experiment_handler.ui_interact(usr)
-	return TRUE
+			return TRUE // NON-MODULE CHANGE
 
 #undef MENU_OPERATION
 #undef MENU_SURGERIES

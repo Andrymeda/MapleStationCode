@@ -4,10 +4,6 @@
 /datum/language/impdraconic
 	name = "Tiziran Draconic"
 	desc = "A distinct dialect of Draconic common to lizards born and raised on Tizira."
-	//speech_verb = "hisses"
-	//ask_verb = "hisses"
-	//exclaim_verb = "roars"
-	//sing_verb = "sings"
 	key = "l"
 	flags = TONGUELESS_SPEECH
 	space_chance = 25
@@ -21,6 +17,10 @@
 	icon_state = "lizardred"
 	default_priority = 85
 
+// So I wrote a few unit tests for /tg/ that rely on Lizards not knowing what high draconic is.
+// And since rewriting them is out of the questions, Lizards don't know high draconic in unit tests.
+#ifndef UNIT_TESTS
+
 // Edit to the base lizard language holder - lizards can understand high draconic.
 /datum/language_holder/lizard
 	understood_languages = list(
@@ -32,6 +32,7 @@
 // Edit to the silverscale language holder - silverscales can speak high draconic.
 /datum/language_holder/lizard/silver
 	understood_languages = list(
+		/datum/language/common = list(LANGUAGE_ATOM),
 		/datum/language/uncommon = list(LANGUAGE_ATOM),
 		/datum/language/draconic = list(LANGUAGE_ATOM),
 		/datum/language/impdraconic = list(LANGUAGE_ATOM),
@@ -43,14 +44,13 @@
 	)
 	selected_language = /datum/language/uncommon
 
-// High draconic language holder
-/datum/language_holder/lizard/impdraconic
+#endif
+
+/datum/language_holder/lizard/ash/primative
+	selected_language = /datum/language/impdraconic
 	understood_languages = list(
-		/datum/language/common = list(LANGUAGE_ATOM),
-		/datum/language/draconic = list(LANGUAGE_ATOM),
 		/datum/language/impdraconic = list(LANGUAGE_ATOM),
 	)
 	spoken_languages = list(
-		/datum/language/draconic = list(LANGUAGE_ATOM),
 		/datum/language/impdraconic = list(LANGUAGE_ATOM),
 	)

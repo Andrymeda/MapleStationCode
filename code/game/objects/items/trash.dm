@@ -1,12 +1,14 @@
 //Added by Jack Rost
 /obj/item/trash
-	icon = 'icons/obj/janitor.dmi'
+	icon = 'icons/obj/service/janitor.dmi'
 	lefthand_file = 'icons/mob/inhands/items/food_lefthand.dmi'
 	righthand_file = 'icons/mob/inhands/items/food_righthand.dmi'
 	desc = "This is rubbish."
 	w_class = WEIGHT_CLASS_TINY
 	resistance_flags = FLAMMABLE
-	item_flags = NOBLUDGEON
+	item_flags = NOBLUDGEON|SKIP_FANTASY_ON_SPAWN
+	drop_sound = 'maplestation_modules/sound/items/drop/food.ogg'
+	pickup_sound = 'maplestation_modules/sound/items/pickup/food.ogg'
 
 /obj/item/trash/Initialize(mapload)
 	var/turf/T = get_turf(src)
@@ -83,6 +85,8 @@
 /obj/item/trash/waffles
 	name = "waffles tray"
 	icon_state = "waffles"
+	drop_sound = /obj/item/storage/bag/tray::drop_sound
+	pickup_sound = /obj/item/storage/bag/tray::pickup_sound
 
 /obj/item/trash/pistachios
 	name = "pistachios pack"
@@ -100,6 +104,8 @@
 	name = "tray"
 	icon_state = "tray"
 	resistance_flags = NONE
+	drop_sound = /obj/item/storage/bag/tray::drop_sound
+	pickup_sound = /obj/item/storage/bag/tray::pickup_sound
 
 /obj/item/trash/candle
 	name = "melted candle"
@@ -116,6 +122,8 @@
 	icon_state = "cola"
 	resistance_flags = NONE
 	grind_results = list(/datum/reagent/aluminium = 10)
+	drop_sound = 'maplestation_modules/sound/items/drop/metal_pot.ogg'
+	pickup_sound = 'maplestation_modules/sound/items/pickup/metal_pot.ogg'
 
 /obj/item/trash/can/food
 	icon = 'icons/obj/food/canned.dmi'
@@ -180,3 +188,46 @@
 	desc = "It's been Donk-decimated."
 	icon_state = "ready_donk"
 
+/obj/item/trash/can/food/squid_ink
+	name = "canned squid ink"
+	icon_state = "squidinkcan_empty"
+
+/obj/item/trash/can/food/chap
+	name = "can of CHAP"
+	icon_state = "chapcan_empty"
+
+/obj/item/trash/hot_shots
+	name = "\improper Hot Shots box"
+	icon_state = "hot_shots"
+
+/obj/item/trash/sticko
+	name = "\improper Sticko box"
+	icon_state = "sticko"
+
+/obj/item/trash/sticko/matcha
+	icon_state = "sticko_matcha"
+
+/obj/item/trash/sticko/nutty
+	icon_state = "sticko_nutty"
+
+/obj/item/trash/sticko/pineapple
+	icon_state = "sticko_pineapple"
+
+/obj/item/trash/sticko/yuyake
+	icon_state = "sticko_yuyake"
+
+/obj/item/trash/shok_roks
+	name = "\improper Shok-Roks packet"
+	icon_state = "shok_roks"
+
+/obj/item/trash/shok_roks/citrus
+	icon_state = "shok_roks_citrus"
+
+/obj/item/trash/shok_roks/berry
+	icon_state = "shok_roks_berry"
+
+/obj/item/trash/shok_roks/tropical
+	icon_state = "shok_roks_tropical"
+
+/obj/item/trash/shok_roks/lanternfruit
+	icon_state = "shok_roks_lanternfruit"

@@ -69,7 +69,7 @@
 	syndicate = TRUE
 
 /obj/machinery/computer/communications/syndicate/emag_act(mob/user, obj/item/card/emag/emag_card)
-	return
+	return FALSE
 
 /obj/machinery/computer/communications/syndicate/can_buy_shuttles(mob/user)
 	return FALSE
@@ -121,26 +121,29 @@
 
 /obj/machinery/computer/communications/emag_act(mob/user, obj/item/card/emag/emag_card)
 	if(istype(emag_card, /obj/item/card/emag/battlecruiser))
-		if(!IS_TRAITOR(user))
-			to_chat(user, span_danger("You get the feeling this is a bad idea."))
-			return
 		var/obj/item/card/emag/battlecruiser/caller_card = emag_card
+		if (user)
+			if(!IS_TRAITOR(user))
+				to_chat(user, span_danger("You get the feeling this is a bad idea."))
+				return FALSE
 		if(battlecruiser_called)
-			to_chat(user, span_danger("The card reports a long-range message already sent to the Syndicate fleet...?"))
-			return
+			if (user)
+				to_chat(user, span_danger("The card reports a long-range message already sent to the Syndicate fleet...?"))
+			return FALSE
 		battlecruiser_called = TRUE
 		caller_card.use_charge(user)
 		addtimer(CALLBACK(GLOBAL_PROC, GLOBAL_PROC_REF(summon_battlecruiser), caller_card.team), rand(20 SECONDS, 1 MINUTES))
 		playsound(src, 'sound/machines/terminal_alert.ogg', 50, FALSE)
-		return
+		return TRUE
 
 	if(obj_flags & EMAGGED)
-		return
+		return FALSE
 	obj_flags |= EMAGGED
 	if (authenticated)
 		authorize_access = SSid_access.get_region_access_list(list(REGION_ALL_STATION))
-	to_chat(user, span_danger("You scramble the communication routing circuits!"))
+	balloon_alert(user, "routing circuits scrambled")
 	playsound(src, 'sound/machines/terminal_alert.ogg', 50, FALSE)
+	return TRUE
 
 /obj/machinery/computer/communications/ui_act(action, list/params)
 	var/static/list/approved_states = list(STATE_BUYING_SHUTTLE, STATE_CHANGING_STATUS, STATE_MAIN, STATE_MESSAGES)
@@ -251,6 +254,23 @@
 			usr.log_talk(message, LOG_SAY, tag = "message to [associates]")
 			deadchat_broadcast(" has messaged [associates], \"[message]\" at [span_name("[get_area_name(usr, TRUE)]")].", span_name("[usr.real_name]"), usr, message_type = DEADCHAT_ANNOUNCEMENT)
 			COOLDOWN_START(src, important_action_cooldown, IMPORTANT_ACTION_COOLDOWN)
+		//NON-MODULE CHANGE START
+		if ("messageMu")
+			if (!authenticated_as_non_silicon_captain(usr))
+				return
+			if (!COOLDOWN_FINISHED(src, important_action_cooldown))
+				return
+
+			playsound(src, 'sound/machines/terminal_prompt_confirm.ogg', 50, FALSE)
+			var/message = trim(html_encode(params["message"]), MAX_MESSAGE_LEN)
+
+			message_mu(message, usr)
+			to_chat(usr, span_notice("Message transmitted to Aristocracy of Mu."))
+
+			usr.log_talk(message, LOG_SAY, tag = "message to Mu")
+			deadchat_broadcast(" has messaged Mu, \"[message]\" at [span_name("[get_area_name(usr, TRUE)]")].", span_name("[usr.real_name]"), usr, message_type = DEADCHAT_ANNOUNCEMENT)
+			COOLDOWN_START(src, important_action_cooldown, IMPORTANT_ACTION_COOLDOWN)
+		//NON-MODULE CHANGE END
 		if ("purchaseShuttle")
 			var/can_buy_shuttles_or_fail_reason = can_buy_shuttles(usr)
 			if (can_buy_shuttles_or_fail_reason != TRUE)
@@ -379,7 +399,11 @@
 			if(picture in GLOB.status_display_state_pictures)
 				post_status(picture)
 			else
-				post_status("alert", picture)
+				if(picture == "currentalert") // You cannot set Code Blue display during Code Red and similiar
+					post_status("alert", SSsecurity_level?.current_security_level?.status_display_icon_state || "greenalert")
+				else
+					post_status("alert", picture)
+
 			playsound(src, SFX_TERMINAL_TYPE, 50, FALSE)
 		if ("toggleAuthentication")
 			// Log out if we're logged in
@@ -523,6 +547,7 @@
 				data["canBuyShuttles"] = can_buy_shuttles(user)
 				data["canMakeAnnouncement"] = FALSE
 				data["canMessageAssociates"] = FALSE
+				data["canMessageMu"] = FALSE //NON-MODULE CHANGE
 				data["canRecallShuttles"] = !issilicon(user)
 				data["canRequestNuke"] = FALSE
 				data["canSendToSectors"] = FALSE
@@ -541,6 +566,7 @@
 
 				if (authenticated_as_non_silicon_captain(user))
 					data["canMessageAssociates"] = TRUE
+					data["canMessageMu"] = TRUE //NON-MODULE CHANGE
 					data["canRequestNuke"] = TRUE
 
 				if (can_send_messages_to_other_sectors(user))
@@ -602,7 +628,9 @@
 					shuttles += list(list(
 						"name" = shuttle_template.name,
 						"description" = shuttle_template.description,
+						"occupancy_limit" = shuttle_template.occupancy_limit,
 						"creditCost" = shuttle_template.credit_cost,
+						"initial_cost" = initial(shuttle_template.credit_cost),
 						"emagOnly" = shuttle_template.emag_only,
 						"prerequisites" = shuttle_template.prerequisites,
 						"ref" = REF(shuttle_template),
@@ -856,7 +884,6 @@
 	hacker.log_message("hacked a communications console, resulting in: [picked_option].", LOG_GAME, log_globally = TRUE)
 	switch(picked_option)
 		if(HACK_PIRATE) // Triggers pirates, which the crew may be able to pay off to prevent
-			var/datum/game_mode/dynamic/dynamic = SSticker.mode
 			var/list/pirate_rulesets = list(
 				/datum/dynamic_ruleset/midround/pirates,
 				/datum/dynamic_ruleset/midround/dangerous_pirates,
@@ -865,7 +892,7 @@
 				"Attention crew: sector monitoring reports a massive jump-trace from an enemy vessel destined for your system. Prepare for imminent hostile contact.",
 				"[command_name()] High-Priority Update",
 			)
-			dynamic.picking_specific_rule(pick(pirate_rulesets), forced = TRUE, ignore_cost = TRUE)
+			SSdynamic.picking_specific_rule(pick(pirate_rulesets), forced = TRUE, ignore_cost = TRUE)
 
 		if(HACK_FUGITIVES) // Triggers fugitives, which can cause confusion / chaos as the crew decides which side help
 			priority_announce(
@@ -886,22 +913,20 @@
 					continue
 				shake_camera(crew_member, 15, 1)
 
-			var/datum/game_mode/dynamic/dynamic = SSticker.mode
-			dynamic.unfavorable_situation()
+			SSdynamic.unfavorable_situation()
 
 		if(HACK_SLEEPER) // Trigger one or multiple sleeper agents with the crew (or for latejoining crew)
 			var/datum/dynamic_ruleset/midround/sleeper_agent_type = /datum/dynamic_ruleset/midround/from_living/autotraitor
-			var/datum/game_mode/dynamic/dynamic = SSticker.mode
 			var/max_number_of_sleepers = clamp(round(length(GLOB.alive_player_list) / 20), 1, 3)
 			var/num_agents_created = 0
 			for(var/num_agents in 1 to rand(1, max_number_of_sleepers))
-				if(!dynamic.picking_specific_rule(sleeper_agent_type, forced = TRUE, ignore_cost = TRUE))
+				if(!SSdynamic.picking_specific_rule(sleeper_agent_type, forced = TRUE, ignore_cost = TRUE))
 					break
 				num_agents_created++
 
 			if(num_agents_created <= 0)
 				// We failed to run any midround sleeper agents, so let's be patient and run latejoin traitor
-				dynamic.picking_specific_rule(/datum/dynamic_ruleset/latejoin/infiltrator, forced = TRUE, ignore_cost = TRUE)
+				SSdynamic.picking_specific_rule(/datum/dynamic_ruleset/latejoin/infiltrator, forced = TRUE, ignore_cost = TRUE)
 
 			else
 				// We spawned some sleeper agents, nice - give them a report to kickstart the paranoia
@@ -934,6 +959,10 @@
 		content = new_content
 	if(new_possible_answers)
 		possible_answers = new_possible_answers
+
+/datum/comm_message/Destroy()
+	answer_callback = null
+	return ..()
 
 #undef IMPORTANT_ACTION_COOLDOWN
 #undef EMERGENCY_ACCESS_COOLDOWN

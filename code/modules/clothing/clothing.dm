@@ -1,5 +1,3 @@
-#define MOTH_EATING_CLOTHING_DAMAGE 15
-
 /obj/item/clothing
 	name = "clothing"
 	resistance_flags = FLAMMABLE
@@ -42,6 +40,10 @@
 	var/limb_integrity = 0
 	/// How many zones (body parts, not precise) we have disabled so far, for naming purposes
 	var/zones_disabled
+
+	/// NON-MODULE CHANGE reworking clothing blood overlays:
+	/// If supplied, this is what overlay is used when applying blood effects when worn
+	var/blood_overlay_type = ""
 
 	/// A lazily initiated "food" version of the clothing for moths.
 	// This intentionally does not use the edible component, for a few reasons.
@@ -108,10 +110,14 @@
 	if((clothing_flags & INEDIBLE_CLOTHING) || (resistance_flags & INDESTRUCTIBLE))
 		return ..()
 	if(isnull(moth_snack))
-		moth_snack = new
-		moth_snack.name = name
-		moth_snack.clothing = WEAKREF(src)
+		create_moth_snack()
 	moth_snack.attack(target, user, params)
+
+/// Creates a food object in null space which we can eat and imagine we're eating this pair of shoes
+/obj/item/clothing/proc/create_moth_snack()
+	moth_snack = new
+	moth_snack.name = name
+	moth_snack.clothing = WEAKREF(src)
 
 /obj/item/clothing/attackby(obj/item/W, mob/user, params)
 	if(!istype(W, repairable_by))
@@ -254,6 +260,17 @@
 					LAZYSET(user_vars_remembered, variable, user.vars[variable])
 					user.vv_edit_var(variable, user_vars_to_edit[variable])
 
+// If the item is a piece of clothing and is being worn, make sure it updates on the player
+/obj/item/clothing/update_greyscale()
+	. = ..()
+
+	var/mob/living/carbon/human/wearer = loc
+
+	if(!istype(wearer))
+		return
+
+	wearer.update_clothing(slot_flags)
+
 /**
  * Inserts a trait (or multiple traits) into the clothing traits list
  *
@@ -291,7 +308,7 @@
 /obj/item/clothing/examine(mob/user)
 	. = ..()
 	if(damaged_clothes == CLOTHING_SHREDDED)
-		. += span_warning("<b>[p_theyre(TRUE)] completely shredded and require[p_s()] mending before [p_they()] can be worn again!</b>")
+		. += span_warning("<b>[p_Theyre()] completely shredded and require[p_s()] mending before [p_they()] can be worn again!</b>")
 		return
 
 	switch (max_heat_protection_temperature)
@@ -337,7 +354,7 @@
 	. = ..()
 
 	if(href_list["list_armor"])
-		var/list/readout = list("<span class='notice'><u><b>PROTECTION CLASSES</u></b>")
+		var/list/readout = list()
 
 		var/datum/armor/armor = get_armor()
 		var/added_damage_header = FALSE
@@ -346,9 +363,9 @@
 			if(!rating)
 				continue
 			if(!added_damage_header)
-				readout += "\n<b>ARMOR (I-X)</b>"
+				readout += "<b><u>ARMOR (I-X)</u></b>"
 				added_damage_header = TRUE
-			readout += "\n[armor_to_protection_name(damage_key)] [armor_to_protection_class(rating)]"
+			readout += "[armor_to_protection_name(damage_key)] [armor_to_protection_class(rating)]"
 
 		var/added_durability_header = FALSE
 		for(var/durability_key in ARMOR_LIST_DURABILITY())
@@ -356,9 +373,9 @@
 			if(!rating)
 				continue
 			if(!added_durability_header)
-				readout += "\n<b>DURABILITY (I-X)</b>"
+				readout += "<b><u>DURABILITY (I-X)</u></b>"
 				added_damage_header = TRUE
-			readout += "\n[armor_to_protection_name(durability_key)] [armor_to_protection_class(rating)]"
+			readout += "[armor_to_protection_name(durability_key)] [armor_to_protection_class(rating)]"
 
 		if(flags_cover & HEADCOVERSMOUTH || flags_cover & PEPPERPROOF)
 			var/list/things_blocked = list()
@@ -367,12 +384,15 @@
 			if(flags_cover & PEPPERPROOF)
 				things_blocked += "pepperspray"
 			if(length(things_blocked))
-				readout += "\n<b>COVERAGE</b>"
-				readout += "\nIt will block [english_list(things_blocked)]."
+				readout += "<b><u>COVERAGE</u></b>"
+				readout += "It will block [english_list(things_blocked)]."
 
-		readout += "</span>"
 
-		to_chat(usr, "[readout.Join()]")
+		if(!length(readout))
+			readout += "No armor or durability information available."
+
+		var/formatted_readout = span_notice("<b>PROTECTION CLASSES</b><hr>[jointext(readout, "\n")]")
+		to_chat(usr, examine_block(formatted_readout))
 
 /**
  * Rounds armor_value down to the nearest 10, divides it by 10 and then converts it to Roman numerals.
@@ -392,7 +412,7 @@
 
 	if(isliving(loc)) //It's not important enough to warrant a message if it's not on someone
 		var/mob/living/M = loc
-		if(src in M.get_equipped_items(FALSE))
+		if(src in M.get_equipped_items())
 			to_chat(M, span_warning("Your [name] start[p_s()] to fall apart!"))
 		else
 			to_chat(M, span_warning("[src] start[p_s()] to fall apart!"))
@@ -515,7 +535,7 @@ BLIND     // can't see anything
 		update_clothes_damaged_state(CLOTHING_SHREDDED)
 		if(isliving(loc))
 			var/mob/living/M = loc
-			if(src in M.get_equipped_items(FALSE)) //make sure they were wearing it and not attacking the item in their hands
+			if(src in M.get_equipped_items()) //make sure they were wearing it and not attacking the item in their hands
 				M.visible_message(span_danger("[M]'s [src.name] fall[p_s()] off, [p_theyre()] completely shredded!"), span_warning("<b>Your [src.name] fall[p_s()] off, [p_theyre()] completely shredded!</b>"), vision_distance = COMBAT_MESSAGE_RANGE)
 				M.dropItemToGround(src)
 			else
@@ -533,4 +553,28 @@ BLIND     // can't see anything
 	if(prob(0.2))
 		to_chat(L, span_warning("The damaged threads on your [src.name] chafe!"))
 
-#undef MOTH_EATING_CLOTHING_DAMAGE
+/obj/item/clothing/apply_fantasy_bonuses(bonus)
+	. = ..()
+	set_armor(get_armor().generate_new_with_modifiers(list(ARMOR_ALL = bonus)))
+
+/obj/item/clothing/remove_fantasy_bonuses(bonus)
+	set_armor(get_armor().generate_new_with_modifiers(list(ARMOR_ALL = -bonus)))
+	return ..()
+
+// NON-MODULE CHANGE reworking clothing blood overlays
+/obj/item/clothing/proc/appears_bloody()
+	return GET_ATOM_BLOOD_DNA_LENGTH(src) && can_be_bloody && !(item_flags & NO_BLOOD_ON_ITEM)
+
+/obj/item/clothing/worn_overlays(mutable_appearance/standing, isinhands, icon_file)
+	. = ..()
+	if(isinhands)
+		return
+
+	if(blood_overlay_type && appears_bloody() && !HAS_TRAIT(loc, TRAIT_NO_BLOOD_OVERLAY))
+		var/mutable_appearance/blood_overlay
+		if(clothing_flags & LARGE_WORN_ICON)
+			blood_overlay = mutable_appearance('icons/effects/64x64.dmi', "[blood_overlay_type]blood_large")
+		else
+			blood_overlay = mutable_appearance('icons/effects/blood.dmi', "[blood_overlay_type]blood")
+		blood_overlay.color = get_blood_dna_color()
+		. += blood_overlay

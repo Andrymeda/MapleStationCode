@@ -5,16 +5,18 @@
 /obj/item/detective_scanner
 	name = "forensic scanner"
 	desc = "Used to remotely scan objects and biomass for DNA and fingerprints. Can print a report of the findings."
-	icon = 'icons/obj/device.dmi'
+	icon = 'icons/obj/devices/scanner.dmi'
 	icon_state = "forensicnew"
 	w_class = WEIGHT_CLASS_SMALL
 	inhand_icon_state = "electronic"
 	worn_icon_state = "electronic"
 	lefthand_file = 'icons/mob/inhands/items/devices_lefthand.dmi'
 	righthand_file = 'icons/mob/inhands/items/devices_righthand.dmi'
-	flags_1 = CONDUCT_1
+	obj_flags = CONDUCTS_ELECTRICITY
 	item_flags = NOBLUDGEON
 	slot_flags = ITEM_SLOT_BELT
+	drop_sound = 'maplestation_modules/sound/items/drop/device2.ogg'
+	pickup_sound = 'maplestation_modules/sound/items/pickup/device.ogg'
 	/// if the scanner is currently busy processing
 	var/scanner_busy = FALSE
 	var/list/log = list()
@@ -135,6 +137,12 @@
 			LAZYADD(det_data[DETSCAN_CATEGORY_FINGERS], md5(scanned_human.dna?.unique_identity))
 
 	else if(!ismob(scanned_atom))
+		// Kinda cringe snowflake but map spawned blood decals don't have any DNA
+		// BUT letting players scan blood and read "There is no blood detected on the blood" is very ???
+		// So we'll just throw in a random blood type for filler
+		if(!length(blood) && istype(scanned_atom, /obj/effect/decal/cleanable/blood))
+			scanned_atom.add_blood_DNA(list("UNKNOWN DNA" = random_human_blood_type()))
+			blood = GET_ATOM_BLOOD_DNA(scanned_atom)
 
 		det_data[DETSCAN_CATEGORY_FINGERS] = GET_ATOM_FINGERPRINTS(scanned_atom)
 
@@ -169,7 +177,7 @@
 
 	for(var/bloodtype in blood)
 		LAZYADD(det_data[DETSCAN_CATEGORY_BLOOD], \
-		"Type: <font color='red'>[blood[bloodtype]]</font> DNA (UE): <font color='red'>[bloodtype]</font>")
+		"Type: <font color='red'>[GLOB.blood_types[blood[bloodtype]]]</font> DNA (UE): <font color='red'>[bloodtype]</font>") // NON-MODULE CHANGE
 
 	// sends it off to be modified by the items
 	SEND_SIGNAL(scanned_atom, COMSIG_DETECTIVE_SCANNED, user, det_data)

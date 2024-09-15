@@ -8,6 +8,8 @@
 	throwforce = 0
 	slot_flags = ITEM_SLOT_EARS
 	resistance_flags = NONE
+	drop_sound = 'maplestation_modules/sound/items/drop/accessory.ogg'
+	pickup_sound = 'maplestation_modules/sound/items/pickup/accessory.ogg'
 
 /obj/item/clothing/ears/earmuffs
 	name = "earmuffs"
@@ -20,6 +22,7 @@
 	equip_delay_other = 25
 	resistance_flags = FLAMMABLE
 	custom_price = PAYCHECK_COMMAND * 1.5
+	flags_cover = EARS_COVERED
 
 /obj/item/clothing/ears/earmuffs/Initialize(mapload)
 	. = ..()

@@ -9,12 +9,12 @@
 /obj/item/melee/powerfist
 	name = "power-fist"
 	desc = "A metal gauntlet with a piston-powered ram ontop for that extra 'ompfh' in your punch."
-	icon = 'icons/obj/device_syndie.dmi'
+	icon = 'icons/obj/antags/syndicate_tools.dmi'
 	icon_state = "powerfist"
 	inhand_icon_state = "powerfist"
 	lefthand_file = 'icons/mob/inhands/weapons/melee_lefthand.dmi'
 	righthand_file = 'icons/mob/inhands/weapons/melee_righthand.dmi'
-	flags_1 = CONDUCT_1
+	obj_flags = CONDUCTS_ELECTRICITY
 	attack_verb_continuous = list("whacks", "fists", "power-punches")
 	attack_verb_simple = list("whack", "fist", "power-punch")
 	force = 20
@@ -97,7 +97,7 @@
 	if(tank)
 		to_chat(user, span_warning("\The [src] already has a tank."))
 		return
-	if(!user.transferItemToLoc(the_tank, src))
+	if(!user.transferItemToLoc(the_tank, src, silent = FALSE))
 		return
 	to_chat(user, span_notice("You hook \the [the_tank] up to \the [src]."))
 	tank = the_tank

@@ -3,11 +3,14 @@
 	singular_name = "light floor tile"
 	desc = "A floor tile, made out of glass. It produces light."
 	icon_state = "tile_e"
-	flags_1 = CONDUCT_1
+	obj_flags = CONDUCTS_ELECTRICITY
 	attack_verb_continuous = list("bashes", "batters", "bludgeons", "thrashes", "smashes")
 	attack_verb_simple = list("bash", "batter", "bludgeon", "thrash", "smash")
 	turf_type = /turf/open/floor/light
 	merge_type = /obj/item/stack/tile/light
+	drop_sound = 'maplestation_modules/sound/items/drop/metal_pot.ogg'
+	pickup_sound = 'maplestation_modules/sound/items/pickup/metalweapon.ogg'
+
 	var/state = 0
 
 /obj/item/stack/tile/light/attackby(obj/item/O, mob/user, params)

@@ -32,6 +32,8 @@
 	var/list/forbid_turf_typecache
 	/// We don't need roads where we're going if this is TRUE, allow normal movement in space tiles
 	var/override_allow_spacemove = FALSE
+	/// can anyone other than the rider unbuckle the rider?
+	var/can_force_unbuckle = TRUE
 
 	/**
 	 * Ride check flags defined for the specific riding component types, so we know if we need arms, legs, or whatever.
@@ -55,7 +57,6 @@
 	if(potion_boost)
 		vehicle_move_delay = round(CONFIG_GET(number/movedelay/run_delay) * 0.85, 0.01)
 
-
 /datum/component/riding/RegisterWithParent()
 	. = ..()
 	RegisterSignal(parent, COMSIG_ATOM_DIR_CHANGE, PROC_REF(vehicle_turned))
@@ -64,6 +65,10 @@
 	RegisterSignal(parent, COMSIG_MOVABLE_MOVED, PROC_REF(vehicle_moved))
 	RegisterSignal(parent, COMSIG_MOVABLE_BUMP, PROC_REF(vehicle_bump))
 	RegisterSignal(parent, COMSIG_BUCKLED_CAN_Z_MOVE, PROC_REF(riding_can_z_move))
+	RegisterSignals(parent, GLOB.movement_type_addtrait_signals, PROC_REF(on_movement_type_trait_gain))
+	RegisterSignals(parent, GLOB.movement_type_removetrait_signals, PROC_REF(on_movement_type_trait_loss))
+	if(!can_force_unbuckle)
+		RegisterSignal(parent, COMSIG_ATOM_ATTACK_HAND, PROC_REF(force_unbuckle))
 
 /**
  * This proc handles all of the proc calls to things like set_vehicle_dir_layer() that a type of riding datum needs to call on creation
@@ -79,11 +84,18 @@
 /datum/component/riding/proc/vehicle_mob_unbuckle(datum/source, mob/living/rider, force = FALSE)
 	SIGNAL_HANDLER
 
+	handle_unbuckle(rider)
+
+/datum/component/riding/proc/handle_unbuckle(mob/living/rider)
 	var/atom/movable/movable_parent = parent
 	restore_position(rider)
 	unequip_buckle_inhands(rider)
 	rider.updating_glide_size = TRUE
 	UnregisterSignal(rider, COMSIG_LIVING_TRY_PULL)
+	for (var/trait in GLOB.movement_type_trait_to_flag)
+		if (HAS_TRAIT(parent, trait))
+			REMOVE_TRAIT(rider, trait, REF(src))
+	REMOVE_TRAIT(rider, TRAIT_NO_FLOATING_ANIM, REF(src))
 	if(!movable_parent.has_buckled_mobs())
 		qdel(src)
 
@@ -91,13 +103,21 @@
 /datum/component/riding/proc/vehicle_mob_buckle(datum/source, mob/living/rider, force = FALSE)
 	SIGNAL_HANDLER
 
-	var/atom/movable/movable_parent = parent
-	handle_vehicle_layer(movable_parent.dir)
-	handle_vehicle_offsets(movable_parent.dir)
-
+	addtimer(CALLBACK(src, PROC_REF(vehicle_mob_buckle_hack)), 1, TIMER_UNIQUE)
 	if(rider.pulling == source)
 		rider.stop_pulling()
 	RegisterSignal(rider, COMSIG_LIVING_TRY_PULL, PROC_REF(on_rider_try_pull))
+
+	for (var/trait in GLOB.movement_type_trait_to_flag)
+		if (HAS_TRAIT(parent, trait))
+			ADD_TRAIT(rider, trait, REF(src))
+	ADD_TRAIT(rider, TRAIT_NO_FLOATING_ANIM, REF(src))
+
+// melbert todo : fuck you.
+/datum/component/riding/proc/vehicle_mob_buckle_hack()
+	var/atom/movable/movable_parent = parent
+	handle_vehicle_layer(movable_parent.dir)
+	handle_vehicle_offsets(movable_parent.dir)
 
 /// This proc is called when the rider attempts to grab the thing they're riding, preventing them from doing so.
 /datum/component/riding/proc/on_rider_try_pull(mob/living/rider_pulling, atom/movable/target, force)
@@ -110,13 +130,13 @@
 /// Some ridable atoms may want to only show on top of the rider in certain directions, like wheelchairs
 /datum/component/riding/proc/handle_vehicle_layer(dir)
 	var/atom/movable/AM = parent
-	var/static/list/defaults = list(TEXT_NORTH = OBJ_LAYER, TEXT_SOUTH = ABOVE_MOB_LAYER, TEXT_EAST = ABOVE_MOB_LAYER, TEXT_WEST = ABOVE_MOB_LAYER)
-	. = defaults["[dir]"]
-	if(directional_vehicle_layers["[dir]"])
-		. = directional_vehicle_layers["[dir]"]
-	if(isnull(.)) //you can set it to null to not change it.
-		. = AM.layer
-	AM.layer = .
+	var/static/list/defaults = list(
+		TEXT_NORTH = OBJ_LAYER,
+		TEXT_SOUTH = ABOVE_MOB_LAYER,
+		TEXT_EAST = ABOVE_MOB_LAYER,
+		TEXT_WEST = ABOVE_MOB_LAYER,
+	)
+	AM.layer = directional_vehicle_layers["[dir]"] || defaults["[dir]"] || AM.layer
 
 /datum/component/riding/proc/set_vehicle_dir_layer(dir, layer)
 	directional_vehicle_layers["[dir]"] = layer
@@ -128,8 +148,7 @@
 	var/atom/movable/movable_parent = parent
 	if (isnull(dir))
 		dir = movable_parent.dir
-	for (var/m in movable_parent.buckled_mobs)
-		var/mob/buckled_mob = m
+	for (var/mob/buckled_mob as anything in movable_parent.buckled_mobs)
 		ride_check(buckled_mob)
 	if(QDELETED(src))
 		return // runtimed with piggy's without this, look into this more
@@ -137,10 +156,11 @@
 	handle_vehicle_layer(dir)
 
 /// Turning is like moving
-/datum/component/riding/proc/vehicle_turned(datum/source, _old_dir, new_dir)
+/datum/component/riding/proc/vehicle_turned(datum/source, old_dir, new_dir)
 	SIGNAL_HANDLER
 
-	vehicle_moved(source, null, new_dir)
+	if(old_dir != new_dir)
+		vehicle_moved(source, null, new_dir)
 
 /**
  * Check to see if we have all of the necessary bodyparts and not-falling-over statuses we need to stay onboard.
@@ -149,56 +169,68 @@
 /datum/component/riding/proc/ride_check(mob/living/rider, consequences = TRUE)
 	return TRUE
 
+/datum/component/riding/proc/handle_vehicle_offset_per_mob(dir, passindex, mob/living/rider)
+	var/list/diroffsets = get_offsets(passindex, rider)["[dir]"]
+
+	if(rider.dir != dir)
+		rider.setDir(dir)
+
+	var/x_offset = length(diroffsets) >= 1 ? diroffsets[1] + rider.body_position_pixel_x_offset + rider.base_pixel_x : rider.pixel_x
+	var/y_offset = length(diroffsets) >= 2 ? diroffsets[2] + rider.body_position_pixel_y_offset + rider.base_pixel_y : rider.pixel_y
+	var/layer = length(diroffsets) >= 3 ? diroffsets[3] : rider.layer
+
+	rider.pixel_x = x_offset
+	rider.pixel_y = y_offset
+	rider.layer = layer
+
 /datum/component/riding/proc/handle_vehicle_offsets(dir)
-	var/atom/movable/AM = parent
-	var/AM_dir = "[dir]"
+	var/atom/movable/seat = parent
 	var/passindex = 0
-	if(!AM.has_buckled_mobs())
+	if(!seat.has_buckled_mobs())
 		return
 
-	for(var/m in AM.buckled_mobs)
+	for(var/mob/living/buckled_mob as anything in seat.buckled_mobs)
 		passindex++
-		var/mob/living/buckled_mob = m
-		var/list/offsets = get_offsets(passindex)
-		buckled_mob.setDir(dir)
-		dir_loop:
-			for(var/offsetdir in offsets)
-				if(offsetdir == AM_dir)
-					var/list/diroffsets = offsets[offsetdir]
-					buckled_mob.pixel_x = diroffsets[1]
-					if(diroffsets.len >= 2)
-						buckled_mob.pixel_y = diroffsets[2]
-					if(diroffsets.len == 3)
-						buckled_mob.layer = diroffsets[3]
-					break dir_loop
-	var/list/static/default_vehicle_pixel_offsets = list(TEXT_NORTH = list(0, 0), TEXT_SOUTH = list(0, 0), TEXT_EAST = list(0, 0), TEXT_WEST = list(0, 0))
-	var/px = default_vehicle_pixel_offsets[AM_dir]
-	var/py = default_vehicle_pixel_offsets[AM_dir]
-	if(directional_vehicle_offsets[AM_dir])
-		if(isnull(directional_vehicle_offsets[AM_dir]))
-			px = AM.pixel_x
-			py = AM.pixel_y
-		else
-			px = directional_vehicle_offsets[AM_dir][1]
-			py = directional_vehicle_offsets[AM_dir][2]
-	AM.pixel_x = px
-	AM.pixel_y = py
+		handle_vehicle_offset_per_mob(dir, passindex, buckled_mob)
+
+	var/px = directional_vehicle_offsets["[dir]"]?[1] || 0
+	var/py = directional_vehicle_offsets["[dir]"]?[2] || 0
+
+	seat.pixel_x = px + seat.base_pixel_x
+	seat.pixel_y = py + seat.base_pixel_y
+	if(isliving(seat))
+		var/mob/living/living_seat = seat
+		seat.pixel_x += living_seat.body_position_pixel_x_offset
+		seat.pixel_y += living_seat.body_position_pixel_y_offset
 
 /datum/component/riding/proc/set_vehicle_dir_offsets(dir, x, y)
 	directional_vehicle_offsets["[dir]"] = list(x, y)
 
 //Override this to set your vehicle's various pixel offsets
-/datum/component/riding/proc/get_offsets(pass_index) // list(dir = x, y, layer)
-	. = list(TEXT_NORTH = list(0, 0), TEXT_SOUTH = list(0, 0), TEXT_EAST = list(0, 0), TEXT_WEST = list(0, 0))
+/datum/component/riding/proc/get_offsets(pass_index, mob/offsetter) as /list // list(dir = x, y, layer)
+	RETURN_TYPE(/list)
 	if(riding_offsets["[pass_index]"])
-		. = riding_offsets["[pass_index]"]
-	else if(riding_offsets["[RIDING_OFFSET_ALL]"])
-		. = riding_offsets["[RIDING_OFFSET_ALL]"]
+		return riding_offsets["[pass_index]"]
+
+	if(riding_offsets["[RIDING_OFFSET_ALL]"])
+		return riding_offsets["[RIDING_OFFSET_ALL]"]
+
+	return list(
+		TEXT_NORTH = list(0, 0),
+		TEXT_SOUTH = list(0, 0),
+		TEXT_EAST = list(0, 0),
+		TEXT_WEST = list(0, 0),
+	)
 
 /datum/component/riding/proc/set_riding_offsets(index, list/offsets)
 	if(!islist(offsets))
 		return FALSE
 	riding_offsets["[index]"] = offsets
+
+/datum/component/riding/proc/set_vehicle_offsets(list/offsets)
+	if(!islist(offsets))
+		return FALSE
+	directional_vehicle_offsets = offsets
 
 /**
  * This proc is used to see if we have the appropriate key to drive this atom, if such a key is needed. Returns FALSE if we don't have what we need to drive.
@@ -217,11 +249,15 @@
 
 //BUCKLE HOOKS
 /datum/component/riding/proc/restore_position(mob/living/buckled_mob)
-	if(buckled_mob)
-		buckled_mob.pixel_x = buckled_mob.base_pixel_x
-		buckled_mob.pixel_y = buckled_mob.base_pixel_y
-		if(buckled_mob.client)
-			buckled_mob.client.view_size.resetToDefault()
+	if(isnull(buckled_mob))
+		return
+	buckled_mob.pixel_x = buckled_mob.base_pixel_x + buckled_mob.body_position_pixel_x_offset
+	buckled_mob.pixel_y = buckled_mob.base_pixel_y + buckled_mob.body_position_pixel_y_offset
+	buckled_mob.layer = initial(buckled_mob.layer)
+	var/atom/source = parent
+	SET_PLANE_EXPLICIT(buckled_mob, initial(buckled_mob.plane), source)
+	if(buckled_mob.client)
+		buckled_mob.client.view_size.resetToDefault()
 
 //MOVEMENT
 /datum/component/riding/proc/turf_check(turf/next, turf/current)
@@ -268,3 +304,24 @@
 /datum/component/riding/proc/riding_can_z_move(atom/movable/movable_parent, direction, turf/start, turf/destination, z_move_flags, mob/living/rider)
 	SIGNAL_HANDLER
 	return COMPONENT_RIDDEN_ALLOW_Z_MOVE
+
+/// Called when our vehicle gains a movement trait, so we can apply it to the riders
+/datum/component/riding/proc/on_movement_type_trait_gain(atom/movable/source, trait)
+	SIGNAL_HANDLER
+	var/atom/movable/movable_parent = parent
+	for (var/mob/rider in movable_parent.buckled_mobs)
+		ADD_TRAIT(rider, trait, REF(src))
+
+/// Called when our vehicle loses a movement trait, so we can remove it from the riders
+/datum/component/riding/proc/on_movement_type_trait_loss(atom/movable/source, trait)
+	SIGNAL_HANDLER
+	var/atom/movable/movable_parent = parent
+	for (var/mob/rider in movable_parent.buckled_mobs)
+		REMOVE_TRAIT(rider, trait, REF(src))
+
+/datum/component/riding/proc/force_unbuckle(atom/movable/source, mob/living/living_hitter)
+	SIGNAL_HANDLER
+
+	if((living_hitter in source.buckled_mobs))
+		return
+	return COMPONENT_CANCEL_ATTACK_CHAIN

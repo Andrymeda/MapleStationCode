@@ -12,11 +12,17 @@
 	withdrawal_stage_messages = list(
 		"I feel weak... I need some Luciferium.",
 		"I'd punch someone if I don't get some Luciferium!",
-		"It hurts all over! I'd kill for Luciferium!"
-		)
+		"It hurts all over! I'd kill for Luciferium!",
+	)
 	light_withdrawal_moodlet = /datum/mood_event/luciferium_light
 	medium_withdrawal_moodlet = /datum/mood_event/luciferium_medium
 	severe_withdrawal_moodlet = /datum/mood_event/luciferium_heavy
+
+/datum/addiction/luciferium/process_addiction(mob/living/carbon/affected_carbon, seconds_per_tick, times_fired)
+	if(HAS_TRAIT(affected_carbon, TRAIT_STASIS))
+		return
+
+	return ..()
 
 /datum/addiction/luciferium/withdrawal_enters_stage_1(mob/living/carbon/affected_carbon)
 	. = ..()
@@ -41,7 +47,6 @@
 	. = ..()
 	if(affected_carbon.pain_controller?.get_average_pain() <= 66 && SPT_PROB(8, seconds_per_tick))
 		affected_carbon.cause_pain(pick(BODY_ZONES_ALL), 5)
-	affected_carbon.adjustCloneLoss(0.2 * seconds_per_tick, FALSE)
 
 	var/current_addiction_cycle = LAZYACCESS(affected_carbon.mind.active_addictions, type)
 	if(current_addiction_cycle >= (WITHDRAWAL_STAGE2_START_CYCLE + 3) && SPT_PROB(33, seconds_per_tick))
@@ -60,7 +65,7 @@
 	var/current_addiction_cycle = LAZYACCESS(affected_carbon.mind.active_addictions, type)
 
 	affected_carbon.adjustBruteLoss(clamp(round(0.00002 * (current_addiction_cycle ** 2), 0.1), 0.5, 8) * seconds_per_tick, FALSE)
-	affected_carbon.adjustCloneLoss(clamp(round(0.00002 * (current_addiction_cycle ** 2), 0.1), 0.5, 8) * seconds_per_tick, FALSE)
+	affected_carbon.adjustToxLoss(clamp(round(0.00002 * (current_addiction_cycle ** 2), 0.1), 0.5, 8) * seconds_per_tick, FALSE)
 
 	if(current_addiction_cycle >= (WITHDRAWAL_STAGE3_START_CYCLE + 3) && SPT_PROB(33, seconds_per_tick))
 		affected_carbon.mind.active_addictions[type] -= seconds_per_tick
@@ -70,4 +75,4 @@
 	if(current_addiction_cycle >= WITHDRAWAL_STAGE1_START_CYCLE)
 		to_chat(affected_carbon, span_green("Your [name] withdrawal subsides... You have bought yourself time."))
 	affected_carbon.unset_pain_mod(PAIN_MOD_LUCIFERIUM_ADDICT)
-	. = ..()
+	return ..()

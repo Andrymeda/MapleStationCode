@@ -11,11 +11,8 @@
 
 /obj/structure/toiletbong/Initialize(mapload)
 	. = ..()
-	create_storage()
+	create_storage(max_total_storage = 100, max_slots = 12, canhold = /obj/item/food)
 	atom_storage.attack_hand_interact = FALSE
-	atom_storage.set_holdable(list(/obj/item/food/))
-	atom_storage.max_total_storage = 100
-	atom_storage.max_slots = 12
 	weed_overlay = mutable_appearance('icons/obj/watercloset.dmi', "toiletbong_overlay")
 	START_PROCESSING(SSobj, src)
 
@@ -53,7 +50,7 @@
 					to_chat(user, span_userdanger("There was something disgusting in the pipes!"))
 					user.visible_message(span_danger("[user] spits out a mouse."))
 					user.adjust_disgust(50)
-					user.vomit(10)
+					user.vomit(VOMIT_CATEGORY_DEFAULT)
 				var/mob/living/spawned_mob = new /mob/living/basic/mouse(get_turf(user))
 				spawned_mob.faction |= "[REF(user)]"
 				if(prob(50))
@@ -101,7 +98,11 @@
 	if(!emagged)
 		emagged = TRUE
 		smokeradius = 2
-		to_chat(user, span_boldwarning("The [emag_card.name] falls into the toilet. You fish it back out. Looks like you broke the toilet."))
+		balloon_alert(user, "toilet broke")
+		if (emag_card)
+			to_chat(user, span_boldwarning("The [emag_card] falls into the toilet. You fish it back out. Looks like you broke the toilet."))
+		return TRUE
+	return FALSE
 
 /obj/structure/toiletbong/attackby(obj/item/I, mob/user, params)
 	if(istype(I, /obj/item/card/emag))

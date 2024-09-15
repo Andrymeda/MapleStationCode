@@ -1,7 +1,7 @@
 /obj/item/reagent_containers/cup/watering_can
 	name = "watering can"
 	desc = "It's a watering can. It is scientifically proved that using a watering can to simulate rain increases plant happiness!"
-	icon = 'icons/obj/hydroponics/equipment.dmi'
+	icon = 'icons/obj/service/hydroponics/equipment.dmi'
 	icon_state = "watering_can"
 	inhand_icon_state = "watering_can"
 	lefthand_file = 'icons/mob/inhands/equipment/hydroponics_lefthand.dmi'
@@ -11,6 +11,8 @@
 	volume = 100
 	amount_per_transfer_from_this = 20
 	possible_transfer_amounts = list(20,100)
+	drop_sound = 'maplestation_modules/sound/items/drop/bottle.ogg'
+	pickup_sound = 'maplestation_modules/sound/items/pickup/bottle.ogg'
 
 /obj/item/reagent_containers/cup/watering_can/wood
 	name = "wood watering can"
@@ -19,6 +21,8 @@
 	inhand_icon_state = "watering_can_wood"
 	volume = 70
 	possible_transfer_amounts = list(20,70)
+	drop_sound = 'maplestation_modules/sound/items/drop/wooden.ogg'
+	pickup_sound = 'maplestation_modules/sound/items/pickup/wooden.ogg'
 
 /obj/item/reagent_containers/cup/watering_can/advanced
 	desc = "Everything a botanist would want in a watering can. This marvel of technology generates its own water!"

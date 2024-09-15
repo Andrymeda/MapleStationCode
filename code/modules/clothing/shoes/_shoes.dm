@@ -5,6 +5,8 @@
 	righthand_file = 'icons/mob/inhands/clothing/shoes_righthand.dmi'
 	desc = "Comfortable-looking shoes."
 	gender = PLURAL //Carn: for grammarically correct text-parsing
+	drop_sound = 'maplestation_modules/sound/items/drop/shoes.ogg'
+	pickup_sound = 'maplestation_modules/sound/items/pickup/shoes.ogg'
 
 	body_parts_covered = FEET
 	slot_flags = ITEM_SLOT_FEET
@@ -12,6 +14,10 @@
 	armor_type = /datum/armor/clothing_shoes
 	slowdown = SHOES_SLOWDOWN
 	strip_delay = 1 SECONDS
+	article = "a pair of"
+
+	blood_overlay_type = "shoe" // NON-MODULE CHANGE reworking clothing blood overlays
+
 	var/offset = 0
 	var/equipped_before_drop = FALSE
 	///Whether these shoes have laces that can be tied/untied
@@ -51,11 +57,7 @@
 
 	if(damaged_clothes)
 		. += mutable_appearance('icons/effects/item_damage.dmi', "damagedshoe")
-	if(GET_ATOM_BLOOD_DNA_LENGTH(src))
-		if(clothing_flags & LARGE_WORN_ICON)
-			. += mutable_appearance('icons/effects/64x64.dmi', "shoeblood_large")
-		else
-			. += mutable_appearance('icons/effects/blood.dmi', "shoeblood")
+		// NON-MODULE CHANGE reworking clothing blood overlays
 
 /obj/item/clothing/shoes/examine(mob/user)
 	. = ..()
@@ -69,7 +71,7 @@
 		. += "The shoelaces are all knotted together."
 
 /obj/item/clothing/shoes/visual_equipped(mob/user, slot)
-	..()
+	. = ..()
 	if(offset && (slot_flags & slot))
 		user.pixel_y += offset
 		worn_y_dimension -= (offset * 2)
@@ -198,7 +200,7 @@
 			to_chat(our_guy, span_userdanger("You stamp on [user]'s hand! What the- [user.p_they()] [user.p_were()] [tied ? "knotting" : "untying"] your shoelaces!"))
 			user.emote("scream")
 			if(istype(L))
-				var/obj/item/bodypart/ouchie = L.get_bodypart(pick(BODY_ZONE_L_ARM, BODY_ZONE_R_ARM))
+				var/obj/item/bodypart/ouchie = L.get_bodypart(pick(GLOB.arm_zones))
 				if(ouchie)
 					ouchie.receive_damage(brute = 10)
 				L.adjustStaminaLoss(40)
@@ -244,9 +246,7 @@
 
 			if(14 to 25) // 1.3ish% chance to stumble and be a bit off balance (like being disarmed)
 				to_chat(our_guy, span_danger("You stumble a bit on your untied shoelaces!"))
-				if(!our_guy.has_movespeed_modifier(/datum/movespeed_modifier/shove))
-					our_guy.add_movespeed_modifier(/datum/movespeed_modifier/shove)
-					addtimer(CALLBACK(our_guy, TYPE_PROC_REF(/mob/living/carbon, clear_shove_slowdown)), SHOVE_SLOWDOWN_LENGTH)
+				our_guy.adjust_staggered_up_to(STAGGERED_SLOWDOWN_LENGTH, 10 SECONDS)
 
 			if(26 to 1000)
 				wiser = FALSE
@@ -278,3 +278,17 @@
 	if(do_after(user, lace_time, target = src,extra_checks = CALLBACK(src, PROC_REF(still_shoed), user)))
 		to_chat(user, span_notice("You [tied ? "untie" : "tie"] the laces on [src]."))
 		adjust_laces(tied ? SHOES_UNTIED : SHOES_TIED, user)
+
+/obj/item/clothing/shoes/apply_fantasy_bonuses(bonus)
+	. = ..()
+	slowdown = modify_fantasy_variable("slowdown", slowdown, -bonus * 0.1, 0)
+	if(ismob(loc))
+		var/mob/wearer = loc
+		wearer.update_equipment_speed_mods()
+
+/obj/item/clothing/shoes/remove_fantasy_bonuses(bonus)
+	slowdown = reset_fantasy_variable("slowdown", slowdown)
+	if(ismob(loc))
+		var/mob/wearer = loc
+		wearer.update_equipment_speed_mods()
+	return ..()

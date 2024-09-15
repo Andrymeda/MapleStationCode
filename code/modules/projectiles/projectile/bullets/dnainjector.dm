@@ -1,4 +1,6 @@
-/obj/projectile/bullet/dnainjector
+// NON-MODULE CHANGE : this whole file
+/*
+/obj/projectile/bullet/dart/dnainjector
 	name = "\improper DNA injector"
 	icon_state = "syringeproj"
 	var/obj/item/dnainjector/injector
@@ -7,7 +9,7 @@
 	embedding = null
 	shrapnel_type = null
 
-/obj/projectile/bullet/dnainjector/on_hit(atom/target, blocked = FALSE)
+/obj/projectile/bullet/dnainjector/on_hit(atom/target, blocked = 0, pierce_hit)
 	if(iscarbon(target))
 		var/mob/living/carbon/M = target
 		if(blocked != 100)
@@ -24,3 +26,4 @@
 /obj/projectile/bullet/dnainjector/Destroy()
 	QDEL_NULL(injector)
 	return ..()
+*/

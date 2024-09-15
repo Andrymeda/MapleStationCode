@@ -64,15 +64,15 @@
 	//allocate a channel if necessary now so its the same for everyone
 	channel = channel || SSsounds.random_available_channel()
 
-	var/sound/S = sound(get_sfx(soundin))
+	var/sound/used_sound = isdatum(soundin) ? soundin : sound(get_sfx(soundin)) // NON-MODULE CHANGE
 	var/maxdistance = SOUND_RANGE + extrarange
 	var/source_z = turf_source.z
 	var/list/listeners = SSmobs.clients_by_zlevel[source_z].Copy()
 
 	. = list()//output everything that successfully heard the sound
 
-	var/turf/above_turf = SSmapping.get_turf_above(turf_source)
-	var/turf/below_turf = SSmapping.get_turf_below(turf_source)
+	var/turf/above_turf = GET_TURF_ABOVE(turf_source)
+	var/turf/below_turf = GET_TURF_BELOW(turf_source)
 
 	if(ignore_walls)
 
@@ -98,7 +98,23 @@
 		// NON-MODULE CHANGE END
 
 		if(get_dist(listening_mob, turf_source) <= maxdistance)
-			listening_mob.playsound_local(turf_source, soundin, vol, vary, frequency, falloff_exponent, channel, pressure_affected, S, maxdistance, falloff_distance, 1, use_reverb)
+			// NON-MODULE CHANGE
+			listening_mob.playsound_local(
+				turf_source = turf_source,
+				soundin = soundin,
+				sound_to_use = used_sound,
+				vol = vol,
+				vary = vary,
+				frequency = frequency,
+				falloff_exponent = falloff_exponent,
+				channel = channel,
+				pressure_affected = pressure_affected,
+				max_distance = maxdistance,
+				falloff_distance = falloff_distance,
+				distance_multiplier = 1,
+				use_reverb = use_reverb,
+			)
+			// NON-MODULE CHANGE END
 			. += listening_mob
 
 /mob/proc/playsound_local(turf/turf_source, soundin, vol as num, vary, frequency, falloff_exponent = SOUND_FALLOFF_EXPONENT, channel = 0, pressure_affected = TRUE, sound/sound_to_use, max_distance, falloff_distance = SOUND_DEFAULT_FALLOFF_DISTANCE, distance_multiplier = 1, use_reverb = TRUE)
@@ -203,35 +219,35 @@
 /proc/get_sfx(soundin)
 	if(istext(soundin))
 		switch(soundin)
-			if (SFX_SHATTER)
+			if(SFX_SHATTER)
 				soundin = pick('sound/effects/glassbr1.ogg','sound/effects/glassbr2.ogg','sound/effects/glassbr3.ogg')
-			if (SFX_EXPLOSION)
+			if(SFX_EXPLOSION)
 				soundin = pick('sound/effects/explosion1.ogg','sound/effects/explosion2.ogg')
-			if (SFX_EXPLOSION_CREAKING)
+			if(SFX_EXPLOSION_CREAKING)
 				soundin = pick('sound/effects/explosioncreak1.ogg', 'sound/effects/explosioncreak2.ogg')
-			if (SFX_HULL_CREAKING)
+			if(SFX_HULL_CREAKING)
 				soundin = pick('sound/effects/creak1.ogg', 'sound/effects/creak2.ogg', 'sound/effects/creak3.ogg')
-			if (SFX_SPARKS)
+			if(SFX_SPARKS)
 				soundin = pick('sound/effects/sparks1.ogg','sound/effects/sparks2.ogg','sound/effects/sparks3.ogg','sound/effects/sparks4.ogg')
-			if (SFX_RUSTLE)
+			if(SFX_RUSTLE)
 				soundin = pick('sound/effects/rustle1.ogg','sound/effects/rustle2.ogg','sound/effects/rustle3.ogg','sound/effects/rustle4.ogg','sound/effects/rustle5.ogg')
-			if (SFX_BODYFALL)
+			if(SFX_BODYFALL)
 				soundin = pick('sound/effects/bodyfall1.ogg','sound/effects/bodyfall2.ogg','sound/effects/bodyfall3.ogg','sound/effects/bodyfall4.ogg')
-			if (SFX_PUNCH)
+			if(SFX_PUNCH)
 				soundin = pick('sound/weapons/punch1.ogg','sound/weapons/punch2.ogg','sound/weapons/punch3.ogg','sound/weapons/punch4.ogg')
-			if (SFX_CLOWN_STEP)
+			if(SFX_CLOWN_STEP)
 				soundin = pick('sound/effects/footstep/clownstep1.ogg','sound/effects/footstep/clownstep2.ogg')
-			if (SFX_SUIT_STEP)
+			if(SFX_SUIT_STEP)
 				soundin = pick('sound/effects/suitstep1.ogg','sound/effects/suitstep2.ogg')
-			if (SFX_SWING_HIT)
+			if(SFX_SWING_HIT)
 				soundin = pick('sound/weapons/genhit1.ogg', 'sound/weapons/genhit2.ogg', 'sound/weapons/genhit3.ogg')
-			if (SFX_HISS)
+			if(SFX_HISS)
 				soundin = pick('sound/voice/hiss1.ogg','sound/voice/hiss2.ogg','sound/voice/hiss3.ogg','sound/voice/hiss4.ogg')
-			if (SFX_PAGE_TURN)
+			if(SFX_PAGE_TURN)
 				soundin = pick('sound/effects/pageturn1.ogg', 'sound/effects/pageturn2.ogg','sound/effects/pageturn3.ogg')
-			if (SFX_RICOCHET)
+			if(SFX_RICOCHET)
 				soundin = pick( 'sound/weapons/effects/ric1.ogg', 'sound/weapons/effects/ric2.ogg','sound/weapons/effects/ric3.ogg','sound/weapons/effects/ric4.ogg','sound/weapons/effects/ric5.ogg')
-			if (SFX_TERMINAL_TYPE)
+			if(SFX_TERMINAL_TYPE)
 				soundin = pick(list(
 					'sound/machines/terminal_button01.ogg',
 					'sound/machines/terminal_button02.ogg',
@@ -242,11 +258,11 @@
 					'sound/machines/terminal_button07.ogg',
 					'sound/machines/terminal_button08.ogg',
 				))
-			if (SFX_DESECRATION)
+			if(SFX_DESECRATION)
 				soundin = pick('sound/misc/desecration-01.ogg', 'sound/misc/desecration-02.ogg', 'sound/misc/desecration-03.ogg')
-			if (SFX_IM_HERE)
+			if(SFX_IM_HERE)
 				soundin = pick('sound/hallucinations/im_here1.ogg', 'sound/hallucinations/im_here2.ogg')
-			if (SFX_CAN_OPEN)
+			if(SFX_CAN_OPEN)
 				soundin = pick('sound/effects/can_open1.ogg', 'sound/effects/can_open2.ogg', 'sound/effects/can_open3.ogg')
 			if(SFX_BULLET_MISS)
 				soundin = pick('sound/weapons/bulletflyby.ogg', 'sound/weapons/bulletflyby2.ogg', 'sound/weapons/bulletflyby3.ogg')
@@ -279,7 +295,7 @@
 					'sound/weapons/bladeslice.ogg',
 					'sound/weapons/flashbang.ogg',
 				))
-			if("goose")
+			if(SFX_GOOSE)
 				soundin = pick('sound/creatures/goose1.ogg', 'sound/creatures/goose2.ogg', 'sound/creatures/goose3.ogg', 'sound/creatures/goose4.ogg')
 			if(SFX_WARPSPEED)
 				soundin = 'sound/runtime/hyperspace/hyperspace_begin.ogg'
@@ -433,4 +449,34 @@
 				soundin = pick('sound/effects/treechop1.ogg', 'sound/effects/treechop2.ogg', 'sound/effects/treechop3.ogg')
 			if(SFX_ROCK_TAP)
 				soundin = pick('sound/effects/rocktap1.ogg', 'sound/effects/rocktap2.ogg', 'sound/effects/rocktap3.ogg')
+			if(SFX_SEAR)
+				soundin = 'sound/weapons/sear.ogg'
+			if(SFX_REEL)
+				soundin = pick(
+					'sound/items/reel1.ogg',
+					'sound/items/reel2.ogg',
+					'sound/items/reel3.ogg',
+					'sound/items/reel4.ogg',
+					'sound/items/reel5.ogg',
+				)
+			if(SFX_PORTAL_CLOSE)
+				soundin = 'sound/effects/portal_close.ogg'
+			if(SFX_PORTAL_ENTER)
+				soundin = 'sound/effects/portal_travel.ogg'
+			if(SFX_PORTAL_CREATED)
+				soundin = pick(
+					'sound/effects/portal_open_1.ogg',
+					'sound/effects/portal_open_2.ogg',
+					'sound/effects/portal_open_3.ogg',
+				)
+			if(SFX_SCREECH)
+				soundin = pick(
+					'sound/creatures/monkey/monkey_screech_1.ogg',
+					'sound/creatures/monkey/monkey_screech_2.ogg',
+					'sound/creatures/monkey/monkey_screech_3.ogg',
+					'sound/creatures/monkey/monkey_screech_4.ogg',
+					'sound/creatures/monkey/monkey_screech_5.ogg',
+					'sound/creatures/monkey/monkey_screech_6.ogg',
+					'sound/creatures/monkey/monkey_screech_7.ogg',
+				)
 	return soundin

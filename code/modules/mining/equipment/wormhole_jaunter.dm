@@ -13,6 +13,8 @@
 	throw_speed = 3
 	throw_range = 5
 	slot_flags = ITEM_SLOT_BELT
+	drop_sound = 'maplestation_modules/sound/items/drop/device.ogg'
+	pickup_sound = 'maplestation_modules/sound/items/pickup/device.ogg'
 
 /obj/item/wormhole_jaunter/attack_self(mob/user)
 	user.visible_message(span_notice("[user.name] activates the [src.name]!"))
@@ -101,6 +103,8 @@
 	desc = "A stable hole in the universe made by a wormhole jaunter. Turbulent doesn't even begin to describe how rough passage through one of these is, but at least it will always get you somewhere near a beacon."
 	mech_sized = TRUE //save your ripley
 	innate_accuracy_penalty = 6
+	light_on = FALSE
+	wibbles = FALSE
 
 /obj/effect/portal/jaunt_tunnel/teleport(atom/movable/M)
 	. = ..()

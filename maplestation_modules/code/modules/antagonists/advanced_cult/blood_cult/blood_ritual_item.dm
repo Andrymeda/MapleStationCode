@@ -2,7 +2,7 @@
 /obj/item/melee/cultblade/advanced_dagger
 	name = "ritual dagger"
 	desc = "A special and strange dagger said to be used by cultists to prepare rituals, scribe runes, and combat heretics alike."
-	icon = 'icons/obj/cult/items_and_weapons.dmi'
+	icon = 'icons/obj/weapons/khopesh.dmi'
 	icon_state = "render"
 	inhand_icon_state = "cultdagger"
 	worn_icon_state = "render"
@@ -17,6 +17,9 @@
 	wound_bonus = -10
 	bare_wound_bonus = 20
 	armour_penetration = 35
+	drop_sound = 'maplestation_modules/sound/items/drop/knife_big.ogg'
+	pickup_sound = 'maplestation_modules/sound/items/pickup/knife_big.ogg'
+	equip_sound = 'maplestation_modules/sound/items/drop/knife_big.ogg'
 
 /obj/item/melee/cultblade/advanced_dagger/Initialize(mapload)
 	. = ..()
